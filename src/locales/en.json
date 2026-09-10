@@ -1,0 +1,101 @@
+{
+  "auth": {
+    "registerSuccess": "Registration successful",
+    "loginSuccess": "Login successful",
+    "logoutSuccess": "Logged out successfully",
+    "invalidCredentials": "Invalid email or password",
+    "emailExists": "Email already registered",
+    "phoneExists": "Phone number already registered",
+    "tokenRefreshed": "Token refreshed successfully",
+    "unauthorized": "You are not authorized to access this resource",
+    "forbidden": "You do not have permission to perform this action",
+    "tokenExpired": "Token has expired, please login again",
+    "invalidToken": "Invalid token"
+  },
+  "user": {
+    "profileFetched": "Profile fetched successfully",
+    "profileUpdated": "Profile updated successfully",
+    "userNotFound": "User not found"
+  },
+  "worker": {
+    "profileUpdated": "Worker profile updated successfully",
+    "locationUpdated": "Location updated successfully",
+    "availabilityUpdated": "Availability updated successfully",
+    "skillAdded": "Skill added successfully",
+    "skillRemoved": "Skill removed successfully",
+    "verificationUploaded": "Verification video uploaded successfully",
+    "workerNotFound": "Worker not found",
+    "alreadyVerified": "Worker is already verified",
+    "notCooperativeMember": "Worker is not a cooperative member"
+  },
+  "booking": {
+    "created": "Booking created successfully",
+    "fetched": "Booking details fetched",
+    "accepted": "Booking accepted",
+    "rejected": "Booking rejected",
+    "started": "Job started",
+    "completed": "Job completed successfully",
+    "cancelled": "Booking cancelled",
+    "notFound": "Booking not found",
+    "invalidTransition": "Invalid booking status transition",
+    "unauthorized": "You are not authorized to modify this booking",
+    "doubleBooking": "Worker already has an active booking at this time",
+    "alreadyBooked": "This time slot is already booked"
+  },
+  "payment": {
+    "orderCreated": "Payment order created",
+    "verified": "Payment verified successfully",
+    "failed": "Payment verification failed",
+    "notFound": "Payment not found",
+    "invalidSignature": "Invalid payment signature"
+  },
+  "review": {
+    "created": "Review submitted successfully",
+    "alreadyReviewed": "You have already reviewed this booking",
+    "bookingNotCompleted": "You can only review completed bookings"
+  },
+  "dispute": {
+    "raised": "Dispute raised successfully",
+    "resolved": "Dispute resolved",
+    "notFound": "Dispute not found"
+  },
+  "service": {
+    "fetched": "Services fetched successfully",
+    "notFound": "Service not found"
+  },
+  "search": {
+    "results": "Search results fetched",
+    "noResults": "No workers found matching your criteria"
+  },
+  "notification": {
+    "fetched": "Notifications fetched",
+    "markedRead": "Notification marked as read",
+    "allMarkedRead": "All notifications marked as read"
+  },
+  "policy": {
+    "created": "Policy vote created",
+    "voted": "Vote cast successfully",
+    "alreadyVoted": "You have already voted on this policy",
+    "votingClosed": "Voting has closed for this policy",
+    "notFound": "Policy not found"
+  },
+  "admin": {
+    "userUpdated": "User updated successfully",
+    "workerVerified": "Worker verification updated",
+    "skillVerificationUpdated": "Skill verification updated",
+    "statsFetched": "Platform statistics fetched"
+  },
+  "validation": {
+    "invalidInput": "Invalid input data",
+    "requiredField": "{{field}} is required",
+    "invalidEmail": "Please provide a valid email",
+    "invalidPhone": "Please provide a valid phone number",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "invalidObjectId": "Invalid ID format"
+  },
+  "general": {
+    "serverError": "Internal server error",
+    "notFound": "Resource not found",
+    "rateLimitExceeded": "Too many requests, please try again later"
+  }
+}
