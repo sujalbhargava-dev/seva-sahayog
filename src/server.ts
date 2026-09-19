@@ -6,7 +6,7 @@ const PORT = parseInt(env.PORT, 10);
 
 async function startServer() {
   try {
-    // Connect to MongoDB
+    // Connect to Supabase
     await connectDatabase();
 
     // Start Express server

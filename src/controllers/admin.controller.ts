@@ -1,19 +1,11 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiResponse } from '../utils/ApiResponse';
-import User from '../models/User.model';
-import WorkerProfile from '../models/WorkerProfile.model';
-import Booking from '../models/Booking.model';
-import Payment from '../models/Payment.model';
-import Dispute from '../models/Dispute.model';
-import SkillVerification from '../models/SkillVerification.model';
-import WorkerEarning from '../models/WorkerEarning.model';
+import { supabase } from '../config/database';
 import { ApiError } from '../utils/ApiError';
 import {
   VerificationStatus,
   BookingStatus,
-  PaymentStatus,
-  PayoutStatus,
   DisputeStatus,
   Role,
 } from '../utils/constants';
@@ -25,26 +17,30 @@ import notificationService from '../services/notification.service';
 export const getUsers = asyncHandler(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 20;
-  const skip = (page - 1) * limit;
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
   const role = req.query.role as string;
   const search = req.query.search as string;
 
-  const query: any = {};
-  if (role) query.role = role;
-  if (search) {
-    query.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { email: { $regex: search, $options: 'i' } },
-      { phone: { $regex: search, $options: 'i' } },
-    ];
+  let query = supabase
+    .from('users')
+    .select('*', { count: 'exact' });
+
+  if (role) {
+    query = query.eq('role', role);
   }
 
-  const [users, total] = await Promise.all([
-    User.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }),
-    User.countDocuments(query),
-  ]);
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
+  }
 
-  res.json(ApiResponse.paginated(users, total, page, limit));
+  const { data: users, count, error } = await query
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  if (error) throw new ApiError(500, 'Failed to fetch users');
+
+  res.json(ApiResponse.paginated(users, count || 0, page, limit));
 });
 
 /**
@@ -53,13 +49,14 @@ export const getUsers = asyncHandler(async (req: Request, res: Response) => {
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   const { isActive } = req.body;
 
-  const user = await User.findByIdAndUpdate(
-    req.params.id,
-    { isActive },
-    { new: true }
-  );
+  const { data: user, error } = await supabase
+    .from('users')
+    .update({ is_active: isActive })
+    .eq('id', req.params.id)
+    .select()
+    .maybeSingle();
 
-  if (!user) throw ApiError.notFound('User not found');
+  if (error || !user) throw ApiError.notFound('User not found');
 
   res.json(
     new ApiResponse(200, req.t?.('admin.userUpdated') || 'User updated', user)
@@ -72,23 +69,22 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
 export const verifyWorker = asyncHandler(async (req: Request, res: Response) => {
   const { verificationStatus } = req.body;
 
-  if (
-    !Object.values(VerificationStatus).includes(verificationStatus)
-  ) {
+  if (!Object.values(VerificationStatus).includes(verificationStatus)) {
     throw ApiError.badRequest('Invalid verification status');
   }
 
-  const worker = await WorkerProfile.findByIdAndUpdate(
-    req.params.id,
-    { verificationStatus },
-    { new: true }
-  );
+  const { data: worker, error } = await supabase
+    .from('worker_profiles')
+    .update({ verification_status: verificationStatus })
+    .eq('id', req.params.id)
+    .select()
+    .maybeSingle();
 
-  if (!worker) throw ApiError.notFound('Worker not found');
+  if (error || !worker) throw ApiError.notFound('Worker not found');
 
   // Notify worker
   await notificationService.notifyVerificationUpdate(
-    worker.userId.toString(),
+    worker.user_id,
     verificationStatus
   );
 
@@ -108,20 +104,20 @@ export const getSkillVerifications = asyncHandler(
   async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
     const status = (req.query.status as string) || VerificationStatus.PENDING;
 
-    const [verifications, total] = await Promise.all([
-      SkillVerification.find({ verificationStatus: status })
-        .populate('workerId', 'name email phone')
-        .populate('reviewedBy', 'name')
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 }),
-      SkillVerification.countDocuments({ verificationStatus: status }),
-    ]);
+    const { data: verifications, count, error } = await supabase
+      .from('skill_verifications')
+      .select('*, worker:users!worker_id(name, email, phone), reviewer:users!reviewed_by(name)', { count: 'exact' })
+      .eq('verification_status', status)
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
-    res.json(ApiResponse.paginated(verifications, total, page, limit));
+    if (error) throw new ApiError(500, 'Failed to fetch verifications');
+
+    res.json(ApiResponse.paginated(verifications, count || 0, page, limit));
   }
 );
 
@@ -132,29 +128,30 @@ export const reviewSkillVerification = asyncHandler(
   async (req: Request, res: Response) => {
     const { verificationStatus, reviewerComments } = req.body;
 
-    const verification = await SkillVerification.findByIdAndUpdate(
-      req.params.id,
-      {
-        verificationStatus,
-        reviewedBy: req.user!.userId,
-        reviewerComments: reviewerComments || '',
-      },
-      { new: true }
-    );
+    const { data: verification, error } = await supabase
+      .from('skill_verifications')
+      .update({
+        verification_status: verificationStatus,
+        reviewed_by: req.user!.userId,
+        reviewer_comments: reviewerComments || '',
+      })
+      .eq('id', req.params.id)
+      .select()
+      .maybeSingle();
 
-    if (!verification) throw ApiError.notFound('Verification not found');
+    if (error || !verification) throw ApiError.notFound('Verification not found');
 
     // If approved, update worker's overall verification status
     if (verificationStatus === VerificationStatus.APPROVED) {
-      await WorkerProfile.findOneAndUpdate(
-        { userId: verification.workerId },
-        { verificationStatus: VerificationStatus.APPROVED }
-      );
+      await supabase
+        .from('worker_profiles')
+        .update({ verification_status: VerificationStatus.APPROVED })
+        .eq('user_id', verification.worker_id);
     }
 
     // Notify worker
     await notificationService.notifyVerificationUpdate(
-      verification.workerId.toString(),
+      verification.worker_id,
       verificationStatus
     );
 
@@ -175,24 +172,23 @@ export const getAdminDisputes = asyncHandler(
   async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
     const status = req.query.status as string;
 
-    const query: any = {};
-    if (status) query.status = status;
+    let query = supabase
+      .from('disputes')
+      .select('*, booking:bookings!booking_id(*), raised_by_user:users!raised_by(name, email, role), resolved_by_user:users!resolved_by(name)', { count: 'exact' });
 
-    const [disputes, total] = await Promise.all([
-      Dispute.find(query)
-        .populate('bookingId')
-        .populate('raisedBy', 'name email role')
-        .populate('resolvedBy', 'name')
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 }),
-      Dispute.countDocuments(query),
-    ]);
+    if (status) query = query.eq('status', status);
 
-    res.json(ApiResponse.paginated(disputes, total, page, limit));
+    const { data: disputes, count, error } = await query
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (error) throw new ApiError(500, 'Failed to fetch disputes');
+
+    res.json(ApiResponse.paginated(disputes, count || 0, page, limit));
   }
 );
 
@@ -203,21 +199,21 @@ export const resolveAdminDispute = asyncHandler(
   async (req: Request, res: Response) => {
     const { resolution } = req.body;
 
-    const dispute = await Dispute.findByIdAndUpdate(
-      req.params.id,
-      {
+    const { data: dispute, error } = await supabase
+      .from('disputes')
+      .update({
         status: DisputeStatus.RESOLVED,
         resolution,
-        resolvedBy: req.user!.userId,
-      },
-      { new: true }
-    );
+        resolved_by: req.user!.userId,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', req.params.id)
+      .select()
+      .maybeSingle();
 
-    if (!dispute) throw ApiError.notFound('Dispute not found');
+    if (error || !dispute) throw ApiError.notFound('Dispute not found');
 
-    await notificationService.notifyDisputeResolved(
-      dispute.raisedBy.toString()
-    );
+    await notificationService.notifyDisputeResolved(dispute.raised_by);
 
     res.json(
       new ApiResponse(200, 'Dispute resolved', dispute)
@@ -232,24 +228,23 @@ export const getAdminBookings = asyncHandler(
   async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
     const status = req.query.status as string;
 
-    const query: any = {};
-    if (status) query.status = status;
+    let query = supabase
+      .from('bookings')
+      .select('*, customer:users!customer_id(name, email, phone), worker:users!worker_id(name, email, phone), service:services!service_id(name, category)', { count: 'exact' });
 
-    const [bookings, total] = await Promise.all([
-      Booking.find(query)
-        .populate('customerId', 'name email phone')
-        .populate('workerId', 'name email phone')
-        .populate('serviceId', 'name category')
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 }),
-      Booking.countDocuments(query),
-    ]);
+    if (status) query = query.eq('status', status);
 
-    res.json(ApiResponse.paginated(bookings, total, page, limit));
+    const { data: bookings, count, error } = await query
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (error) throw new ApiError(500, 'Failed to fetch bookings');
+
+    res.json(ApiResponse.paginated(bookings, count || 0, page, limit));
   }
 );
 
@@ -259,23 +254,23 @@ export const getAdminBookings = asyncHandler(
 export const getPayouts = asyncHandler(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 20;
-  const skip = (page - 1) * limit;
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
   const payoutStatus = req.query.status as string;
 
-  const query: any = {};
-  if (payoutStatus) query.payoutStatus = payoutStatus;
+  let query = supabase
+    .from('worker_earnings')
+    .select('*, worker:users!worker_id(name, email, phone), booking:bookings!booking_id(scheduled_date, amount)', { count: 'exact' });
 
-  const [earnings, total] = await Promise.all([
-    WorkerEarning.find(query)
-      .populate('workerId', 'name email phone')
-      .populate('bookingId', 'scheduledDate amount')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 }),
-    WorkerEarning.countDocuments(query),
-  ]);
+  if (payoutStatus) query = query.eq('payout_status', payoutStatus);
 
-  res.json(ApiResponse.paginated(earnings, total, page, limit));
+  const { data: earnings, count, error } = await query
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  if (error) throw new ApiError(500, 'Failed to fetch payouts');
+
+  res.json(ApiResponse.paginated(earnings, count || 0, page, limit));
 });
 
 /**
@@ -283,6 +278,13 @@ export const getPayouts = asyncHandler(async (req: Request, res: Response) => {
  */
 export const getPlatformStats = asyncHandler(
   async (req: Request, res: Response) => {
+    const getCount = async (table: string, filter?: { col: string; val: any }) => {
+      let q = supabase.from(table).select('*', { count: 'exact', head: true });
+      if (filter) q = q.eq(filter.col, filter.val);
+      const { count } = await q;
+      return count || 0;
+    };
+
     const [
       totalUsers,
       totalCustomers,
@@ -290,28 +292,25 @@ export const getPlatformStats = asyncHandler(
       totalBookings,
       completedBookings,
       pendingBookings,
-      totalRevenue,
       openDisputes,
       verifiedWorkers,
       pendingVerifications,
     ] = await Promise.all([
-      User.countDocuments(),
-      User.countDocuments({ role: Role.CUSTOMER }),
-      User.countDocuments({ role: Role.WORKER }),
-      Booking.countDocuments(),
-      Booking.countDocuments({ status: BookingStatus.COMPLETED }),
-      Booking.countDocuments({ status: BookingStatus.PENDING }),
-      WorkerEarning.aggregate([
-        { $group: { _id: null, total: { $sum: '$platformFee' } } },
-      ]),
-      Dispute.countDocuments({ status: DisputeStatus.OPEN }),
-      WorkerProfile.countDocuments({
-        verificationStatus: VerificationStatus.APPROVED,
-      }),
-      SkillVerification.countDocuments({
-        verificationStatus: VerificationStatus.PENDING,
-      }),
+      getCount('users'),
+      getCount('users', { col: 'role', val: Role.CUSTOMER }),
+      getCount('users', { col: 'role', val: Role.WORKER }),
+      getCount('bookings'),
+      getCount('bookings', { col: 'status', val: BookingStatus.COMPLETED }),
+      getCount('bookings', { col: 'status', val: BookingStatus.PENDING }),
+      getCount('disputes', { col: 'status', val: DisputeStatus.OPEN }),
+      getCount('worker_profiles', { col: 'verification_status', val: VerificationStatus.APPROVED }),
+      getCount('skill_verifications', { col: 'verification_status', val: VerificationStatus.PENDING }),
     ]);
+
+    const { data: platformFees } = await supabase
+      .from('worker_earnings')
+      .select('platform_fee');
+    const totalRevenue = (platformFees || []).reduce((sum, e) => sum + Number(e.platform_fee), 0);
 
     const stats = {
       users: {
@@ -325,7 +324,7 @@ export const getPlatformStats = asyncHandler(
         pending: pendingBookings,
       },
       revenue: {
-        totalPlatformFees: totalRevenue[0]?.total || 0,
+        totalPlatformFees: totalRevenue,
       },
       disputes: {
         open: openDisputes,

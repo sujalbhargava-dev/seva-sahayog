@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiResponse } from '../utils/ApiResponse';
-import Dispute from '../models/Dispute.model';
-import Booking from '../models/Booking.model';
+import { supabase } from '../config/database';
 import { ApiError } from '../utils/ApiError';
 import { DisputeStatus, BookingStatus, Role } from '../utils/constants';
 import notificationService from '../services/notification.service';
@@ -15,15 +14,20 @@ export const raiseDispute = asyncHandler(async (req: Request, res: Response) => 
   const { bookingId, reason, description } = req.body;
   const userId = req.user!.userId;
 
-  const booking = await Booking.findById(bookingId);
+  const { data: booking } = await supabase
+    .from('bookings')
+    .select('customer_id, worker_id, status')
+    .eq('id', bookingId)
+    .maybeSingle();
+
   if (!booking) {
     throw ApiError.notFound('Booking not found');
   }
 
   // Only booking participants can raise dispute
   const isParticipant =
-    booking.customerId.toString() === userId ||
-    booking.workerId.toString() === userId;
+    booking.customer_id === userId ||
+    booking.worker_id === userId;
 
   if (!isParticipant) {
     throw ApiError.forbidden('Only booking participants can raise a dispute');
@@ -37,13 +41,22 @@ export const raiseDispute = asyncHandler(async (req: Request, res: Response) => 
     throw ApiError.badRequest('Can only dispute in-progress or completed bookings');
   }
 
-  const dispute = await Dispute.create({
-    bookingId,
-    raisedBy: userId,
-    reason,
-    description,
-    evidence: req.body.evidence || [],
-  });
+  const { data: dispute, error } = await supabase
+    .from('disputes')
+    .insert({
+      booking_id: bookingId,
+      raised_by: userId,
+      reason,
+      description,
+      evidence: req.body.evidence || [],
+      status: DisputeStatus.OPEN,
+    })
+    .select()
+    .single();
+
+  if (error || !dispute) {
+    throw new ApiError(500, 'Failed to create dispute');
+  }
 
   // Update booking status to DISPUTED
   if (booking.status === BookingStatus.IN_PROGRESS) {
@@ -57,9 +70,9 @@ export const raiseDispute = asyncHandler(async (req: Request, res: Response) => 
 
   // Notify other party
   const otherParty =
-    booking.customerId.toString() === userId
-      ? booking.workerId.toString()
-      : booking.customerId.toString();
+    booking.customer_id === userId
+      ? booking.worker_id
+      : booking.customer_id;
 
   await notificationService.notifyDisputeRaised(otherParty);
 
@@ -74,30 +87,36 @@ export const raiseDispute = asyncHandler(async (req: Request, res: Response) => 
 export const getDisputes = asyncHandler(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 20;
-  const skip = (page - 1) * limit;
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
 
-  const query: any = {};
+  let query = supabase
+    .from('disputes')
+    .select(`
+      *,
+      booking:bookings!booking_id(status, amount, scheduled_date),
+      raised_by_user:users!raised_by(name, email),
+      resolved_by_user:users!resolved_by(name)
+    `, { count: 'exact' });
+
   if (req.user!.role !== Role.ADMIN) {
-    query.raisedBy = req.user!.userId;
+    query = query.eq('raised_by', req.user!.userId);
   }
 
   const status = req.query.status as string;
   if (status) {
-    query.status = status;
+    query = query.eq('status', status);
   }
 
-  const [disputes, total] = await Promise.all([
-    Dispute.find(query)
-      .populate('bookingId', 'status amount scheduledDate')
-      .populate('raisedBy', 'name email')
-      .populate('resolvedBy', 'name')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 }),
-    Dispute.countDocuments(query),
-  ]);
+  const { data: disputes, count, error } = await query
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
-  res.json(ApiResponse.paginated(disputes, total, page, limit));
+  if (error) {
+    throw new ApiError(500, 'Failed to fetch disputes');
+  }
+
+  res.json(ApiResponse.paginated(disputes, count || 0, page, limit));
 });
 
 /**
@@ -106,22 +125,24 @@ export const getDisputes = asyncHandler(async (req: Request, res: Response) => {
 export const resolveDispute = asyncHandler(async (req: Request, res: Response) => {
   const { resolution } = req.body;
 
-  const dispute = await Dispute.findByIdAndUpdate(
-    req.params.id,
-    {
+  const { data: dispute, error } = await supabase
+    .from('disputes')
+    .update({
       status: DisputeStatus.RESOLVED,
       resolution,
-      resolvedBy: req.user!.userId,
-    },
-    { new: true }
-  );
+      resolved_by: req.user!.userId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', req.params.id)
+    .select()
+    .maybeSingle();
 
-  if (!dispute) {
+  if (error || !dispute) {
     throw ApiError.notFound('Dispute not found');
   }
 
   // Notify the person who raised the dispute
-  await notificationService.notifyDisputeResolved(dispute.raisedBy.toString());
+  await notificationService.notifyDisputeResolved(dispute.raised_by);
 
   res.json(
     new ApiResponse(200, req.t?.('dispute.resolved') || 'Dispute resolved', dispute)

@@ -1,11 +1,5 @@
-import WorkerProfile, { IWorkerProfile } from '../models/WorkerProfile.model';
-import User from '../models/User.model';
-import Booking from '../models/Booking.model';
-import Review from '../models/Review.model';
-import WorkerEarning from '../models/WorkerEarning.model';
-import SkillVerification from '../models/SkillVerification.model';
+import { supabase } from '../config/database';
 import { ApiError } from '../utils/ApiError';
-import { BookingStatus } from '../utils/constants';
 import { PLATFORM_DEFAULTS } from '../utils/constants';
 
 class WorkerService {
@@ -16,29 +10,33 @@ class WorkerService {
     page: number = 1,
     limit: number = PLATFORM_DEFAULTS.PAGINATION_DEFAULT_LIMIT
   ) {
-    const skip = (page - 1) * limit;
-    const [workers, total] = await Promise.all([
-      WorkerProfile.find()
-        .populate('userId', 'name phone email profileImage language')
-        .skip(skip)
-        .limit(limit)
-        .sort({ rating: -1 }),
-      WorkerProfile.countDocuments(),
-    ]);
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
 
-    return { workers, total, page, limit };
+    const { data: workers, count, error } = await supabase
+      .from('worker_profiles')
+      .select('*, user:users!user_id(name, phone, email, profile_image, language)', { count: 'exact' })
+      .order('rating', { ascending: false })
+      .range(from, to);
+
+    if (error) {
+      throw new ApiError(500, 'Failed to fetch workers: ' + error.message);
+    }
+
+    return { workers, total: count || 0, page, limit };
   }
 
   /**
    * Get worker profile by ID.
    */
   async getWorkerById(workerId: string) {
-    const worker = await WorkerProfile.findById(workerId).populate(
-      'userId',
-      'name phone email profileImage language'
-    );
+    const { data: worker, error } = await supabase
+      .from('worker_profiles')
+      .select('*, user:users!user_id(name, phone, email, profile_image, language)')
+      .eq('id', workerId)
+      .maybeSingle();
 
-    if (!worker) {
+    if (error || !worker) {
       throw ApiError.notFound('Worker not found');
     }
 
@@ -49,12 +47,13 @@ class WorkerService {
    * Get worker profile by user ID.
    */
   async getWorkerByUserId(userId: string) {
-    const worker = await WorkerProfile.findOne({ userId }).populate(
-      'userId',
-      'name phone email profileImage language'
-    );
+    const { data: worker, error } = await supabase
+      .from('worker_profiles')
+      .select('*, user:users!user_id(name, phone, email, profile_image, language)')
+      .eq('user_id', userId)
+      .maybeSingle();
 
-    if (!worker) {
+    if (error || !worker) {
       throw ApiError.notFound('Worker profile not found');
     }
 
@@ -66,16 +65,21 @@ class WorkerService {
    */
   async updateProfile(
     userId: string,
-    updates: Partial<Pick<IWorkerProfile, 'experience' | 'cooperativeMember'>>
+    updates: { experience?: number; cooperativeMember?: boolean }
   ) {
-    const worker = await WorkerProfile.findOneAndUpdate(
-      { userId },
-      { $set: updates },
-      { new: true, runValidators: true }
-    );
+    const payload: any = {};
+    if (updates.experience !== undefined) payload.experience = updates.experience;
+    if (updates.cooperativeMember !== undefined) payload.cooperative_member = updates.cooperativeMember;
 
-    if (!worker) {
-      throw ApiError.notFound('Worker profile not found');
+    const { data: worker, error } = await supabase
+      .from('worker_profiles')
+      .update(payload)
+      .eq('user_id', userId)
+      .select()
+      .maybeSingle();
+
+    if (error || !worker) {
+      throw ApiError.notFound('Worker profile not found or update failed');
     }
 
     return worker;
@@ -90,20 +94,18 @@ class WorkerService {
     longitude: number,
     address: string
   ) {
-    const worker = await WorkerProfile.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          'location.type': 'Point',
-          'location.coordinates': [longitude, latitude], // GeoJSON: [lng, lat]
-          'location.address': address,
-        },
-      },
-      { new: true }
-    );
+    const { data: worker, error } = await supabase
+      .from('worker_profiles')
+      .update({
+        location: `SRID=4326;POINT(${longitude} ${latitude})`,
+        address: address,
+      })
+      .eq('user_id', userId)
+      .select()
+      .maybeSingle();
 
-    if (!worker) {
-      throw ApiError.notFound('Worker profile not found');
+    if (error || !worker) {
+      throw ApiError.notFound('Worker profile not found or update failed');
     }
 
     return worker;
@@ -113,14 +115,15 @@ class WorkerService {
    * Toggle worker availability.
    */
   async updateAvailability(userId: string, availability: boolean) {
-    const worker = await WorkerProfile.findOneAndUpdate(
-      { userId },
-      { $set: { availability } },
-      { new: true }
-    );
+    const { data: worker, error } = await supabase
+      .from('worker_profiles')
+      .update({ availability })
+      .eq('user_id', userId)
+      .select()
+      .maybeSingle();
 
-    if (!worker) {
-      throw ApiError.notFound('Worker profile not found');
+    if (error || !worker) {
+      throw ApiError.notFound('Worker profile not found or update failed');
     }
 
     return worker;
@@ -129,17 +132,26 @@ class WorkerService {
   /**
    * Add skills to worker profile.
    */
-  async addSkills(userId: string, skills: string[]) {
-    const worker = await WorkerProfile.findOneAndUpdate(
-      { userId },
-      { $addToSet: { skills: { $each: skills } } },
-      { new: true }
-    );
+  async addSkills(userId: string, newSkills: string[]) {
+    // Fetch current skills
+    const { data: current } = await supabase
+      .from('worker_profiles')
+      .select('skills')
+      .eq('user_id', userId)
+      .maybeSingle();
 
-    if (!worker) {
-      throw ApiError.notFound('Worker profile not found');
-    }
+    if (!current) throw ApiError.notFound('Worker profile not found');
 
+    const updatedSkills = Array.from(new Set([...(current.skills || []), ...newSkills]));
+
+    const { data: worker, error } = await supabase
+      .from('worker_profiles')
+      .update({ skills: updatedSkills })
+      .eq('user_id', userId)
+      .select()
+      .maybeSingle();
+
+    if (error || !worker) throw ApiError.notFound('Failed to update skills');
     return worker;
   }
 
@@ -147,16 +159,24 @@ class WorkerService {
    * Remove a skill from worker profile.
    */
   async removeSkill(userId: string, skill: string) {
-    const worker = await WorkerProfile.findOneAndUpdate(
-      { userId },
-      { $pull: { skills: skill } },
-      { new: true }
-    );
+    const { data: current } = await supabase
+      .from('worker_profiles')
+      .select('skills')
+      .eq('user_id', userId)
+      .maybeSingle();
 
-    if (!worker) {
-      throw ApiError.notFound('Worker profile not found');
-    }
+    if (!current) throw ApiError.notFound('Worker profile not found');
 
+    const updatedSkills = (current.skills || []).filter((s: string) => s !== skill);
+
+    const { data: worker, error } = await supabase
+      .from('worker_profiles')
+      .update({ skills: updatedSkills })
+      .eq('user_id', userId)
+      .select()
+      .maybeSingle();
+
+    if (error || !worker) throw ApiError.notFound('Failed to remove skill');
     return worker;
   }
 
@@ -164,38 +184,37 @@ class WorkerService {
    * Get worker's assigned bookings.
    */
   async getWorkerJobs(userId: string, page: number = 1, limit: number = 20) {
-    const skip = (page - 1) * limit;
-    const user = await User.findById(userId);
-    if (!user) throw ApiError.notFound('User not found');
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
 
-    const [jobs, total] = await Promise.all([
-      Booking.find({ workerId: userId })
-        .populate('customerId', 'name phone')
-        .populate('serviceId', 'name category')
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 }),
-      Booking.countDocuments({ workerId: userId }),
-    ]);
+    const { data: jobs, count, error } = await supabase
+      .from('bookings')
+      .select('*, customer:users!customer_id(name, phone), service:services!service_id(name, category)', { count: 'exact' })
+      .eq('worker_id', userId)
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
-    return { jobs, total, page, limit };
+    if (error) throw new ApiError(500, 'Failed to fetch worker jobs');
+
+    return { jobs, total: count || 0, page, limit };
   }
 
   /**
    * Get worker's earnings summary.
    */
   async getWorkerEarnings(userId: string) {
-    const earnings = await WorkerEarning.find({ workerId: userId })
-      .populate('bookingId', 'scheduledDate serviceId')
-      .sort({ createdAt: -1 });
+    const { data: earnings, error } = await supabase
+      .from('worker_earnings')
+      .select('*, booking:bookings!booking_id(scheduled_date, service_id)')
+      .eq('worker_id', userId)
+      .order('created_at', { ascending: false });
 
-    const totalEarnings = earnings.reduce((sum, e) => sum + e.netAmount, 0);
-    const totalGross = earnings.reduce((sum, e) => sum + e.grossAmount, 0);
-    const totalFees = earnings.reduce((sum, e) => sum + e.platformFee, 0);
-    const totalWelfare = earnings.reduce(
-      (sum, e) => sum + e.welfareContribution,
-      0
-    );
+    if (error) throw new ApiError(500, 'Failed to fetch earnings');
+
+    const totalEarnings = earnings.reduce((sum, e) => sum + Number(e.net_amount), 0);
+    const totalGross = earnings.reduce((sum, e) => sum + Number(e.gross_amount), 0);
+    const totalFees = earnings.reduce((sum, e) => sum + Number(e.platform_fee), 0);
+    const totalWelfare = earnings.reduce((sum, e) => sum + Number(e.welfare_contribution), 0);
 
     return {
       earnings,
@@ -213,17 +232,19 @@ class WorkerService {
    * Get reviews for a worker.
    */
   async getWorkerReviews(userId: string, page: number = 1, limit: number = 20) {
-    const skip = (page - 1) * limit;
-    const [reviews, total] = await Promise.all([
-      Review.find({ workerId: userId })
-        .populate('customerId', 'name profileImage')
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 }),
-      Review.countDocuments({ workerId: userId }),
-    ]);
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
 
-    return { reviews, total, page, limit };
+    const { data: reviews, count, error } = await supabase
+      .from('reviews')
+      .select('*, customer:users!customer_id(name, profile_image)', { count: 'exact' })
+      .eq('worker_id', userId)
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (error) throw new ApiError(500, 'Failed to fetch reviews');
+
+    return { reviews, total: count || 0, page, limit };
   }
 
   /**
@@ -234,22 +255,31 @@ class WorkerService {
     videoUrl: string,
     skills: string[]
   ) {
-    const worker = await WorkerProfile.findOne({ userId });
-    if (!worker) {
-      throw ApiError.notFound('Worker profile not found');
-    }
+    const { data: worker } = await supabase
+      .from('worker_profiles')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
 
-    const verification = await SkillVerification.create({
-      workerId: userId,
-      videoUrl,
-      skills,
-    });
+    if (!worker) throw ApiError.notFound('Worker profile not found');
+
+    const { data: verification, error } = await supabase
+      .from('skill_verifications')
+      .insert({
+        worker_id: userId,
+        video_url: videoUrl,
+        skills,
+      })
+      .select()
+      .single();
+
+    if (error || !verification) throw new ApiError(500, 'Failed to create verification record');
 
     // Update worker profile with latest video URL
-    await WorkerProfile.findOneAndUpdate(
-      { userId },
-      { $set: { verificationVideoUrl: videoUrl } }
-    );
+    await supabase
+      .from('worker_profiles')
+      .update({ verification_video_url: videoUrl })
+      .eq('user_id', userId);
 
     return verification;
   }
@@ -258,14 +288,20 @@ class WorkerService {
    * Get verification status for a worker.
    */
   async getVerificationStatus(userId: string) {
-    const verifications = await SkillVerification.find({ workerId: userId }).sort({
-      createdAt: -1,
-    });
+    const { data: verifications } = await supabase
+      .from('skill_verifications')
+      .select('*')
+      .eq('worker_id', userId)
+      .order('created_at', { ascending: false });
 
-    const worker = await WorkerProfile.findOne({ userId });
+    const { data: worker } = await supabase
+      .from('worker_profiles')
+      .select('verification_status')
+      .eq('user_id', userId)
+      .maybeSingle();
 
     return {
-      overallStatus: worker?.verificationStatus,
+      overallStatus: worker?.verification_status,
       verifications,
     };
   }
@@ -274,26 +310,20 @@ class WorkerService {
    * Recalculate worker's average rating.
    */
   async recalculateRating(workerId: string) {
-    const result = await Review.aggregate([
-      { $match: { workerId: workerId } },
-      {
-        $group: {
-          _id: '$workerId',
-          avgRating: { $avg: '$rating' },
-          count: { $sum: 1 },
-        },
-      },
-    ]);
+    // Fetch all reviews for this worker
+    const { data: reviews } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('worker_id', workerId);
 
-    if (result.length > 0) {
-      await WorkerProfile.findOneAndUpdate(
-        { userId: workerId },
-        {
-          $set: {
-            rating: Math.round(result[0].avgRating * 10) / 10, // 1 decimal
-          },
-        }
-      );
+    if (reviews && reviews.length > 0) {
+      const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
+      const avgRating = Math.round((totalRating / reviews.length) * 10) / 10;
+
+      await supabase
+        .from('worker_profiles')
+        .update({ rating: avgRating })
+        .eq('user_id', workerId);
     }
   }
 }

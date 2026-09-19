@@ -22,26 +22,26 @@ export const errorHandler = (
     message = err.message;
     errors = err.errors;
     isOperational = err.isOperational;
-  } else if (err.name === 'ValidationError') {
-    // Mongoose validation error
-    statusCode = 400;
-    message = 'Validation error';
-    isOperational = true;
-  } else if (err.name === 'CastError') {
-    // Mongoose bad ObjectId
-    statusCode = 400;
-    message = 'Invalid ID format';
-    isOperational = true;
-  } else if ((err as any).code === 11000) {
-    // MongoDB duplicate key
+  } else if ((err as any).code === '23505') {
+    // Postgres/Supabase duplicate key violation
     statusCode = 409;
     message = 'Duplicate entry';
     isOperational = true;
 
-    const field = Object.keys((err as any).keyValue || {})[0];
-    if (field) {
-      message = `${field} already exists`;
+    // Optional: extract field name from Postgres error details if available
+    if ((err as any).details) {
+      message = (err as any).details;
     }
+  } else if ((err as any).code === '23503') {
+    // Postgres/Supabase foreign key violation
+    statusCode = 400;
+    message = 'Related record not found';
+    isOperational = true;
+  } else if ((err as any).code === 'PGRST116') {
+    // Supabase single row not found
+    statusCode = 404;
+    message = 'Resource not found';
+    isOperational = true;
   }
 
   // Log non-operational errors (unexpected bugs)

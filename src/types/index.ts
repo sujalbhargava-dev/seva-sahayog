@@ -1,5 +1,22 @@
-import { Types } from 'mongoose';
 import { Role, BookingStatus, PaymentStatus, PayoutStatus, VerificationStatus, DisputeStatus, PolicyStatus } from '../utils/constants';
+
+// ============================================
+// Models
+// ============================================
+export interface IUser {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  password_hash: string;
+  role: Role;
+  language: string;
+  profile_image: string;
+  is_active: boolean;
+  refresh_token?: string;
+  created_at: string;
+  updated_at: string;
+}
 
 // ============================================
 // Common

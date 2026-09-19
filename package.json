@@ -9,10 +9,15 @@
     "start": "node dist/server.js",
     "seed": "ts-node scripts/seed.ts"
   },
-  "keywords": ["gig-economy", "cooperative", "sih2026"],
+  "keywords": [
+    "gig-economy",
+    "cooperative",
+    "sih2026"
+  ],
   "author": "Team WorkLoom",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
@@ -22,7 +27,6 @@
     "i18next": "^24.2.2",
     "i18next-http-middleware": "^3.6.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.5",
     "multer": "^1.4.5-lts.1",
     "razorpay": "^2.9.5",
     "zod": "^3.24.1"

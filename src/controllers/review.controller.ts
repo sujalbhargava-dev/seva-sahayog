@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiResponse } from '../utils/ApiResponse';
-import Review from '../models/Review.model';
-import Booking from '../models/Booking.model';
+import { supabase } from '../config/database';
 import { ApiError } from '../utils/ApiError';
 import { BookingStatus } from '../utils/constants';
 import workerService from '../services/worker.service';
@@ -16,12 +15,17 @@ export const createReview = asyncHandler(async (req: Request, res: Response) => 
   const customerId = req.user!.userId;
 
   // Validate booking exists and is completed
-  const booking = await Booking.findById(bookingId);
+  const { data: booking } = await supabase
+    .from('bookings')
+    .select('customer_id, worker_id, status')
+    .eq('id', bookingId)
+    .maybeSingle();
+
   if (!booking) {
     throw ApiError.notFound('Booking not found');
   }
 
-  if (booking.customerId.toString() !== customerId) {
+  if (booking.customer_id !== customerId) {
     throw ApiError.forbidden('You can only review your own bookings');
   }
 
@@ -30,25 +34,39 @@ export const createReview = asyncHandler(async (req: Request, res: Response) => 
   }
 
   // Check if already reviewed
-  const existingReview = await Review.findOne({ bookingId, customerId });
+  const { data: existingReview } = await supabase
+    .from('reviews')
+    .select('id')
+    .eq('booking_id', bookingId)
+    .eq('customer_id', customerId)
+    .maybeSingle();
+
   if (existingReview) {
     throw ApiError.conflict('You have already reviewed this booking');
   }
 
-  const review = await Review.create({
-    bookingId,
-    customerId,
-    workerId: booking.workerId,
-    rating,
-    comment: comment || '',
-  });
+  const { data: review, error } = await supabase
+    .from('reviews')
+    .insert({
+      booking_id: bookingId,
+      customer_id: customerId,
+      worker_id: booking.worker_id,
+      rating,
+      comment: comment || '',
+    })
+    .select()
+    .single();
+
+  if (error || !review) {
+    throw new ApiError(500, 'Failed to submit review');
+  }
 
   // Recalculate worker's average rating
-  await workerService.recalculateRating(booking.workerId.toString());
+  await workerService.recalculateRating(booking.worker_id);
 
   // Notify worker
   await notificationService.notifyReviewReceived(
-    booking.workerId.toString(),
+    booking.worker_id,
     rating
   );
 
@@ -63,16 +81,19 @@ export const createReview = asyncHandler(async (req: Request, res: Response) => 
 export const getWorkerReviews = asyncHandler(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 20;
-  const skip = (page - 1) * limit;
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
 
-  const [reviews, total] = await Promise.all([
-    Review.find({ workerId: req.params.workerId })
-      .populate('customerId', 'name profileImage')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 }),
-    Review.countDocuments({ workerId: req.params.workerId }),
-  ]);
+  const { data: reviews, count, error } = await supabase
+    .from('reviews')
+    .select('*, customer:users!customer_id(name, profile_image)', { count: 'exact' })
+    .eq('worker_id', req.params.workerId)
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
-  res.json(ApiResponse.paginated(reviews, total, page, limit));
+  if (error) {
+    throw new ApiError(500, 'Failed to fetch reviews');
+  }
+
+  res.json(ApiResponse.paginated(reviews, count || 0, page, limit));
 });

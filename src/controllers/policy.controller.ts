@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiResponse } from '../utils/ApiResponse';
-import PolicyVote from '../models/PolicyVote.model';
-import Vote from '../models/Vote.model';
+import { supabase } from '../config/database';
 import { ApiError } from '../utils/ApiError';
 import { PolicyStatus, Role } from '../utils/constants';
 
@@ -12,22 +11,27 @@ import { PolicyStatus, Role } from '../utils/constants';
 export const getPolicies = asyncHandler(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 20;
-  const skip = (page - 1) * limit;
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
   const status = req.query.status as string;
 
-  const query: any = {};
-  if (status) query.status = status;
+  let query = supabase
+    .from('policy_votes')
+    .select('*, created_by_user:users!created_by(name)', { count: 'exact' });
 
-  const [policies, total] = await Promise.all([
-    PolicyVote.find(query)
-      .populate('createdBy', 'name')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 }),
-    PolicyVote.countDocuments(query),
-  ]);
+  if (status) {
+    query = query.eq('status', status);
+  }
 
-  res.json(ApiResponse.paginated(policies, total, page, limit));
+  const { data: policies, count, error } = await query
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  if (error) {
+    throw new ApiError(500, 'Failed to fetch policies');
+  }
+
+  res.json(ApiResponse.paginated(policies, count || 0, page, limit));
 });
 
 /**
@@ -36,14 +40,23 @@ export const getPolicies = asyncHandler(async (req: Request, res: Response) => {
 export const createPolicy = asyncHandler(async (req: Request, res: Response) => {
   const { title, description, options, startDate, endDate } = req.body;
 
-  const policy = await PolicyVote.create({
-    title,
-    description,
-    options,
-    startDate: new Date(startDate),
-    endDate: new Date(endDate),
-    createdBy: req.user!.userId,
-  });
+  const { data: policy, error } = await supabase
+    .from('policy_votes')
+    .insert({
+      title,
+      description,
+      options,
+      start_date: new Date(startDate).toISOString(),
+      end_date: new Date(endDate).toISOString(),
+      created_by: req.user!.userId,
+      status: PolicyStatus.ACTIVE,
+    })
+    .select()
+    .single();
+
+  if (error || !policy) {
+    throw new ApiError(500, 'Failed to create policy');
+  }
 
   res.status(201).json(
     new ApiResponse(201, req.t?.('policy.created') || 'Policy vote created', policy)
@@ -54,43 +67,48 @@ export const createPolicy = asyncHandler(async (req: Request, res: Response) => 
  * GET /api/policies/:id
  */
 export const getPolicyById = asyncHandler(async (req: Request, res: Response) => {
-  const policy = await PolicyVote.findById(req.params.id).populate(
-    'createdBy',
-    'name'
-  );
+  const { data: policy, error } = await supabase
+    .from('policy_votes')
+    .select('*, created_by_user:users!created_by(name)')
+    .eq('id', req.params.id)
+    .maybeSingle();
 
-  if (!policy) {
+  if (error || !policy) {
     throw ApiError.notFound('Policy not found');
   }
 
   // Get vote results
-  const votes = await Vote.aggregate([
-    { $match: { policyId: policy._id } },
-    {
-      $group: {
-        _id: '$selectedOption',
-        count: { $sum: 1 },
-      },
-    },
-  ]);
+  const { data: votesData } = await supabase
+    .from('votes')
+    .select('selected_option')
+    .eq('policy_id', policy.id);
 
-  const totalVotes = await Vote.countDocuments({ policyId: policy._id });
+  const votes = votesData || [];
+  const totalVotes = votes.length;
+
+  const voteCounts = votes.reduce((acc: any, curr: any) => {
+    acc[curr.selected_option] = (acc[curr.selected_option] || 0) + 1;
+    return acc;
+  }, {});
 
   // Check if current user has voted
   let userVote = null;
   if (req.user) {
-    userVote = await Vote.findOne({
-      policyId: policy._id,
-      workerId: req.user.userId,
-    });
+    const { data: existingVote } = await supabase
+      .from('votes')
+      .select('selected_option')
+      .eq('policy_id', policy.id)
+      .eq('worker_id', req.user.userId)
+      .maybeSingle();
+    userVote = existingVote;
   }
 
-  const results = policy.options.map((option) => {
-    const voteData = votes.find((v) => v._id === option);
+  const results = policy.options.map((option: string) => {
+    const count = voteCounts[option] || 0;
     return {
       option,
-      votes: voteData?.count || 0,
-      percentage: totalVotes > 0 ? Math.round(((voteData?.count || 0) / totalVotes) * 100) : 0,
+      votes: count,
+      percentage: totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0,
     };
   });
 
@@ -100,7 +118,7 @@ export const getPolicyById = asyncHandler(async (req: Request, res: Response) =>
       results,
       totalVotes,
       userVoted: !!userVote,
-      userVote: userVote?.selectedOption || null,
+      userVote: userVote?.selected_option || null,
     })
   );
 });
@@ -112,7 +130,12 @@ export const castVote = asyncHandler(async (req: Request, res: Response) => {
   const { selectedOption } = req.body;
   const workerId = req.user!.userId;
 
-  const policy = await PolicyVote.findById(req.params.id);
+  const { data: policy } = await supabase
+    .from('policy_votes')
+    .select('*')
+    .eq('id', req.params.id)
+    .maybeSingle();
+
   if (!policy) {
     throw ApiError.notFound('Policy not found');
   }
@@ -122,7 +145,7 @@ export const castVote = asyncHandler(async (req: Request, res: Response) => {
     throw ApiError.badRequest('Voting has closed for this policy');
   }
 
-  if (new Date() > new Date(policy.endDate)) {
+  if (new Date() > new Date(policy.end_date)) {
     throw ApiError.badRequest('Voting period has ended');
   }
 
@@ -132,20 +155,30 @@ export const castVote = asyncHandler(async (req: Request, res: Response) => {
   }
 
   // Check if already voted (unique index will also prevent this)
-  const existingVote = await Vote.findOne({
-    policyId: policy._id,
-    workerId,
-  });
+  const { data: existingVote } = await supabase
+    .from('votes')
+    .select('id')
+    .eq('policy_id', policy.id)
+    .eq('worker_id', workerId)
+    .maybeSingle();
 
   if (existingVote) {
     throw ApiError.conflict('You have already voted on this policy');
   }
 
-  const vote = await Vote.create({
-    policyId: policy._id,
-    workerId,
-    selectedOption,
-  });
+  const { data: vote, error } = await supabase
+    .from('votes')
+    .insert({
+      policy_id: policy.id,
+      worker_id: workerId,
+      selected_option: selectedOption,
+    })
+    .select()
+    .single();
+
+  if (error || !vote) {
+    throw new ApiError(500, 'Failed to cast vote');
+  }
 
   res.status(201).json(
     new ApiResponse(201, req.t?.('policy.voted') || 'Vote cast successfully', vote)
@@ -156,13 +189,14 @@ export const castVote = asyncHandler(async (req: Request, res: Response) => {
  * PATCH /api/policies/:id/close
  */
 export const closePolicy = asyncHandler(async (req: Request, res: Response) => {
-  const policy = await PolicyVote.findByIdAndUpdate(
-    req.params.id,
-    { status: PolicyStatus.CLOSED },
-    { new: true }
-  );
+  const { data: policy, error } = await supabase
+    .from('policy_votes')
+    .update({ status: PolicyStatus.CLOSED, updated_at: new Date().toISOString() })
+    .eq('id', req.params.id)
+    .select()
+    .maybeSingle();
 
-  if (!policy) {
+  if (error || !policy) {
     throw ApiError.notFound('Policy not found');
   }
 

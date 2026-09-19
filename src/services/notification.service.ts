@@ -1,4 +1,4 @@
-import Notification from '../models/Notification.model';
+import { supabase } from '../config/database';
 import { NotificationType } from '../utils/constants';
 
 class NotificationService {
@@ -11,7 +11,12 @@ class NotificationService {
     message: string,
     type: NotificationType = NotificationType.GENERAL
   ) {
-    return Notification.create({ userId, title, message, type });
+    const { data: notification } = await supabase
+      .from('notifications')
+      .insert({ user_id: userId, title, message, type })
+      .select()
+      .single();
+    return notification;
   }
 
   /**
@@ -22,28 +27,38 @@ class NotificationService {
     page: number = 1,
     limit: number = 20
   ) {
-    const skip = (page - 1) * limit;
-    const [notifications, total, unreadCount] = await Promise.all([
-      Notification.find({ userId })
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 }),
-      Notification.countDocuments({ userId }),
-      Notification.countDocuments({ userId, isRead: false }),
-    ]);
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
 
-    return { notifications, total, unreadCount, page, limit };
+    // Get paginated notifications
+    const { data: notifications, count: total } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact' })
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    // Get unread count
+    const { count: unreadCount } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('is_read', false);
+
+    return { notifications, total: total || 0, unreadCount: unreadCount || 0, page, limit };
   }
 
   /**
    * Mark a notification as read.
    */
   async markAsRead(notificationId: string, userId: string) {
-    const notification = await Notification.findOneAndUpdate(
-      { _id: notificationId, userId },
-      { $set: { isRead: true } },
-      { new: true }
-    );
+    const { data: notification } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', notificationId)
+      .eq('user_id', userId)
+      .select()
+      .single();
 
     return notification;
   }
@@ -52,10 +67,11 @@ class NotificationService {
    * Mark all notifications as read.
    */
   async markAllAsRead(userId: string) {
-    await Notification.updateMany(
-      { userId, isRead: false },
-      { $set: { isRead: true } }
-    );
+    await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', userId)
+      .eq('is_read', false);
   }
 
   // ============================================

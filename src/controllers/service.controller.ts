@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiResponse } from '../utils/ApiResponse';
-import Service from '../models/Service.model';
+import { supabase } from '../config/database';
 import { PLATFORM_DEFAULTS } from '../utils/constants';
 
 /**
@@ -12,33 +12,46 @@ export const getServices = asyncHandler(async (req: Request, res: Response) => {
   const limit = parseInt(req.query.limit as string) || PLATFORM_DEFAULTS.PAGINATION_DEFAULT_LIMIT;
   const category = req.query.category as string;
   const search = req.query.search as string;
-  const skip = (page - 1) * limit;
+  
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
 
-  const query: any = { isActive: true };
+  let query = supabase
+    .from('services')
+    .select('*', { count: 'exact' })
+    .eq('is_active', true);
 
   if (category) {
-    query.category = category;
+    query = query.eq('category', category);
   }
 
   if (search) {
-    query.$text = { $search: search };
+    // Basic ilike search on name or description
+    query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
   }
 
-  const [services, total] = await Promise.all([
-    Service.find(query).skip(skip).limit(limit).sort({ name: 1 }),
-    Service.countDocuments(query),
-  ]);
+  const { data: services, count, error } = await query
+    .order('name', { ascending: true })
+    .range(from, to);
 
-  res.json(ApiResponse.paginated(services, total, page, limit));
+  if (error) {
+    return res.status(500).json(new ApiResponse(500, 'Failed to fetch services'));
+  }
+
+  res.json(ApiResponse.paginated(services, count || 0, page, limit));
 });
 
 /**
  * GET /api/services/:id
  */
 export const getServiceById = asyncHandler(async (req: Request, res: Response) => {
-  const service = await Service.findById(req.params.id);
+  const { data: service, error } = await supabase
+    .from('services')
+    .select('*')
+    .eq('id', req.params.id)
+    .maybeSingle();
 
-  if (!service) {
+  if (error || !service) {
     return res.status(404).json(
       new ApiResponse(404, req.t?.('service.notFound') || 'Service not found')
     );

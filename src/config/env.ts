@@ -8,8 +8,9 @@ const envSchema = z.object({
   PORT: z.string().default('5000'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
-  // MongoDB
-  MONGO_URI: z.string().min(1, 'MONGO_URI is required'),
+  // Supabase
+  SUPABASE_URL: z.string().min(1, 'SUPABASE_URL is required'),
+  SUPABASE_KEY: z.string().default(''),
 
   // JWT
   JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
