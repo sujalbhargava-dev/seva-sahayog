@@ -1,0 +1,66 @@
+.earnings-card {
+  background: var(--primary);
+  border-radius: 16px;
+  padding: 24px;
+  color: white;
+  box-shadow: 0 8px 20px -8px rgba(0, 128, 85, 0.5);
+}
+
+.currency-icon {
+  width: 32px;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.w-stat h4 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.w-stat p {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.worker-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 16px 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  text-align: left;
+}
+
+.menu-icon {
+  margin-right: 16px;
+  color: var(--text-main);
+}
+
+.flex-grow {
+  flex-grow: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-main);
+}
