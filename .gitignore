@@ -24,3 +24,6 @@ ai-service/.env
 .roo
 .trae
 .windsurf
+
+.vercel
+.env*

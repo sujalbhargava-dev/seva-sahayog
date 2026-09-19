@@ -1,7 +1,0 @@
-node_modules
-dist
-frontend
-mobile
-.git
-.env.example
-*.log
