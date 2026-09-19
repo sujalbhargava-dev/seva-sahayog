@@ -23,6 +23,13 @@ import CompleteJob from './pages/worker/CompleteJob';
 import Payment from './pages/shared/Payment';
 import Review from './pages/shared/Review';
 
+// Phase 2 components
+import FindingWorker from './pages/customer/FindingWorker';
+import PaymentHistory from './pages/customer/PaymentHistory';
+import EmergencyBooking from './pages/customer/EmergencyBooking';
+import Governance from './pages/worker/Governance';
+import WelfareFund from './pages/worker/WelfareFund';
+
 // Protected Route Component
 function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: 'CUSTOMER' | 'WORKER' }) {
   const { user, isLoading } = useAuth();
@@ -57,6 +64,9 @@ function App() {
           <Route path="/customer/workers" element={<ProtectedRoute role="CUSTOMER"><WorkerList /></ProtectedRoute>} />
           <Route path="/customer/worker/:id" element={<ProtectedRoute role="CUSTOMER"><WorkerProfile /></ProtectedRoute>} />
           <Route path="/customer/book/:id" element={<ProtectedRoute role="CUSTOMER"><BookingConfirmation /></ProtectedRoute>} />
+          <Route path="/customer/finding-worker" element={<ProtectedRoute role="CUSTOMER"><FindingWorker /></ProtectedRoute>} />
+          <Route path="/customer/payment-history" element={<ProtectedRoute role="CUSTOMER"><PaymentHistory /></ProtectedRoute>} />
+          <Route path="/customer/emergency" element={<ProtectedRoute role="CUSTOMER"><EmergencyBooking /></ProtectedRoute>} />
           
           {/* Worker Flow (Protected) */}
           <Route path="/worker/home" element={<ProtectedRoute role="WORKER"><WorkerHome /></ProtectedRoute>} />
@@ -64,6 +74,8 @@ function App() {
           <Route path="/worker/earnings" element={<ProtectedRoute role="WORKER"><WorkerEarnings /></ProtectedRoute>} />
           <Route path="/worker/more" element={<ProtectedRoute role="WORKER"><WorkerMore /></ProtectedRoute>} />
           <Route path="/worker/job/:id/complete" element={<ProtectedRoute role="WORKER"><CompleteJob /></ProtectedRoute>} />
+          <Route path="/worker/governance" element={<ProtectedRoute role="WORKER"><Governance /></ProtectedRoute>} />
+          <Route path="/worker/welfare" element={<ProtectedRoute role="WORKER"><WelfareFund /></ProtectedRoute>} />
           
           {/* Shared Flow (Protected) */}
           <Route path="/customer/payment/:id" element={<ProtectedRoute><Payment /></ProtectedRoute>} />

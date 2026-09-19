@@ -67,12 +67,12 @@ export default function WorkerHome() {
             <span className="flex-grow">Earnings & Payouts</span>
             <ChevronRight size={20} className="text-muted" />
           </button>
-          <button className="menu-item">
+          <button className="menu-item" onClick={() => navigate('/worker/governance')}>
             <Vote size={20} className="menu-icon" style={{ backgroundColor: '#1F2937', color: 'white', borderRadius: '4px', padding: '2px' }} />
             <span className="flex-grow">Cooperative Votes</span>
             <ChevronRight size={20} className="text-muted" />
           </button>
-          <button className="menu-item">
+          <button className="menu-item" onClick={() => navigate('/worker/welfare')}>
             <ShieldCheck size={20} className="menu-icon" style={{ backgroundColor: '#1F2937', color: 'white', borderRadius: '4px', padding: '2px' }} />
             <span className="flex-grow">Welfare Fund <span className="text-muted" style={{ fontSize: '12px', fontWeight: 400 }}>(5% per gig)</span></span>
             <ChevronRight size={20} className="text-muted" />

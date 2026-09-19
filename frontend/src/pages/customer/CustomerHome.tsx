@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Search, Home, Calendar, MessageSquare, User, Zap, Droplet, Hammer, Paintbrush, Wrench, Sparkles } from 'lucide-react';
+import { MapPin, Search, Home, Calendar, MessageSquare, User, Zap, Droplet, Hammer, Paintbrush, Wrench, Sparkles, IndianRupee } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../api/client';
 import './CustomerHome.css';
@@ -88,6 +88,27 @@ export default function CustomerHome() {
           </div>
           <div className="promo-badge">R</div>
         </div>
+
+        {/* Phase 2 Quick Actions */}
+        <section className="section mt-6">
+          <h3 className="section-title">Quick Actions</h3>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              onClick={() => navigate('/customer/emergency')}
+              style={{ flex: 1, padding: '16px', borderRadius: '12px', backgroundColor: '#FEE2E2', border: '1px solid #FCA5A5', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+            >
+              <Zap size={24} color="#DC2626" />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#991B1B' }}>Emergency</span>
+            </button>
+            <button 
+              onClick={() => navigate('/customer/payment-history')}
+              style={{ flex: 1, padding: '16px', borderRadius: '12px', backgroundColor: '#DCFCE7', border: '1px solid #86EFAC', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+            >
+              <IndianRupee size={24} color="#16A34A" />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#14532D' }}>Payments</span>
+            </button>
+          </div>
+        </section>
 
         {/* Top Rated */}
         <section className="section mt-6">
