@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Menu, Home, Calendar, IndianRupee, MoreHorizontal, ChevronRight, Briefcase, FileText, Vote, ShieldCheck, User } from 'lucide-react';
+import { Menu, Home, Calendar, IndianRupee, MoreHorizontal, ChevronRight, Briefcase, Vote, ShieldCheck, User } from 'lucide-react';
 import './WorkerHome.css';
 
 export default function WorkerHome() {

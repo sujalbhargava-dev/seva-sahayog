@@ -24,26 +24,18 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if we have a token and user saved
-    const token = localStorage.getItem('accessToken');
+  const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem('user');
-
-    if (token && storedUser) {
+    if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
-        // Optionally fetch the latest profile from API to ensure it's up to date
-        fetchProfile();
-      } catch (e) {
-        console.error('Failed to parse user from local storage');
+        return JSON.parse(storedUser);
+      } catch {
+        return null;
       }
-    } else {
-      setIsLoading(false);
     }
-  }, []);
+    return null;
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = async () => {
     try {
@@ -59,6 +51,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      fetchProfile();
+    } else {
+      setIsLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const login = (userData: User, accessToken: string, refreshToken: string) => {
     setUser(userData);

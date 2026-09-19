@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, CreditCard, Wallet, Smartphone, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, CreditCard, Wallet, ShieldCheck } from 'lucide-react';
 
 export default function Payment() {
   const navigate = useNavigate();
