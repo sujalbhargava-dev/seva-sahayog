@@ -6,6 +6,7 @@ import { errorHandler } from './middleware/errorHandler';
 
 // Route imports
 import authRoutes from './routes/auth.routes';
+import userRoutes from './routes/user.routes';
 import workerRoutes from './routes/worker.routes';
 import serviceRoutes from './routes/service.routes';
 import searchRoutes from './routes/search.routes';
@@ -52,6 +53,7 @@ app.get('/api/health', (_req, res) => {
 // API Routes
 // ============================================
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/workers', workerRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/search', searchRoutes);

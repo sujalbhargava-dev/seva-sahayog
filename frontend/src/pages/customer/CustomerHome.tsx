@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Search, Home, Calendar, MessageSquare, User } from 'lucide-react';
+import { MapPin, Search, Home, Calendar, MessageSquare, User, Zap, Droplet, Hammer, Paintbrush, Wrench, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../api/client';
 import './CustomerHome.css';
@@ -28,12 +28,12 @@ export default function CustomerHome() {
   }, []);
 
   const categories = [
-    { id: 'electrician', name: 'Electrician', icon: 'E', color: '#FEF08A' },
-    { id: 'plumber', name: 'Plumber', icon: 'P', color: '#BFDBFE' },
-    { id: 'carpenter', name: 'Carpenter', icon: 'C', color: '#FED7AA' },
-    { id: 'painter', name: 'Painter', icon: 'P', color: '#FECDD3' },
-    { id: 'mechanic', name: 'Mechanic', icon: 'M', color: '#E5E7EB' },
-    { id: 'cleaner', name: 'Cleaner', icon: 'C', color: '#A7F3D0' },
+    { id: 'electrician', name: 'Electrician', icon: <Zap size={28} color="#374151" strokeWidth={1.5} />, color: '#FEF08A' },
+    { id: 'plumber', name: 'Plumber', icon: <Droplet size={28} color="#374151" strokeWidth={1.5} />, color: '#BFDBFE' },
+    { id: 'carpenter', name: 'Carpenter', icon: <Hammer size={28} color="#374151" strokeWidth={1.5} />, color: '#FED7AA' },
+    { id: 'painter', name: 'Painter', icon: <Paintbrush size={28} color="#374151" strokeWidth={1.5} />, color: '#FECDD3' },
+    { id: 'mechanic', name: 'Mechanic', icon: <Wrench size={28} color="#374151" strokeWidth={1.5} />, color: '#E5E7EB' },
+    { id: 'cleaner', name: 'Cleaner', icon: <Sparkles size={28} color="#374151" strokeWidth={1.5} />, color: '#A7F3D0' },
   ];
 
   return (

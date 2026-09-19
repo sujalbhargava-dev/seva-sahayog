@@ -14,6 +14,8 @@ export interface IUser {
   profile_image: string;
   is_active: boolean;
   refresh_token?: string;
+  address?: string;
+  pincode?: string;
   created_at: string;
   updated_at: string;
 }

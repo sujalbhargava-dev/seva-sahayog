@@ -9,6 +9,8 @@ type User = {
   email: string;
   phone: string;
   role: 'CUSTOMER' | 'WORKER';
+  address?: string;
+  pincode?: string;
 };
 
 interface AuthContextType {
