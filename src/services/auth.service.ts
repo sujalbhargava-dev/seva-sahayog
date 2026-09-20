@@ -11,7 +11,7 @@ class AuthService {
    * Register a new user (Customer or Worker) into their respective tables.
    */
   async register(input: RegisterInput): Promise<{ user: Partial<ICustomer | IWorker>; tokens: AuthTokens }> {
-    const table = input.role === Role.WORKER ? 'workers' : 'customers';
+    const table = input.role === Role.ADMIN ? 'admins' : (input.role === Role.WORKER ? 'workers' : 'customers');
 
     // Check if email already exists
     const { data: existingEmail } = await supabase
@@ -84,7 +84,12 @@ class AuthService {
     let table = 'customers';
     let role = Role.CUSTOMER;
 
-    if (input.role === Role.WORKER) {
+    if (input.role === Role.ADMIN) {
+      table = 'admins';
+      role = Role.ADMIN;
+      const { data } = await supabase.from(table).select('*').eq('email', input.email).maybeSingle();
+      user = data;
+    } else if (input.role === Role.WORKER) {
       table = 'workers';
       role = Role.WORKER;
       const { data } = await supabase.from(table).select('*').eq('email', input.email).maybeSingle();
@@ -95,7 +100,7 @@ class AuthService {
       const { data } = await supabase.from(table).select('*').eq('email', input.email).maybeSingle();
       user = data;
     } else {
-      // If role not provided in request, check customers first, then workers
+      // If role not provided in request, check customers first, then workers, then admins
       let { data } = await supabase.from('customers').select('*').eq('email', input.email).maybeSingle();
       if (data) {
         user = data;
@@ -107,6 +112,13 @@ class AuthService {
           user = wData;
           role = Role.WORKER;
           table = 'workers';
+        } else {
+          const { data: aData } = await supabase.from('admins').select('*').eq('email', input.email).maybeSingle();
+          if (aData) {
+            user = aData;
+            role = Role.ADMIN;
+            table = 'admins';
+          }
         }
       }
     }
@@ -152,7 +164,7 @@ class AuthService {
         env.JWT_REFRESH_SECRET
       ) as JwtPayload;
 
-      const table = decoded.role === Role.WORKER ? 'workers' : 'customers';
+      const table = decoded.role === Role.ADMIN ? 'admins' : (decoded.role === Role.WORKER ? 'workers' : 'customers');
 
       // Find user
       const { data: user } = await supabase
@@ -188,7 +200,7 @@ class AuthService {
    * Logout by clearing refresh token.
    */
   async logout(userId: string, role: Role): Promise<void> {
-    const table = role === Role.WORKER ? 'workers' : 'customers';
+    const table = role === Role.ADMIN ? 'admins' : (role === Role.WORKER ? 'workers' : 'customers');
     await supabase
       .from(table)
       .update({ refresh_token: null })
@@ -199,7 +211,7 @@ class AuthService {
    * Get current user profile.
    */
   async getMe(userId: string, role: Role): Promise<Partial<ICustomer | IWorker>> {
-    const table = role === Role.WORKER ? 'workers' : 'customers';
+    const table = role === Role.ADMIN ? 'admins' : (role === Role.WORKER ? 'workers' : 'customers');
     
     const { data: user, error } = await supabase
       .from(table)

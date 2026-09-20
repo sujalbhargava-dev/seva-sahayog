@@ -1,97 +1,300 @@
+.landing-wrapper {
+  position: relative;
+  min-height: 100vh;
+  background-color: #f7fcf8; /* Soft minty background */
+  overflow: hidden;
+}
+
+/* Wavy abstract backgrounds */
+.bg-wave-top, .bg-wave-bottom {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  z-index: 0;
+  opacity: 0.6;
+}
+.bg-wave-top {
+  top: 0;
+  height: 300px;
+  background: radial-gradient(ellipse at top left, #e0f2e9, transparent 70%);
+}
+.bg-wave-bottom {
+  bottom: 0;
+  height: 250px;
+  background: radial-gradient(ellipse at bottom right, #d1ecd9, transparent 70%);
+}
+
 .landing-container {
-  padding: 24px;
+  position: relative;
+  /* Removed z-index: 1 to prevent isolating the stacking context, allowing mix-blend-mode to work */
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
 }
 
+/* Header area */
 .landing-header {
-  margin-top: 40px;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.lang-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f0f7f4;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  cursor: pointer;
+  border: none;
+}
+
+/* Logo area */
+.logo-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.logo-img {
+  height: 80px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  margin-bottom: 8px;
+}
+
+.logo-tagline {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Hero Section */
+.hero-section {
+  text-align: center;
   margin-bottom: 24px;
 }
 
-.logo-text {
-  font-size: 32px;
+.hero-title {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #1f2937;
+  margin-bottom: 12px;
+}
+
+.hero-title .highlight {
+  color: var(--primary);
+}
+
+.hero-subtitle {
+  font-size: 14px;
+  color: #4b5563;
+  line-height: 1.5;
+  padding: 0 16px;
+}
+
+.hero-image-container {
+  position: relative;
+  width: 75%;
+  height: 140px;
+  margin: 16px auto;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  mix-blend-mode: multiply; /* Helps the white background blend into the mint green */
+}
+
+/* Role Selection */
+.role-selection-wrapper {
+  margin-top: 10px;
+}
+
+.role-title {
+  font-size: 18px;
   font-weight: 700;
+  text-align: center;
+  color: #111827;
   margin-bottom: 4px;
 }
 
-.subtitle {
-  font-size: 16px;
-}
-
-.hero-banner {
-  background-color: var(--primary);
-  color: white;
-  padding: 32px 24px;
-  border-radius: 16px;
+.role-subtitle {
+  font-size: 14px;
   text-align: center;
-  margin-bottom: 40px;
-  box-shadow: var(--shadow-md);
+  color: #6b7280;
+  margin-bottom: 24px;
 }
 
-.hero-banner h2 {
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.role-selection {
-  flex-grow: 1;
-}
-
-.role-selection h3 {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.role-card {
+.role-card-new {
   display: flex;
   align-items: center;
   background: white;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 16px;
+  padding: 16px 20px;
   width: 100%;
   text-align: left;
   margin-bottom: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
 }
 
-.role-card:active {
+.role-card-new:active {
   transform: scale(0.98);
 }
 
-.role-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+.card-customer {
+  background-color: #f8fdfa;
+  border: 1px solid #e1f5eb;
+}
+.icon-customer {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.card-worker {
+  background-color: #fffaf5;
+  border: 1px solid #ffedd5;
+}
+.icon-worker {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.role-icon-new {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--primary-light);
   margin-right: 16px;
   flex-shrink: 0;
 }
 
-.role-details {
+.role-details-new {
   flex-grow: 1;
 }
 
-.role-details h4 {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-main);
+.role-details-new h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
   margin-bottom: 4px;
 }
 
-.role-details p {
+.role-details-new p {
   font-size: 13px;
-  color: var(--text-muted);
+  color: #6b7280;
 }
 
-.landing-footer {
+.chevron-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Trust Badges */
+.trust-badges {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 32px 0;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.trust-item span {
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+/* Footer */
+.landing-footer-new {
+  text-align: center;
+  margin-top: auto;
   padding-bottom: 24px;
+}
+
+.legal-text {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+.legal-text span {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.login-text {
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.login-link {
+  color: var(--primary);
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.footer-branding {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0.6;
+}
+
+.footer-branding .divider {
+  width: 40px;
+  height: 1px;
+  background-color: #d1d5db;
+  margin-bottom: 8px;
+}
+
+.footer-branding h5 {
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.footer-branding p {
+  color: #9ca3af;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }

@@ -68,7 +68,7 @@ export interface RegisterInput {
   phone: string;
   email: string;
   password: string;
-  role: Role.CUSTOMER | Role.WORKER;
+  role: Role.CUSTOMER | Role.WORKER | Role.ADMIN;
   language?: string;
 }
 

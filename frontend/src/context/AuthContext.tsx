@@ -8,7 +8,7 @@ type User = {
   name: string;
   email: string;
   phone: string;
-  role: 'CUSTOMER' | 'WORKER';
+  role: 'CUSTOMER' | 'WORKER' | 'ADMIN';
   address?: string;
   pincode?: string;
 };

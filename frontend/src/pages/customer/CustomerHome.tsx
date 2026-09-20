@@ -84,7 +84,7 @@ export default function CustomerHome() {
                   className="search-dropdown-item"
                   onMouseDown={(e) => {
                     e.preventDefault(); // Prevent input from losing focus immediately
-                    navigate(`/customer/workers?category=${cat.id}`);
+                    navigate(`/customer/workers?service=${cat.name}`);
                   }}
                 >
                   <div className="search-dropdown-icon" style={{ backgroundColor: cat.color }}>
@@ -105,7 +105,7 @@ export default function CustomerHome() {
               <div 
                 key={cat.id} 
                 className="category-card"
-                onClick={() => navigate(`/customer/workers?category=${cat.id}`)}
+                onClick={() => navigate(`/customer/workers?service=${cat.name}`)}
               >
                 <div className="cat-icon" style={{ backgroundColor: cat.color }}>
                   {cat.icon}

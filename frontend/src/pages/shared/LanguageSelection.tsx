@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Circle } from 'lucide-react';
 import './LanguageSelection.css';
@@ -17,8 +17,13 @@ export default function LanguageSelection() {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
 
   const handleContinue = () => {
-    // In a real app, save the language preference here
-    navigate('/landing');
+    // Set Google Translate cookie
+    const domain = window.location.hostname;
+    document.cookie = `googtrans=/en/${selectedLanguage}; path=/; domain=${domain}`;
+    document.cookie = `googtrans=/en/${selectedLanguage}; path=/`; // Also set for current host just in case
+    
+    // Hard navigate to landing page to force full page reload
+    window.location.href = '/landing';
   };
 
   return (

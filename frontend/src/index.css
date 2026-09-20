@@ -222,3 +222,13 @@ body {
   transform: translateY(-2px);
   filter: drop-shadow(0 4px 6px rgba(0, 128, 85, 0.3));
 }
+
+/* Hide Google Translate Toolbar */
+.goog-te-banner-frame { display: none !important; }
+.goog-te-banner-frame.skiptranslate { display: none !important; }
+.skiptranslate > iframe.goog-te-banner-frame { display: none !important; }
+html { top: 0px !important; margin-top: 0px !important; }
+body { top: 0px !important; margin-top: 0px !important; }
+.goog-tooltip { display: none !important; }
+.goog-tooltip:hover { display: none !important; }
+.goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }

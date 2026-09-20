@@ -1,18 +1,23 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, SlidersHorizontal } from 'lucide-react';
 import apiClient from '../../api/client';
 import './WorkerList.css';
 
 export default function WorkerList() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const service = searchParams.get('service');
+  
   const [workers, setWorkers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchWorkers = async () => {
       try {
-        const res = await apiClient.get('/workers');
+        setLoading(true);
+        const endpoint = service ? `/search/workers?service=${encodeURIComponent(service)}&limit=15` : '/workers?limit=15';
+        const res = await apiClient.get(endpoint);
         if (res.data?.data) {
           setWorkers(res.data.data);
         }
@@ -23,7 +28,7 @@ export default function WorkerList() {
       }
     };
     fetchWorkers();
-  }, []);
+  }, [service]);
 
   return (
     <div className="app-container">
@@ -33,7 +38,7 @@ export default function WorkerList() {
           <ChevronLeft size={24} />
         </button>
         <div style={{ flexGrow: 1, marginLeft: '12px' }}>
-          <h1 style={{ margin: 0 }}>Workers Near You</h1>
+          <h1 style={{ margin: 0 }}>{service ? `${service}s Near You` : 'Workers Near You'}</h1>
           <p className="text-muted" style={{ fontSize: '12px', marginTop: '2px' }}>
             {loading ? 'Searching...' : `${workers.length} workers found`}
           </p>
@@ -55,26 +60,43 @@ export default function WorkerList() {
           <div style={{ textAlign: 'center', padding: '40px' }}>Loading workers...</div>
         ) : (
           <div className="worker-list">
-            {workers.map(w => (
-              <div key={w.id} className="worker-card" onClick={() => navigate(`/customer/worker/${w.id}`)}>
-                <div className="w-avatar" style={{ backgroundColor: '#FEF08A', color: 'rgba(0,0,0,0.6)' }}>
-                  {w.user?.name ? w.user.name.charAt(0).toUpperCase() : 'W'}
-                </div>
-                <div className="w-info">
-                  <h4>{w.user?.name || 'Worker'}</h4>
-                  <p>
-                    <span className="w-rating">★ {w.rating || 'New'}</span> 
-                    <span className="text-muted"> ({w.experience || 0} yrs exp)</span>
-                  </p>
-                  {w.availability && (
-                    <div className="status-badge mt-2">
-                      <span className="status-dot"></span> Available
+            {workers.map(w => {
+              // Handle both search results (workerId, workerName) and direct worker list (id, user.name)
+              const id = w.workerId || w.id;
+              const name = w.workerName || w.user?.name || 'Worker';
+              const rating = w.rating || 'New';
+              const experience = w.experience || w.totalJobs || 0;
+              const isAvailable = w.availability !== false;
+              const score = w.matchScore;
+
+              return (
+                <div key={id} className="worker-card" onClick={() => navigate(`/customer/worker/${id}`)}>
+                  <div className="w-avatar" style={{ backgroundColor: '#FEF08A', color: 'rgba(0,0,0,0.6)' }}>
+                    {name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="w-info">
+                    <h4>{name}</h4>
+                    <p>
+                      <span className="w-rating">★ {rating}</span> 
+                      <span className="text-muted"> ({experience} {w.totalJobs ? 'jobs done' : 'yrs exp'})</span>
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                      {isAvailable && (
+                        <div className="status-badge mt-2" style={{ marginTop: 0 }}>
+                          <span className="status-dot"></span> Available
+                        </div>
+                      )}
+                      {score && (
+                        <div className="status-badge mt-2" style={{ marginTop: 0, backgroundColor: '#E0F2FE', color: '#0369A1' }}>
+                          Match Score: {Math.round(score * 100)}%
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
+                  <ChevronLeft size={20} className="text-muted" style={{ transform: 'rotate(180deg)' }} />
                 </div>
-                <ChevronLeft size={20} className="text-muted" style={{ transform: 'rotate(180deg)' }} />
-              </div>
-            ))}
+              );
+            })}
             {workers.length === 0 && (
               <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
                 No workers found in your area yet.

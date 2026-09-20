@@ -20,6 +20,7 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email: z.string().email('Please provide a valid email'),
   password: z.string().min(1, 'Password is required'),
+  role: z.enum([Role.CUSTOMER, Role.WORKER, Role.ADMIN]).optional(),
 });
 
 export const refreshTokenSchema = z.object({

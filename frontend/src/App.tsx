@@ -21,6 +21,9 @@ import WorkerMore from './pages/worker/WorkerMore';
 import WorkerSelfProfile from './pages/worker/WorkerProfile';
 import CompleteJob from './pages/worker/CompleteJob';
 
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminHome from './pages/admin/AdminHome';
+
 import Payment from './pages/shared/Payment';
 import Review from './pages/shared/Review';
 
@@ -38,12 +41,13 @@ import SmartMatching from './pages/customer/SmartMatching';
 import LanguageSelection from './pages/shared/LanguageSelection';
 
 // Protected Route Component
-function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: 'CUSTOMER' | 'WORKER' }) {
+function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: 'CUSTOMER' | 'WORKER' | 'ADMIN' }) {
   const { user, isLoading } = useAuth();
   
   if (isLoading) return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
   if (role && user.role !== role) {
+    if (user.role === 'ADMIN') return <Navigate to="/admin/home" replace />;
     return <Navigate to={user.role === 'CUSTOMER' ? '/customer/home' : '/worker/home'} replace />;
   }
   
@@ -89,6 +93,10 @@ function App() {
           <Route path="/worker/governance" element={<ProtectedRoute role="WORKER"><Governance /></ProtectedRoute>} />
           <Route path="/worker/welfare" element={<ProtectedRoute role="WORKER"><WelfareFund /></ProtectedRoute>} />
           
+          {/* Admin Flow */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/home" element={<ProtectedRoute role="ADMIN"><AdminHome /></ProtectedRoute>} />
+
           {/* Shared Flow (Protected) */}
           <Route path="/customer/payment/:id" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
           <Route path="/customer/review/:id" element={<ProtectedRoute><Review /></ProtectedRoute>} />
@@ -102,3 +110,5 @@ function App() {
 }
 
 export default App;
+
+
