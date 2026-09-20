@@ -84,36 +84,39 @@ class AuthService {
     let table = 'customers';
     let role = Role.CUSTOMER;
 
+    const isEmail = input.email.includes('@');
+    const queryColumn = isEmail ? 'email' : 'phone';
+
     if (input.role === Role.ADMIN) {
       table = 'admins';
       role = Role.ADMIN;
-      const { data } = await supabase.from(table).select('*').eq('email', input.email).maybeSingle();
+      const { data } = await supabase.from(table).select('*').eq(queryColumn, input.email).maybeSingle();
       user = data;
     } else if (input.role === Role.WORKER) {
       table = 'workers';
       role = Role.WORKER;
-      const { data } = await supabase.from(table).select('*').eq('email', input.email).maybeSingle();
+      const { data } = await supabase.from(table).select('*').eq(queryColumn, input.email).maybeSingle();
       user = data;
     } else if (input.role === Role.CUSTOMER) {
       table = 'customers';
       role = Role.CUSTOMER;
-      const { data } = await supabase.from(table).select('*').eq('email', input.email).maybeSingle();
+      const { data } = await supabase.from(table).select('*').eq(queryColumn, input.email).maybeSingle();
       user = data;
     } else {
       // If role not provided in request, check customers first, then workers, then admins
-      let { data } = await supabase.from('customers').select('*').eq('email', input.email).maybeSingle();
+      let { data } = await supabase.from('customers').select('*').eq(queryColumn, input.email).maybeSingle();
       if (data) {
         user = data;
         role = Role.CUSTOMER;
         table = 'customers';
       } else {
-        const { data: wData } = await supabase.from('workers').select('*').eq('email', input.email).maybeSingle();
+        const { data: wData } = await supabase.from('workers').select('*').eq(queryColumn, input.email).maybeSingle();
         if (wData) {
           user = wData;
           role = Role.WORKER;
           table = 'workers';
         } else {
-          const { data: aData } = await supabase.from('admins').select('*').eq('email', input.email).maybeSingle();
+          const { data: aData } = await supabase.from('admins').select('*').eq(queryColumn, input.email).maybeSingle();
           if (aData) {
             user = aData;
             role = Role.ADMIN;

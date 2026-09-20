@@ -18,7 +18,7 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.string().email('Please provide a valid email'),
+  email: z.string().min(1, 'Please provide an email or phone number'),
   password: z.string().min(1, 'Password is required'),
   role: z.enum([Role.CUSTOMER, Role.WORKER, Role.ADMIN]).optional(),
 });
