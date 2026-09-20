@@ -35,45 +35,51 @@ class FairMatchService {
       limit = 20,
     } = params;
 
-    // Base query
-    let query = supabase
-      .from('workers')
-      .select('*')
-      .eq('availability', true)
-      .eq('verification_status', VerificationStatus.APPROVED);
+    let filteredWorkers: any[] = [];
 
-    if (minRating > 0) {
-      query = query.gte('rating', minRating);
-    }
-
-    if (requiredSkills.length > 0) {
-      // Postgres array overlaps operator: && or contains: @>
-      // using contains operator cd
-      query = query.contains('skills', requiredSkills);
-    }
-
-    const { data: candidates, error } = await query;
-    if (error || !candidates) return [];
-
-    // Filter inactive users and language
-    let filteredWorkers = candidates.filter((w: any) => w.is_active);
-    
-    if (language) {
-      filteredWorkers = filteredWorkers.filter((w: any) => w.language === language);
-    }
-
-    // Distance filtering
     if (latitude !== undefined && longitude !== undefined) {
-      filteredWorkers = filteredWorkers.filter((w: any) => {
-        if (!w.location) return false;
-        // Parse SRID=4326;POINT(lng lat)
-        const match = w.location.match(/POINT\(([^ ]+) ([^)]+)\)/);
-        if (!match) return false;
-        const wLng = parseFloat(match[1]);
-        const wLat = parseFloat(match[2]);
-        const distance = haversineDistance(latitude, longitude, wLat, wLng);
-        return distance <= radius;
+      // Use PostGIS RPC
+      const { data, error } = await supabase.rpc('find_nearby_workers', {
+        lat: latitude,
+        lng: longitude,
+        radius_km: radius,
+        min_rating: minRating,
+        req_skills: requiredSkills.length > 0 ? requiredSkills : null
       });
+      
+      if (error) {
+        console.error('RPC Error:', error);
+        return [];
+      }
+      filteredWorkers = data || [];
+      
+      // Filter language if provided
+      if (language) {
+        filteredWorkers = filteredWorkers.filter((w: any) => w.language === language);
+      }
+    } else {
+      // Fallback base query without geo filtering
+      let query = supabase
+        .from('workers')
+        .select('*')
+        .eq('availability', true)
+        .eq('verification_status', VerificationStatus.APPROVED)
+        .eq('is_active', true);
+
+      if (minRating > 0) {
+        query = query.gte('rating', minRating);
+      }
+      if (requiredSkills.length > 0) {
+        query = query.contains('skills', requiredSkills);
+      }
+
+      const { data: candidates, error } = await query;
+      if (error || !candidates) return [];
+      
+      filteredWorkers = candidates;
+      if (language) {
+        filteredWorkers = filteredWorkers.filter((w: any) => w.language === language);
+      }
     }
 
     if (filteredWorkers.length === 0) return [];
@@ -105,15 +111,22 @@ class FairMatchService {
       const skillScore = this.calculateSkillScore(worker.skills || [], requiredSkills);
 
       // 2. Distance Score
-      let distance = 0;
+      let distance = worker.distance_meters ? worker.distance_meters / 1000 : 0; // Convert back to km for scoring logic if provided by RPC
       let dScore = 1;
-      if (latitude !== undefined && longitude !== undefined && worker.location) {
-        const match = worker.location.match(/POINT\(([^ ]+) ([^)]+)\)/);
-        if (match) {
-          const wLng = parseFloat(match[1]);
-          const wLat = parseFloat(match[2]);
-          distance = haversineDistance(latitude, longitude, wLat, wLng);
+      
+      if (latitude !== undefined && longitude !== undefined) {
+        if (worker.distance_meters !== undefined) {
+          distance = worker.distance_meters / 1000;
           dScore = distanceToScore(distance, radius);
+        } else if (worker.location) {
+          // Fallback if RPC wasn't used for some reason but location string exists
+          const match = worker.location.match(/POINT\(([^ ]+) ([^)]+)\)/);
+          if (match) {
+            const wLng = parseFloat(match[1]);
+            const wLat = parseFloat(match[2]);
+            distance = haversineDistance(latitude, longitude, wLat, wLng);
+            dScore = distanceToScore(distance, radius);
+          }
         }
       }
 
