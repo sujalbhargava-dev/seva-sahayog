@@ -27,3 +27,6 @@ ai-service/.env
 
 .vercel
 .env*
+
+# Local Netlify folder
+.netlify
