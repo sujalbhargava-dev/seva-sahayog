@@ -82,7 +82,10 @@ export default function CustomerHome() {
                 <div 
                   key={cat.id}
                   className="search-dropdown-item"
-                  onClick={() => navigate(`/customer/workers?category=${cat.id}`)}
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // Prevent input from losing focus immediately
+                    navigate(`/customer/workers?category=${cat.id}`);
+                  }}
                 >
                   <div className="search-dropdown-icon" style={{ backgroundColor: cat.color }}>
                     {cat.icon}
