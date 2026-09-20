@@ -88,7 +88,7 @@ class FairMatchService {
       .from('bookings')
       .select('worker_id')
       .in('worker_id', workerIds)
-      .in('status', [BookingStatus.COMPLETED, BookingStatus.IN_PROGRESS, BookingStatus.ACCEPTED])
+      .in('status', [BookingStatus.COMPLETED, BookingStatus.IN_PROGRESS, BookingStatus.CONFIRMED])
       .gte('created_at', thirtyDaysAgo.toISOString());
 
     const jobCountMap = new Map<string, number>();
