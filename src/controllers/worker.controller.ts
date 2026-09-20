@@ -115,11 +115,11 @@ export const getWorkerEarnings = asyncHandler(async (req: Request, res: Response
  * GET /api/workers/analytics
  */
 export const getWorkerAnalytics = asyncHandler(async (req: Request, res: Response) => {
-  // In a real application, this aggregates data from bookings/jobs completed
-  // For now, returning mock structure to match the frontend expectations
+  const worker = await workerService.getWorkerById(req.user!.userId);
+  const earningsResult = await workerService.getWorkerEarnings(req.user!.userId);
   
-  const mockAnalytics = {
-    earnings: 3240,
+  const analytics = {
+    earnings: earningsResult.summary.totalEarnings || 0,
     chartData: [
       { day: 'Mon', value: 20, active: false },
       { day: 'Tue', value: 35, active: false },
@@ -130,8 +130,8 @@ export const getWorkerAnalytics = asyncHandler(async (req: Request, res: Respons
       { day: 'Sun', value: 40, active: false },
     ],
     stats: {
-      jobs: 18,
-      rating: 4.8,
+      jobs: worker.total_jobs || 0,
+      rating: worker.rating || 0,
       repeatCustomers: '62%',
       avgResponse: '8 min'
     },
@@ -142,7 +142,7 @@ export const getWorkerAnalytics = asyncHandler(async (req: Request, res: Respons
     ]
   };
 
-  res.json(ApiResponse.ok(mockAnalytics));
+  res.json(ApiResponse.ok(analytics));
 });
 
 /**

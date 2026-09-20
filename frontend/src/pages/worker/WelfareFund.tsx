@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Plus, ShieldAlert, IndianRupee, HeartHandshake, ChevronRight } from 'lucide-react';
+import apiClient from '../../api/client';
 
 const benefits = [
   {
@@ -34,6 +36,24 @@ const benefits = [
 
 export default function WelfareFund() {
   const navigate = useNavigate();
+  const [welfareBalance, setWelfareBalance] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchWelfare = async () => {
+      try {
+        const res = await apiClient.get('/workers/earnings');
+        if (res.data?.data?.summary?.totalWelfare) {
+          setWelfareBalance(res.data.data.summary.totalWelfare);
+        }
+      } catch (error) {
+        console.error('Failed to fetch welfare balance', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchWelfare();
+  }, []);
 
   return (
     <div className="app-container" style={{ paddingBottom: '32px' }}>
@@ -56,7 +76,9 @@ export default function WelfareFund() {
           boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)'
         }}>
           <p style={{ fontSize: '14px', margin: '0 0 8px', opacity: 0.9 }}>Your Welfare Balance</p>
-          <h2 style={{ fontSize: '36px', fontWeight: 700, margin: '0 0 12px' }}>₹2,340</h2>
+          <h2 style={{ fontSize: '36px', fontWeight: 700, margin: '0 0 12px' }}>
+            {loading ? '₹...' : `₹${welfareBalance.toLocaleString('en-IN')}`}
+          </h2>
           <p style={{ fontSize: '12px', margin: 0, opacity: 0.8 }}>5% contributed automatically per gig</p>
         </div>
 
