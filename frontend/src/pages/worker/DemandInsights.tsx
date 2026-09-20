@@ -62,7 +62,7 @@ export default function DemandInsights() {
         <div className="chart-section">
           <h3>Predicted Demand — Next 7 Days</h3>
           <div className="demand-chart-container">
-            {chartData.map((data, index) => (
+            {chartData.map((data: any, index: number) => (
               <div key={index} className="demand-chart-col">
                 <div 
                   className={`demand-chart-bar ${data.active ? 'active' : 'inactive'}`}
@@ -80,7 +80,7 @@ export default function DemandInsights() {
         <div className="areas-section">
           <h3>Best Areas Today</h3>
           <div className="areas-list">
-            {bestAreas.map((area, index) => (
+            {bestAreas.map((area: any, index: number) => (
               <div key={index} className="area-card">
                 <div className="area-info">
                   <div className="area-icon">

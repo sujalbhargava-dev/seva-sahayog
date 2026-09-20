@@ -67,7 +67,7 @@ export default function SmartMatching() {
             </div>
             
             <div className="match-tags">
-              {worker.tags.map((tag, index) => (
+              {worker.tags.map((tag: string, index: number) => (
                 <span key={index} className="match-tag">
                   {tag}
                 </span>

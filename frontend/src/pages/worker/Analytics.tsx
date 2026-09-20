@@ -67,7 +67,7 @@ export default function Analytics() {
           </div>
           
           <div className="chart-container">
-            {chartData.map((data, index) => (
+            {chartData.map((data: any, index: number) => (
               <div key={index} className="chart-bar-col">
                 <div 
                   className={`chart-bar ${data.active ? 'active' : 'inactive'}`}

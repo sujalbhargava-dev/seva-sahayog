@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, Check, Loader2 } from 'lucide-react';
+import { ChevronLeft, Check } from 'lucide-react';
 import apiClient from '../../api/client';
 
 export default function CompleteJob() {
@@ -95,8 +95,8 @@ export default function CompleteJob() {
             </div>
           </div>
 
-          <button type="submit" className="btn-primary mt-8">
-            Submit
+          <button type="submit" className="btn-primary mt-8" disabled={isSubmitting}>
+            {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
         </form>
       </main>
