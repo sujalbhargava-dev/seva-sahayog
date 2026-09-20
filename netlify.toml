@@ -1,0 +1,27 @@
+# Netlify configuration for SewaShayog
+#
+# The repository root is the Express/TypeScript API (deployed separately on
+# Render). The site published here is the Vite + React client in `frontend/`.
+
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Proxy API traffic to the Express backend so the browser talks to the API
+# on the same origin as the app (no CORS preflights, no mixed content).
+# Override the target by pointing this at a different backend URL.
+[[redirects]]
+  from = "/api/*"
+  to = "https://sewa-sahayog.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# Client-side routing: serve the SPA shell for any non-asset path.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

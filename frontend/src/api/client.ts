@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-// Get the backend URL from env, or default to localhost:5000
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Use VITE_API_URL when it is provided. Otherwise fall back to the local API
+// server during development, and to the same-origin `/api` path in production
+// (netlify.toml proxies that to the deployed backend).
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 
 const apiClient = axios.create({
   baseURL: API_URL,
