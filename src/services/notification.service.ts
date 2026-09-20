@@ -3,6 +3,18 @@ import { NotificationType } from '../utils/constants';
 
 class NotificationService {
   /**
+   * Helper to determine which column to use for a user
+   */
+  private async getUserIdColumn(userId: string): Promise<'customer_id' | 'worker_id'> {
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('id')
+      .eq('id', userId)
+      .maybeSingle();
+    return customer ? 'customer_id' : 'worker_id';
+  }
+
+  /**
    * Create a notification for a user.
    */
   async create(
@@ -11,9 +23,13 @@ class NotificationService {
     message: string,
     type: NotificationType = NotificationType.GENERAL
   ) {
+    const column = await this.getUserIdColumn(userId);
+    const payload: any = { title, message, type };
+    payload[column] = userId;
+
     const { data: notification } = await supabase
       .from('notifications')
-      .insert({ user_id: userId, title, message, type })
+      .insert(payload)
       .select()
       .single();
     return notification;
@@ -29,12 +45,13 @@ class NotificationService {
   ) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
+    const column = await this.getUserIdColumn(userId);
 
     // Get paginated notifications
     const { data: notifications, count: total } = await supabase
       .from('notifications')
       .select('*', { count: 'exact' })
-      .eq('user_id', userId)
+      .eq(column, userId)
       .order('created_at', { ascending: false })
       .range(from, to);
 
@@ -42,7 +59,7 @@ class NotificationService {
     const { count: unreadCount } = await supabase
       .from('notifications')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
+      .eq(column, userId)
       .eq('is_read', false);
 
     return { notifications, total: total || 0, unreadCount: unreadCount || 0, page, limit };
@@ -52,11 +69,12 @@ class NotificationService {
    * Mark a notification as read.
    */
   async markAsRead(notificationId: string, userId: string) {
+    const column = await this.getUserIdColumn(userId);
     const { data: notification } = await supabase
       .from('notifications')
       .update({ is_read: true })
       .eq('id', notificationId)
-      .eq('user_id', userId)
+      .eq(column, userId)
       .select()
       .single();
 
@@ -67,10 +85,11 @@ class NotificationService {
    * Mark all notifications as read.
    */
   async markAllAsRead(userId: string) {
+    const column = await this.getUserIdColumn(userId);
     await supabase
       .from('notifications')
       .update({ is_read: true })
-      .eq('user_id', userId)
+      .eq(column, userId)
       .eq('is_read', false);
   }
 

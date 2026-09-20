@@ -1,15 +1,28 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, CreditCard, Wallet, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, CreditCard, Wallet, ShieldCheck, Loader2 } from 'lucide-react';
+import apiClient from '../../api/client';
 
 export default function Payment() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams(); // bookingId
   const [method, setMethod] = useState('UPI');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handlePay = () => {
-    // Navigate to Review screen after payment
-    navigate(`/customer/review/${id}`);
+  const handlePay = async () => {
+    setIsProcessing(true);
+    try {
+      await apiClient.post('/payments/create-order', {
+        bookingId: id
+      });
+      
+      // Simulate successful payment (since Razorpay UI requires SDK)
+      // Navigate to Review screen after payment
+      navigate(`/customer/review/${id}`);
+    } catch (error) {
+      console.error('Payment failed', error);
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -94,8 +107,8 @@ export default function Payment() {
           </div>
         </div>
 
-        <button className="btn-primary mt-8" onClick={handlePay}>
-          Pay Securely
+        <button className="btn-primary mt-8" onClick={handlePay} disabled={isProcessing}>
+          {isProcessing ? <Loader2 className="animate-spin" size={20} /> : 'Pay Securely'}
         </button>
         
         <p className="text-muted" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '16px', fontSize: '12px', fontWeight: 500 }}>

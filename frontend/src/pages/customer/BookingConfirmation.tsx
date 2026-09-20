@@ -16,6 +16,8 @@ export default function BookingConfirmation() {
   const [description, setDescription] = useState('Fan not working, need repair and check wiring.');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [services, setServices] = useState<any[]>([]);
+
   useEffect(() => {
     const fetchWorker = async () => {
       try {
@@ -27,16 +29,30 @@ export default function BookingConfirmation() {
         console.error('Failed to fetch worker details', error);
       }
     };
+    const fetchServices = async () => {
+      try {
+        const res = await apiClient.get('/services');
+        if (res.data?.data) {
+          setServices(res.data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch services', error);
+      }
+    };
     if (id) fetchWorker();
+    fetchServices();
   }, [id]);
 
   const handleConfirm = async () => {
     try {
       setIsSubmitting(true);
       
+      const matchedService = services.find(s => s.name.toLowerCase() === service.toLowerCase());
+      const serviceId = matchedService ? matchedService.id : service;
+      
       const payload = {
         workerId: id,
-        serviceId: service, // Using service name as serviceId for now
+        serviceId: serviceId, // Send UUID if found, else fallback (which may fail validation)
         location: {
           latitude: 26.2183, // Mock coords for Gwalior
           longitude: 78.1828,
@@ -50,9 +66,10 @@ export default function BookingConfirmation() {
       await apiClient.post('/bookings', payload);
       alert('Booking Confirmed successfully!');
       navigate('/customer/bookings');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Booking failed', error);
-      alert('Failed to confirm booking. Please try again.');
+      const errorMsg = error.response?.data?.message || error.message || 'Unknown error';
+      alert(`Failed to confirm booking: ${errorMsg}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -72,11 +89,11 @@ export default function BookingConfirmation() {
         {/* Worker Info */}
         <div className="worker-card mb-6" style={{ background: 'var(--primary-light)', border: 'none' }}>
           <div className="w-avatar" style={{ backgroundColor: '#FEF08A', color: '#854D0E', width: '48px', height: '48px' }}>
-            {worker?.user?.name ? worker.user.name.charAt(0).toUpperCase() : 'W'}
+            {worker?.name ? worker.name.charAt(0).toUpperCase() : 'W'}
           </div>
           <div className="w-info">
             <h4 style={{ fontSize: '16px' }}>{service}</h4>
-            <p className="text-muted mt-2" style={{ fontSize: '13px' }}>{worker?.user?.name || 'Loading...'}</p>
+            <p className="text-muted mt-2" style={{ fontSize: '13px' }}>{worker?.name || 'Loading...'}</p>
             <p className="w-rating" style={{ fontSize: '13px' }}>★ {worker?.rating || 'New'} ({worker?.total_jobs || 0} jobs)</p>
           </div>
         </div>

@@ -1,16 +1,28 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, Check } from 'lucide-react';
+import { ChevronLeft, Check, Loader2 } from 'lucide-react';
+import apiClient from '../../api/client';
 
 export default function CompleteJob() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [paymentReceived, setPaymentReceived] = useState('Yes');
   const [workDone, setWorkDone] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate(`/customer/payment/${id}`); // Actually should go to worker summary, but let's go to payment flow for demo
+    if (!workDone) return;
+    
+    setIsSubmitting(true);
+    try {
+      await apiClient.patch(`/bookings/${id}/complete`);
+      // Optionally navigate to worker home or earnings
+      navigate(`/worker/home`); 
+    } catch (error) {
+      console.error('Failed to complete job', error);
+      setIsSubmitting(false);
+    }
   };
 
   return (

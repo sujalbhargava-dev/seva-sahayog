@@ -16,7 +16,7 @@ export async function connectDatabase(): Promise<void> {
   // Supabase REST client doesn't need a persistent connection initialization,
   // but we can verify it by fetching the current time from the DB.
   try {
-    const { data, error } = await supabase.from('users').select('id').limit(1);
+    const { data, error } = await supabase.from('customers').select('id').limit(1);
     
     if (error) {
       console.error('❌ Supabase connection test failed. Check URL and Key:', error.message);

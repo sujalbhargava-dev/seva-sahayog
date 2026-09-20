@@ -14,11 +14,7 @@ import {
 
 const router = Router();
 
-// Public routes
-router.get('/', workerController.getWorkers);
-router.get('/:id', workerController.getWorkerById);
-
-// Protected worker routes
+// Protected worker routes (MUST be before /:id to avoid route conflicts)
 router.patch(
   '/profile',
   authenticate,
@@ -100,5 +96,9 @@ router.get(
   authorize(Role.WORKER),
   workerController.getVerificationStatus
 );
+
+// Public routes (must be LAST — /:id is a wildcard that catches everything)
+router.get('/', workerController.getWorkers);
+router.get('/:id', workerController.getWorkerById);
 
 export default router;

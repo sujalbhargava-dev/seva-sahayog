@@ -36,7 +36,7 @@ export default function WorkerProfile() {
     return <div style={{ textAlign: 'center', padding: '40px' }}>Worker not found</div>;
   }
 
-  const name = worker.user?.name || 'Worker';
+  const name = worker.name || 'Worker';
   const rating = worker.rating || 'New';
   const experience = worker.experience || 0;
   const isAvailable = worker.availability !== false;

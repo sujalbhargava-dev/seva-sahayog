@@ -1,11 +1,30 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Shield, FileText, Settings } from 'lucide-react';
+import { ArrowLeft, User, Shield, FileText, Settings, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../api/client';
 import './WorkerHome.css';
 
 export default function WorkerProfile() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [workerDetails, setWorkerDetails] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchWorker = async () => {
+      try {
+        const res = await apiClient.get(`/workers/${user.id}`);
+        setWorkerDetails(res.data?.data);
+      } catch (error) {
+        console.error('Failed to fetch worker details', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchWorker();
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -31,10 +50,18 @@ export default function WorkerProfile() {
           <div>
             <h2 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 4px 0' }}>{user?.name || 'Worker Name'}</h2>
             <p className="text-muted" style={{ margin: '0 0 4px 0', fontSize: '14px' }}>{user?.phone || '+91 98765 43210'}</p>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#DCFCE7', color: '#16A34A', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 }}>
-              <Shield size={14} />
-              Verified Background
-            </div>
+            {isLoading ? (
+              <Loader2 className="animate-spin text-muted" size={16} />
+            ) : workerDetails?.verification_status === 'APPROVED' ? (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#DCFCE7', color: '#16A34A', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 }}>
+                <Shield size={14} />
+                Verified Background
+              </div>
+            ) : (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#FEF9C3', color: '#CA8A04', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 }}>
+                Pending Verification
+              </div>
+            )}
           </div>
         </div>
 

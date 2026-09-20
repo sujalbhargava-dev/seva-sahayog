@@ -1,13 +1,29 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Check, Star } from 'lucide-react';
+import apiClient from '../../api/client';
 
 export default function Review() {
   const navigate = useNavigate();
+  const { id } = useParams(); // bookingId
   const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = () => {
-    navigate('/customer/home');
+  const handleSubmit = async () => {
+    if (rating === 0) return;
+    setIsSubmitting(true);
+    try {
+      await apiClient.post('/reviews', {
+        bookingId: id,
+        rating,
+        comment
+      });
+      navigate('/customer/home');
+    } catch (error) {
+      console.error('Failed to submit review', error);
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -68,8 +84,22 @@ export default function Review() {
 
         <div style={{ flexGrow: 1 }}></div>
 
-        <button className="btn-primary" onClick={handleSubmit}>
-          Submit Rating
+        <div style={{ marginBottom: '32px' }}>
+          <textarea 
+            placeholder="Write a comment (optional)"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-app)', minHeight: '100px', fontSize: '15px', color: 'var(--text-main)', boxSizing: 'border-box', resize: 'none' }}
+          />
+        </div>
+
+        <button 
+          className="btn-primary" 
+          style={{ width: '100%', marginBottom: '16px' }}
+          onClick={handleSubmit}
+          disabled={rating === 0 || isSubmitting}
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit Review'}
         </button>
       </main>
     </div>

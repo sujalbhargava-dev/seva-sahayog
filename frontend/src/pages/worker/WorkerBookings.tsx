@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Calendar, IndianRupee, MoreHorizontal, MapPin, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Home, Calendar, IndianRupee, MoreHorizontal, MapPin } from 'lucide-react';
 import apiClient from '../../api/client';
 import './WorkerHome.css';
 
@@ -26,8 +26,8 @@ export default function WorkerBookings() {
     fetchJobs();
   }, []);
 
-  const upcomingJobs = jobs.filter(j => ['pending', 'accepted', 'in_progress'].includes(j.status));
-  const pastJobs = jobs.filter(j => ['completed', 'cancelled'].includes(j.status));
+  const upcomingJobs = jobs.filter(j => ['PENDING', 'ACCEPTED', 'CONFIRMED', 'IN_PROGRESS'].includes(j.status?.toUpperCase()));
+  const pastJobs = jobs.filter(j => ['COMPLETED', 'CANCELLED', 'REJECTED'].includes(j.status?.toUpperCase()));
   
   const displayJobs = activeTab === 'upcoming' ? upcomingJobs : pastJobs;
 
@@ -76,8 +76,8 @@ export default function WorkerBookings() {
                   <h3 style={{ fontSize: '16px', fontWeight: 600, margin: '0 0 4px' }}>{job.service?.name || 'Service Job'}</h3>
                   <p className="text-muted" style={{ fontSize: '13px', margin: 0 }}>{job.customer?.name || 'Customer'}</p>
                 </div>
-                <div style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, backgroundColor: job.status === 'completed' ? '#DCFCE7' : job.status === 'cancelled' ? '#FEE2E2' : '#FEF3C7', color: job.status === 'completed' ? '#16A34A' : job.status === 'cancelled' ? '#DC2626' : '#D97706' }}>
-                  {job.status.toUpperCase()}
+                <div style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, backgroundColor: job.status?.toUpperCase() === 'COMPLETED' ? '#DCFCE7' : job.status?.toUpperCase() === 'CANCELLED' ? '#FEE2E2' : '#FEF3C7', color: job.status?.toUpperCase() === 'COMPLETED' ? '#16A34A' : job.status?.toUpperCase() === 'CANCELLED' ? '#DC2626' : '#D97706' }}>
+                  {job.status?.toUpperCase()}
                 </div>
               </div>
 

@@ -171,10 +171,10 @@ export default function CustomerHome() {
               {topWorkers.map((w: any) => (
                 <div key={w.id} className="worker-card" onClick={() => navigate(`/customer/worker/${w.id}`)}>
                   <div className="w-avatar" style={{ backgroundColor: '#FEF08A', color: 'rgba(0,0,0,0.6)' }}>
-                    {w.user?.name ? w.user.name.charAt(0).toUpperCase() : 'W'}
+                    {w.name ? w.name.charAt(0).toUpperCase() : 'W'}
                   </div>
                   <div className="w-info">
-                    <h4>{w.user?.name || 'Worker'}</h4>
+                    <h4>{w.name || 'Worker'}</h4>
                     <p>Experience: {w.experience || 0} years</p>
                   </div>
                   <div className="w-rating">

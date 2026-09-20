@@ -61,9 +61,9 @@ export default function WorkerList() {
         ) : (
           <div className="worker-list">
             {workers.map(w => {
-              // Handle both search results (workerId, workerName) and direct worker list (id, user.name)
+              // Handle both search results (workerId, workerName) and direct worker list (id, name)
               const id = w.workerId || w.id;
-              const name = w.workerName || w.user?.name || 'Worker';
+              const name = w.workerName || w.name || 'Worker';
               const rating = w.rating || 'New';
               const experience = w.experience || w.totalJobs || 0;
               const isAvailable = w.availability !== false;

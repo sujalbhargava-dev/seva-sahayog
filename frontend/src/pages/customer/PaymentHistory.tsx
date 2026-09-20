@@ -1,69 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import apiClient from '../../api/client';
 
-type Transaction = {
-  id: string;
-  category: string;
-  title: string;
-  workerName: string;
-  date: string;
-  amount: number;
-  status: string;
-  iconBg: string;
-  iconColor: string;
-};
-
-const mockTransactions: Transaction[] = [
-  {
-    id: '1',
-    category: 'E',
-    title: 'Electrical Repair',
-    workerName: 'Ramesh Kumar',
-    date: '19 Sep 2026',
-    amount: 550,
-    status: 'Paid',
-    iconBg: '#FEF3C7',
-    iconColor: '#D97706'
-  },
-  {
-    id: '2',
-    category: 'P',
-    title: 'Pipe Leak Fix',
-    workerName: 'Suresh Yadav',
-    date: '12 Sep 2026',
-    amount: 450,
-    status: 'Paid',
-    iconBg: '#DBEAFE',
-    iconColor: '#1D4ED8'
-  },
-  {
-    id: '3',
-    category: 'C',
-    title: 'Furniture Repair',
-    workerName: 'Vikas Sharma',
-    date: '30 Aug 2026',
-    amount: 700,
-    status: 'Paid',
-    iconBg: '#FFEDD5',
-    iconColor: '#C2410C'
-  },
-  {
-    id: '4',
-    category: 'E',
-    title: 'Fan Installation',
-    workerName: 'Amit Verma',
-    date: '18 Aug 2026',
-    amount: 350,
-    status: 'Paid',
-    iconBg: '#FEF3C7',
-    iconColor: '#D97706'
-  }
-];
 
 export default function PaymentHistory() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await apiClient.get('/bookings');
+        setTransactions(res.data?.data || []);
+      } catch (error) {
+        console.error('Failed to fetch transactions', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, []);
+
+  const totalSpent = transactions
+    .filter(t => t.payment_status === 'COMPLETED' || t.status === 'COMPLETED')
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
   return (
     <div className="app-container" style={{ paddingBottom: '32px' }}>
@@ -84,13 +47,13 @@ export default function PaymentHistory() {
           marginBottom: '24px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
         }}>
-          <p style={{ fontSize: '13px', color: '#166534', margin: '0 0 8px', fontWeight: 500 }}>Total Spent This Month</p>
-          <h2 style={{ fontSize: '36px', fontWeight: 700, color: '#14532D', margin: 0 }}>₹1,850</h2>
+          <p style={{ fontSize: '13px', color: '#166534', margin: '0 0 8px', fontWeight: 500 }}>Total Spent</p>
+          <h2 style={{ fontSize: '36px', fontWeight: 700, color: '#14532D', margin: 0 }}>₹{totalSpent}</h2>
         </div>
 
         {/* Filter Pills */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '4px' }}>
-          {['All', 'This Month', 'Last Month'].map((f) => (
+          {['All', 'Completed', 'Pending'].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -114,39 +77,51 @@ export default function PaymentHistory() {
 
         {/* Transactions List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {mockTransactions.map((tx) => (
-            <div key={tx.id} style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-              
-              {/* Icon */}
-              <div style={{ 
-                width: '48px', 
-                height: '48px', 
-                borderRadius: '12px', 
-                backgroundColor: tx.iconBg, 
-                color: tx.iconColor,
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                fontSize: '20px',
-                fontWeight: 700,
-                marginRight: '16px'
-              }}>
-                {tx.category}
-              </div>
+          {isLoading ? (
+            <p className="text-center text-muted">Loading...</p>
+          ) : transactions.length === 0 ? (
+            <p className="text-center text-muted">No transactions found.</p>
+          ) : (
+            transactions
+              .filter(tx => {
+                if (filter === 'Completed') return tx.payment_status === 'COMPLETED' || tx.status === 'COMPLETED';
+                if (filter === 'Pending') return tx.payment_status !== 'COMPLETED' && tx.status !== 'COMPLETED';
+                return true;
+              })
+              .map((tx) => (
+              <div key={tx.id} style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                
+                {/* Icon */}
+                <div style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '12px', 
+                  backgroundColor: '#FEF3C7', 
+                  color: '#D97706',
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  fontWeight: 700,
+                  marginRight: '16px'
+                }}>
+                  {tx.service?.name?.charAt(0) || 'S'}
+                </div>
 
-              {/* Details */}
-              <div style={{ flexGrow: 1 }}>
-                <h4 style={{ fontSize: '15px', fontWeight: 600, margin: '0 0 4px', color: 'var(--text-main)' }}>{tx.title}</h4>
-                <p className="text-muted" style={{ fontSize: '13px', margin: 0 }}>{tx.workerName} • {tx.date}</p>
-              </div>
+                {/* Details */}
+                <div style={{ flexGrow: 1 }}>
+                  <h4 style={{ fontSize: '15px', fontWeight: 600, margin: '0 0 4px', color: 'var(--text-main)' }}>{tx.service?.name || 'Service Booking'}</h4>
+                  <p className="text-muted" style={{ fontSize: '13px', margin: 0 }}>{tx.worker?.name || 'Worker'} • {new Date(tx.scheduled_date).toLocaleDateString()}</p>
+                </div>
 
-              {/* Amount & Status */}
-              <div style={{ textAlign: 'right' }}>
-                <h4 style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 4px', color: 'var(--text-main)' }}>₹{tx.amount}</h4>
-                <p style={{ fontSize: '12px', fontWeight: 600, margin: 0, color: 'var(--primary)' }}>{tx.status}</p>
+                {/* Amount & Status */}
+                <div style={{ textAlign: 'right' }}>
+                  <h4 style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 4px', color: 'var(--text-main)' }}>₹{tx.amount}</h4>
+                  <p style={{ fontSize: '12px', fontWeight: 600, margin: 0, color: 'var(--primary)' }}>{tx.payment_status || tx.status}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </main>
     </div>

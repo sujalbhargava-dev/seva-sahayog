@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "seed": "ts-node scripts/seed.ts"
+    "start": "node dist/server.js"
   },
   "keywords": [
     "gig-economy",
@@ -28,6 +27,7 @@
     "i18next-http-middleware": "^3.6.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
+    "pg": "^8.23.0",
     "razorpay": "^2.9.5",
     "zod": "^3.24.1"
   },
