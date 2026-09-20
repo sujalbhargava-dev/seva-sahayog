@@ -29,9 +29,9 @@ class BookingService {
 
     // Validate worker exists and is available
     const { data: workerProfile } = await supabase
-      .from('worker_profiles')
+      .from('workers')
       .select('id, availability')
-      .eq('user_id', input.workerId)
+      .eq('id', input.workerId)
       .maybeSingle();
 
     if (!workerProfile) {
@@ -83,7 +83,7 @@ class BookingService {
 
     // Notify worker
     const { data: customer } = await supabase
-      .from('users')
+      .from('customers')
       .select('name')
       .eq('id', customerId)
       .maybeSingle();
@@ -115,8 +115,8 @@ class BookingService {
       .from('bookings')
       .select(`
         *,
-        customer:users!customer_id(name, phone, email),
-        worker:users!worker_id(name, phone, email),
+        customer:customers!customer_id(name, phone, email),
+        worker:workers!worker_id(name, phone, email),
         service:services!service_id(name, category, base_price)
       `, { count: 'exact' });
 
@@ -150,8 +150,8 @@ class BookingService {
       .from('bookings')
       .select(`
         *,
-        customer:users!customer_id(id, name, phone, email, profile_image),
-        worker:users!worker_id(id, name, phone, email, profile_image),
+        customer:customers!customer_id(id, name, phone, email, profile_image),
+        worker:workers!worker_id(id, name, phone, email, profile_image),
         service:services!service_id(id, name, category, description, base_price)
       `)
       .eq('id', bookingId)
@@ -221,16 +221,16 @@ class BookingService {
     if (newStatus === BookingStatus.COMPLETED) {
       // Increment worker's total jobs
       const { data: workerProfile } = await supabase
-        .from('worker_profiles')
+        .from('workers')
         .select('total_jobs')
-        .eq('user_id', booking.worker_id)
+        .eq('id', booking.worker_id)
         .maybeSingle();
 
       if (workerProfile) {
         await supabase
-          .from('worker_profiles')
+          .from('workers')
           .update({ total_jobs: workerProfile.total_jobs + 1 })
-          .eq('user_id', booking.worker_id);
+          .eq('id', booking.worker_id);
       }
 
       // Create earning record
@@ -255,7 +255,7 @@ class BookingService {
 
     if (newStatus === BookingStatus.ACCEPTED) {
       const { data: worker } = await supabase
-        .from('users')
+        .from('workers')
         .select('name')
         .eq('id', booking.worker_id)
         .maybeSingle();
@@ -270,7 +270,7 @@ class BookingService {
 
     if (newStatus === BookingStatus.REJECTED) {
       const { data: worker } = await supabase
-        .from('users')
+        .from('workers')
         .select('name')
         .eq('id', booking.worker_id)
         .maybeSingle();

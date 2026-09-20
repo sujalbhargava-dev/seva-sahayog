@@ -112,6 +112,40 @@ export const getWorkerEarnings = asyncHandler(async (req: Request, res: Response
 });
 
 /**
+ * GET /api/workers/analytics
+ */
+export const getWorkerAnalytics = asyncHandler(async (req: Request, res: Response) => {
+  // In a real application, this aggregates data from bookings/jobs completed
+  // For now, returning mock structure to match the frontend expectations
+  
+  const mockAnalytics = {
+    earnings: 3240,
+    chartData: [
+      { day: 'Mon', value: 20, active: false },
+      { day: 'Tue', value: 35, active: false },
+      { day: 'Wed', value: 25, active: false },
+      { day: 'Thu', value: 45, active: false },
+      { day: 'Fri', value: 60, active: false },
+      { day: 'Sat', value: 100, active: true },
+      { day: 'Sun', value: 40, active: false },
+    ],
+    stats: {
+      jobs: 18,
+      rating: 4.8,
+      repeatCustomers: '62%',
+      avgResponse: '8 min'
+    },
+    categories: [
+      { name: 'Electrician', percentage: 45, color: '#fbbf24' },
+      { name: 'Fan / Appliance', percentage: 30, color: '#60a5fa' },
+      { name: 'Wiring', percentage: 25, color: '#ea580c' }
+    ]
+  };
+
+  res.json(ApiResponse.ok(mockAnalytics));
+});
+
+/**
  * GET /api/workers/reviews
  */
 export const getWorkerReviews = asyncHandler(async (req: Request, res: Response) => {

@@ -30,6 +30,12 @@ import EmergencyBooking from './pages/customer/EmergencyBooking';
 import Governance from './pages/worker/Governance';
 import WelfareFund from './pages/worker/WelfareFund';
 
+// Phase 3 components
+import DemandInsights from './pages/worker/DemandInsights';
+import Analytics from './pages/worker/Analytics';
+import SmartMatching from './pages/customer/SmartMatching';
+import LanguageSelection from './pages/shared/LanguageSelection';
+
 // Protected Route Component
 function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: 'CUSTOMER' | 'WORKER' }) {
   const { user, isLoading } = useAuth();
@@ -51,6 +57,7 @@ function App() {
           <Route path="/" element={<Navigate to="/landing" replace />} />
           
           {/* Auth Flow */}
+          <Route path="/language" element={<LanguageSelection />} />
           <Route path="/landing" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register/customer" element={<CustomerRegistration />} />
@@ -65,6 +72,7 @@ function App() {
           <Route path="/customer/worker/:id" element={<ProtectedRoute role="CUSTOMER"><WorkerProfile /></ProtectedRoute>} />
           <Route path="/customer/book/:id" element={<ProtectedRoute role="CUSTOMER"><BookingConfirmation /></ProtectedRoute>} />
           <Route path="/customer/finding-worker" element={<ProtectedRoute role="CUSTOMER"><FindingWorker /></ProtectedRoute>} />
+          <Route path="/customer/smart-matching" element={<ProtectedRoute role="CUSTOMER"><SmartMatching /></ProtectedRoute>} />
           <Route path="/customer/payment-history" element={<ProtectedRoute role="CUSTOMER"><PaymentHistory /></ProtectedRoute>} />
           <Route path="/customer/emergency" element={<ProtectedRoute role="CUSTOMER"><EmergencyBooking /></ProtectedRoute>} />
           
@@ -74,6 +82,8 @@ function App() {
           <Route path="/worker/earnings" element={<ProtectedRoute role="WORKER"><WorkerEarnings /></ProtectedRoute>} />
           <Route path="/worker/more" element={<ProtectedRoute role="WORKER"><WorkerMore /></ProtectedRoute>} />
           <Route path="/worker/job/:id/complete" element={<ProtectedRoute role="WORKER"><CompleteJob /></ProtectedRoute>} />
+          <Route path="/worker/demand-insights" element={<ProtectedRoute role="WORKER"><DemandInsights /></ProtectedRoute>} />
+          <Route path="/worker/analytics" element={<ProtectedRoute role="WORKER"><Analytics /></ProtectedRoute>} />
           <Route path="/worker/governance" element={<ProtectedRoute role="WORKER"><Governance /></ProtectedRoute>} />
           <Route path="/worker/welfare" element={<ProtectedRoute role="WORKER"><WelfareFund /></ProtectedRoute>} />
           

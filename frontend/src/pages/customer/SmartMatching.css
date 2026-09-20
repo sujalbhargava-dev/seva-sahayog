@@ -1,0 +1,136 @@
+.matching-page {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding-bottom: 40px;
+}
+
+.matching-header {
+  padding: 48px 24px 16px;
+  background-color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.matching-header button {
+  padding: 8px;
+  margin-left: -8px;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.matching-header button:hover {
+  background-color: #f3f4f6;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.title-row h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.matching-header p {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+
+.matching-content {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.worker-match-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 24px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  border: 1px solid #f3f4f6;
+}
+
+.match-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.match-worker-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.match-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.match-details h3 {
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px 0;
+}
+
+.match-details p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.match-details .dot {
+  margin: 0 4px;
+}
+
+.match-badge {
+  background-color: #008751;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.match-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.match-tag {
+  padding: 4px 12px;
+  background-color: #f9fafb;
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 9999px;
+  border: 1px solid #f3f4f6;
+}

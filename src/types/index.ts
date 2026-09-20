@@ -3,19 +3,40 @@ import { Role, BookingStatus, PaymentStatus, PayoutStatus, VerificationStatus, D
 // ============================================
 // Models
 // ============================================
-export interface IUser {
+export interface ICustomer {
   id: string;
   name: string;
   phone: string;
   email: string;
   password_hash: string;
-  role: Role;
   language: string;
   profile_image: string;
   is_active: boolean;
   refresh_token?: string;
-  address?: string;
-  pincode?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IWorker {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  password_hash: string;
+  language: string;
+  profile_image: string;
+  is_active: boolean;
+  refresh_token?: string;
+  skills: string[];
+  experience: number;
+  location?: any;
+  address: string;
+  availability: boolean;
+  rating: number;
+  total_jobs: number;
+  verification_status: string;
+  verification_video_url: string;
+  cooperative_member: boolean;
   created_at: string;
   updated_at: string;
 }

@@ -4,17 +4,18 @@ import { supabase } from '../config/database';
 import { env } from '../config/env';
 import { ApiError } from '../utils/ApiError';
 import { Role } from '../utils/constants';
-import { RegisterInput, LoginInput, AuthTokens, JwtPayload, IUser } from '../types';
+import { RegisterInput, LoginInput, AuthTokens, JwtPayload, ICustomer, IWorker } from '../types';
 
 class AuthService {
   /**
-   * Register a new user (Customer or Worker).
-   * If role is WORKER, also creates a WorkerProfile.
+   * Register a new user (Customer or Worker) into their respective tables.
    */
-  async register(input: RegisterInput): Promise<{ user: Partial<IUser>; tokens: AuthTokens }> {
+  async register(input: RegisterInput): Promise<{ user: Partial<ICustomer | IWorker>; tokens: AuthTokens }> {
+    const table = input.role === Role.WORKER ? 'workers' : 'customers';
+
     // Check if email already exists
     const { data: existingEmail } = await supabase
-      .from('users')
+      .from(table)
       .select('id')
       .eq('email', input.email)
       .maybeSingle();
@@ -25,7 +26,7 @@ class AuthService {
 
     // Check if phone already exists
     const { data: existingPhone } = await supabase
-      .from('users')
+      .from(table)
       .select('id')
       .eq('phone', input.phone)
       .maybeSingle();
@@ -38,66 +39,79 @@ class AuthService {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(input.password, salt);
 
-    // Create user
+    // Create user in the specific table
     const { data: user, error: userError } = await supabase
-      .from('users')
+      .from(table)
       .insert({
         name: input.name,
         phone: input.phone,
         email: input.email,
         password_hash: passwordHash,
-        role: input.role,
         language: input.language || 'EN',
       })
       .select()
       .single();
 
     if (userError || !user) {
-      throw new ApiError(500, 'Failed to create user: ' + userError?.message);
-    }
-
-    // Create worker profile if worker
-    if (input.role === Role.WORKER) {
-      const { error: profileError } = await supabase
-        .from('worker_profiles')
-        .insert({ user_id: user.id });
-        
-      if (profileError) {
-        // Rollback user creation if profile fails
-        await supabase.from('users').delete().eq('id', user.id);
-        throw new ApiError(500, 'Failed to create worker profile: ' + profileError.message);
-      }
+      throw new ApiError(500, `Failed to create ${input.role.toLowerCase()}: ` + userError?.message);
     }
 
     // Generate tokens
     const tokens = this.generateTokens({
       userId: user.id,
-      role: user.role,
+      role: input.role, // We store the role in JWT so we know which table to query later
     });
 
     // Store refresh token
     await supabase
-      .from('users')
+      .from(table)
       .update({ refresh_token: tokens.refreshToken })
       .eq('id', user.id);
 
     // Remove password hash from response
     const { password_hash, ...safeUser } = user;
-    return { user: safeUser, tokens };
+    // Append role dynamically for the frontend
+    return { user: { ...safeUser, role: input.role }, tokens };
   }
 
   /**
    * Login with email and password.
+   * We will check both tables if role isn't explicitly provided, or we can check the specified role.
+   * Assuming the input doesn't enforce role, we check customers, then workers.
    */
-  async login(input: LoginInput): Promise<{ user: Partial<IUser>; tokens: AuthTokens }> {
-    // Find user
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', input.email)
-      .maybeSingle();
+  async login(input: LoginInput & { role?: Role }): Promise<{ user: Partial<ICustomer | IWorker>; tokens: AuthTokens }> {
+    let user = null;
+    let table = 'customers';
+    let role = Role.CUSTOMER;
 
-    if (error || !user) {
+    if (input.role === Role.WORKER) {
+      table = 'workers';
+      role = Role.WORKER;
+      const { data } = await supabase.from(table).select('*').eq('email', input.email).maybeSingle();
+      user = data;
+    } else if (input.role === Role.CUSTOMER) {
+      table = 'customers';
+      role = Role.CUSTOMER;
+      const { data } = await supabase.from(table).select('*').eq('email', input.email).maybeSingle();
+      user = data;
+    } else {
+      // If role not provided in request, check customers first, then workers
+      let { data } = await supabase.from('customers').select('*').eq('email', input.email).maybeSingle();
+      if (data) {
+        user = data;
+        role = Role.CUSTOMER;
+        table = 'customers';
+      } else {
+        const { data: wData } = await supabase.from('workers').select('*').eq('email', input.email).maybeSingle();
+        if (wData) {
+          user = wData;
+          role = Role.WORKER;
+          table = 'workers';
+        }
+      }
+    }
+
+    if (!user) {
       throw ApiError.unauthorized('Invalid email or password');
     }
 
@@ -114,18 +128,18 @@ class AuthService {
     // Generate tokens
     const tokens = this.generateTokens({
       userId: user.id,
-      role: user.role,
+      role: role,
     });
 
     // Store refresh token
     await supabase
-      .from('users')
+      .from(table)
       .update({ refresh_token: tokens.refreshToken })
       .eq('id', user.id);
 
     // Remove password hash from response
     const { password_hash, ...safeUser } = user;
-    return { user: safeUser, tokens };
+    return { user: { ...safeUser, role }, tokens };
   }
 
   /**
@@ -138,9 +152,11 @@ class AuthService {
         env.JWT_REFRESH_SECRET
       ) as JwtPayload;
 
+      const table = decoded.role === Role.WORKER ? 'workers' : 'customers';
+
       // Find user
       const { data: user } = await supabase
-        .from('users')
+        .from(table)
         .select('*')
         .eq('id', decoded.userId)
         .maybeSingle();
@@ -152,12 +168,12 @@ class AuthService {
       // Generate new tokens
       const tokens = this.generateTokens({
         userId: user.id,
-        role: user.role,
+        role: decoded.role,
       });
 
       // Update stored refresh token
       await supabase
-        .from('users')
+        .from(table)
         .update({ refresh_token: tokens.refreshToken })
         .eq('id', user.id);
 
@@ -171,9 +187,10 @@ class AuthService {
   /**
    * Logout by clearing refresh token.
    */
-  async logout(userId: string): Promise<void> {
+  async logout(userId: string, role: Role): Promise<void> {
+    const table = role === Role.WORKER ? 'workers' : 'customers';
     await supabase
-      .from('users')
+      .from(table)
       .update({ refresh_token: null })
       .eq('id', userId);
   }
@@ -181,9 +198,11 @@ class AuthService {
   /**
    * Get current user profile.
    */
-  async getMe(userId: string): Promise<Partial<IUser>> {
+  async getMe(userId: string, role: Role): Promise<Partial<ICustomer | IWorker>> {
+    const table = role === Role.WORKER ? 'workers' : 'customers';
+    
     const { data: user, error } = await supabase
-      .from('users')
+      .from(table)
       .select('*')
       .eq('id', userId)
       .maybeSingle();
@@ -193,7 +212,7 @@ class AuthService {
     }
     
     const { password_hash, ...safeUser } = user;
-    return safeUser;
+    return { ...safeUser, role };
   }
 
   /**

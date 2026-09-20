@@ -37,8 +37,8 @@ class FairMatchService {
 
     // Base query
     let query = supabase
-      .from('worker_profiles')
-      .select('*, user:users!user_id(name, phone, profile_image, language, is_active)')
+      .from('workers')
+      .select('*')
       .eq('availability', true)
       .eq('verification_status', VerificationStatus.APPROVED);
 
@@ -56,10 +56,10 @@ class FairMatchService {
     if (error || !candidates) return [];
 
     // Filter inactive users and language
-    let filteredWorkers = candidates.filter((w: any) => w.user && w.user.is_active);
+    let filteredWorkers = candidates.filter((w: any) => w.is_active);
     
     if (language) {
-      filteredWorkers = filteredWorkers.filter((w: any) => w.user.language === language);
+      filteredWorkers = filteredWorkers.filter((w: any) => w.language === language);
     }
 
     // Distance filtering
@@ -82,7 +82,7 @@ class FairMatchService {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const workerIds = filteredWorkers.map((w: any) => w.user_id);
+    const workerIds = filteredWorkers.map((w: any) => w.id);
     
     const { data: recentBookings } = await supabase
       .from('bookings')
@@ -100,7 +100,6 @@ class FairMatchService {
 
     // Score each worker
     const scored: WorkerMatchResult[] = filteredWorkers.map((worker: any) => {
-      const userObj = worker.user;
       
       // 1. Skill Score
       const skillScore = this.calculateSkillScore(worker.skills || [], requiredSkills);
@@ -122,7 +121,7 @@ class FairMatchService {
       const availScore = worker.availability ? 1.0 : 0.0;
 
       // 4. Workload Score
-      const recentJobs = jobCountMap.get(worker.user_id) || 0;
+      const recentJobs = jobCountMap.get(worker.id) || 0;
       const workloadScore = 1 - recentJobs / maxJobs;
 
       // 5. Rating Score
@@ -136,15 +135,15 @@ class FairMatchService {
         ratingScore * this.weights.rating;
 
       return {
-        workerId: worker.user_id,
-        workerName: userObj.name,
+        workerId: worker.id,
+        workerName: worker.name,
         matchScore: Math.round(matchScore * 1000) / 1000,
         distance: Math.round(distance * 100) / 100,
         rating: worker.rating,
         totalJobs: worker.total_jobs,
         skills: worker.skills,
         availability: worker.availability,
-        profileImage: userObj.profile_image,
+        profileImage: worker.profile_image,
       };
     });
 

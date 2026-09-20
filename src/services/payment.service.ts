@@ -149,7 +149,7 @@ class PaymentService {
   async getPaymentByBookingId(bookingId: string) {
     const { data: payment, error } = await supabase
       .from('payments')
-      .select('*, customer:users!customer_id(name, email), worker:users!worker_id(name, email)')
+      .select('*, customer:customers!customer_id(name, email), worker:workers!worker_id(name, email)')
       .eq('booking_id', bookingId)
       .maybeSingle();
 

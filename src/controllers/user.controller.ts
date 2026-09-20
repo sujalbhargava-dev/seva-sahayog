@@ -3,12 +3,16 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiResponse } from '../utils/ApiResponse';
 import { supabase } from '../config/database';
 import { ApiError } from '../utils/ApiError';
+import { Role } from '../utils/constants';
 
 /**
  * PATCH /api/users/profile
  */
 export const updateProfile = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.userId;
+  const role = req.user!.role;
+  const table = role === Role.WORKER ? 'workers' : 'customers';
+
   const { phone, address, pincode } = req.body;
 
   const updates: any = {};
@@ -23,7 +27,7 @@ export const updateProfile = asyncHandler(async (req: Request, res: Response) =>
   // If phone is updated, verify it's not already used
   if (phone) {
     const { data: existing } = await supabase
-      .from('users')
+      .from(table)
       .select('id')
       .eq('phone', phone)
       .neq('id', userId)
@@ -35,7 +39,7 @@ export const updateProfile = asyncHandler(async (req: Request, res: Response) =>
   }
 
   const { data: user, error } = await supabase
-    .from('users')
+    .from(table)
     .update(updates)
     .eq('id', userId)
     .select()

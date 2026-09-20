@@ -10,6 +10,8 @@ export default function CustomerHome() {
   const { user } = useAuth();
   const [topWorkers, setTopWorkers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const fetchTopWorkers = async () => {
@@ -36,6 +38,10 @@ export default function CustomerHome() {
     { id: 'cleaner', name: 'Cleaner', icon: <Sparkles size={28} color="#374151" strokeWidth={1.5} />, color: '#A7F3D0' },
   ];
 
+  const filteredCategories = categories.filter(c => 
+    c.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="app-container with-bottom-nav">
       {/* Header */}
@@ -54,9 +60,38 @@ export default function CustomerHome() {
 
       <main className="home-content">
         {/* Search */}
-        <div className="search-bar">
-          <input type="text" placeholder="What service do you need?" />
-          <Search className="search-icon" size={20} />
+        <div className="search-container" style={{ position: 'relative' }}>
+          <div className="search-bar">
+            <input 
+              type="text" 
+              placeholder="What service do you need?" 
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowDropdown(true);
+              }}
+              onFocus={() => setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+            />
+            <Search className="search-icon" size={20} />
+          </div>
+          
+          {showDropdown && searchQuery && filteredCategories.length > 0 && (
+            <div className="search-dropdown">
+              {filteredCategories.map(cat => (
+                <div 
+                  key={cat.id}
+                  className="search-dropdown-item"
+                  onClick={() => navigate(`/customer/workers?category=${cat.id}`)}
+                >
+                  <div className="search-dropdown-icon" style={{ backgroundColor: cat.color }}>
+                    {cat.icon}
+                  </div>
+                  <span>{cat.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Categories */}
@@ -89,10 +124,10 @@ export default function CustomerHome() {
           <div className="promo-badge">R</div>
         </div>
 
-        {/* Phase 2 Quick Actions */}
+        {/* Quick Actions (Phase 2 & 3) */}
         <section className="section mt-6">
           <h3 className="section-title">Quick Actions</h3>
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
             <button 
               onClick={() => navigate('/customer/emergency')}
               style={{ flex: 1, padding: '16px', borderRadius: '12px', backgroundColor: '#FEE2E2', border: '1px solid #FCA5A5', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
@@ -101,8 +136,15 @@ export default function CustomerHome() {
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#991B1B' }}>Emergency</span>
             </button>
             <button 
+              onClick={() => navigate('/customer/smart-matching')}
+              style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+            >
+              <Sparkles size={24} color="#2563EB" />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#1E3A8A', textAlign: 'center' }}>Smart Match</span>
+            </button>
+            <button 
               onClick={() => navigate('/customer/payment-history')}
-              style={{ flex: 1, padding: '16px', borderRadius: '12px', backgroundColor: '#DCFCE7', border: '1px solid #86EFAC', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+              style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#DCFCE7', border: '1px solid #86EFAC', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
             >
               <IndianRupee size={24} color="#16A34A" />
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#14532D' }}>Payments</span>

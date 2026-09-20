@@ -47,7 +47,7 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
  * POST /api/auth/logout
  */
 export const logout = asyncHandler(async (req: Request, res: Response) => {
-  await authService.logout(req.user!.userId);
+  await authService.logout(req.user!.userId, req.user!.role);
 
   res.json(new ApiResponse(200, req.t?.('auth.logoutSuccess') || 'Logged out successfully'));
 });
@@ -56,7 +56,7 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
  * GET /api/auth/me
  */
 export const getMe = asyncHandler(async (req: Request, res: Response) => {
-  const user = await authService.getMe(req.user!.userId);
+  const user = await authService.getMe(req.user!.userId, req.user!.role);
 
   res.json(
     new ApiResponse(200, req.t?.('user.profileFetched') || 'Profile fetched', user)

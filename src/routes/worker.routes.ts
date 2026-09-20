@@ -73,6 +73,13 @@ router.get(
 );
 
 router.get(
+  '/analytics',
+  authenticate,
+  authorize(Role.WORKER),
+  workerController.getWorkerAnalytics
+);
+
+router.get(
   '/reviews',
   authenticate,
   authorize(Role.WORKER),

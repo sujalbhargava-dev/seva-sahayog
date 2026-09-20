@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { UserCircle, Wrench, ChevronRight } from 'lucide-react';
+import { UserCircle, Wrench, ChevronRight, Globe } from 'lucide-react';
 import './Landing.css';
 
 export default function Landing() {
@@ -7,9 +7,18 @@ export default function Landing() {
 
   return (
     <div className="landing-container">
-      <div className="landing-header text-center">
-        <h1 className="logo-text text-primary">WorkLink</h1>
-        <p className="subtitle text-muted">Skilled trades, on demand</p>
+      <div className="landing-header flex justify-between items-start" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="text-center" style={{ flex: 1 }}>
+          <h1 className="logo-text text-primary">WorkLink</h1>
+          <p className="subtitle text-muted">Skilled trades, on demand</p>
+        </div>
+        <button 
+          onClick={() => navigate('/language')}
+          className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+          style={{ padding: '8px', backgroundColor: '#F3F4F6', borderRadius: '50%', cursor: 'pointer', border: 'none' }}
+        >
+          <Globe size={20} color="#374151" />
+        </button>
       </div>
 
       <div className="hero-banner">

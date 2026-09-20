@@ -14,8 +14,8 @@ class WorkerService {
     const to = from + limit - 1;
 
     const { data: workers, count, error } = await supabase
-      .from('worker_profiles')
-      .select('*, user:users!user_id(name, phone, email, profile_image, language)', { count: 'exact' })
+      .from('workers')
+      .select('*', { count: 'exact' })
       .order('rating', { ascending: false })
       .range(from, to);
 
@@ -31,8 +31,8 @@ class WorkerService {
    */
   async getWorkerById(workerId: string) {
     const { data: worker, error } = await supabase
-      .from('worker_profiles')
-      .select('*, user:users!user_id(name, phone, email, profile_image, language)')
+      .from('workers')
+      .select('*')
       .eq('id', workerId)
       .maybeSingle();
 
@@ -47,17 +47,7 @@ class WorkerService {
    * Get worker profile by user ID.
    */
   async getWorkerByUserId(userId: string) {
-    const { data: worker, error } = await supabase
-      .from('worker_profiles')
-      .select('*, user:users!user_id(name, phone, email, profile_image, language)')
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    if (error || !worker) {
-      throw ApiError.notFound('Worker profile not found');
-    }
-
-    return worker;
+    return this.getWorkerById(userId);
   }
 
   /**
@@ -72,9 +62,9 @@ class WorkerService {
     if (updates.cooperativeMember !== undefined) payload.cooperative_member = updates.cooperativeMember;
 
     const { data: worker, error } = await supabase
-      .from('worker_profiles')
+      .from('workers')
       .update(payload)
-      .eq('user_id', userId)
+      .eq('id', userId)
       .select()
       .maybeSingle();
 
@@ -95,12 +85,12 @@ class WorkerService {
     address: string
   ) {
     const { data: worker, error } = await supabase
-      .from('worker_profiles')
+      .from('workers')
       .update({
         location: `SRID=4326;POINT(${longitude} ${latitude})`,
         address: address,
       })
-      .eq('user_id', userId)
+      .eq('id', userId)
       .select()
       .maybeSingle();
 
@@ -116,9 +106,9 @@ class WorkerService {
    */
   async updateAvailability(userId: string, availability: boolean) {
     const { data: worker, error } = await supabase
-      .from('worker_profiles')
+      .from('workers')
       .update({ availability })
-      .eq('user_id', userId)
+      .eq('id', userId)
       .select()
       .maybeSingle();
 
@@ -135,9 +125,9 @@ class WorkerService {
   async addSkills(userId: string, newSkills: string[]) {
     // Fetch current skills
     const { data: current } = await supabase
-      .from('worker_profiles')
+      .from('workers')
       .select('skills')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .maybeSingle();
 
     if (!current) throw ApiError.notFound('Worker profile not found');
@@ -145,9 +135,9 @@ class WorkerService {
     const updatedSkills = Array.from(new Set([...(current.skills || []), ...newSkills]));
 
     const { data: worker, error } = await supabase
-      .from('worker_profiles')
+      .from('workers')
       .update({ skills: updatedSkills })
-      .eq('user_id', userId)
+      .eq('id', userId)
       .select()
       .maybeSingle();
 
@@ -160,9 +150,9 @@ class WorkerService {
    */
   async removeSkill(userId: string, skill: string) {
     const { data: current } = await supabase
-      .from('worker_profiles')
+      .from('workers')
       .select('skills')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .maybeSingle();
 
     if (!current) throw ApiError.notFound('Worker profile not found');
@@ -170,9 +160,9 @@ class WorkerService {
     const updatedSkills = (current.skills || []).filter((s: string) => s !== skill);
 
     const { data: worker, error } = await supabase
-      .from('worker_profiles')
+      .from('workers')
       .update({ skills: updatedSkills })
-      .eq('user_id', userId)
+      .eq('id', userId)
       .select()
       .maybeSingle();
 
@@ -189,12 +179,12 @@ class WorkerService {
 
     const { data: jobs, count, error } = await supabase
       .from('bookings')
-      .select('*, customer:users!customer_id(name, phone), service:services!service_id(name, category)', { count: 'exact' })
+      .select('*, customer:customers!customer_id(name, phone), service:services!service_id(name, category)', { count: 'exact' })
       .eq('worker_id', userId)
       .order('created_at', { ascending: false })
       .range(from, to);
 
-    if (error) throw new ApiError(500, 'Failed to fetch worker jobs');
+    if (error) throw new ApiError(500, 'Failed to fetch worker jobs: ' + error.message);
 
     return { jobs, total: count || 0, page, limit };
   }
@@ -237,12 +227,12 @@ class WorkerService {
 
     const { data: reviews, count, error } = await supabase
       .from('reviews')
-      .select('*, customer:users!customer_id(name, profile_image)', { count: 'exact' })
+      .select('*, customer:customers!customer_id(name, profile_image)', { count: 'exact' })
       .eq('worker_id', userId)
       .order('created_at', { ascending: false })
       .range(from, to);
 
-    if (error) throw new ApiError(500, 'Failed to fetch reviews');
+    if (error) throw new ApiError(500, 'Failed to fetch reviews: ' + error.message);
 
     return { reviews, total: count || 0, page, limit };
   }
@@ -256,9 +246,9 @@ class WorkerService {
     skills: string[]
   ) {
     const { data: worker } = await supabase
-      .from('worker_profiles')
+      .from('workers')
       .select('id')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .maybeSingle();
 
     if (!worker) throw ApiError.notFound('Worker profile not found');
@@ -277,9 +267,9 @@ class WorkerService {
 
     // Update worker profile with latest video URL
     await supabase
-      .from('worker_profiles')
+      .from('workers')
       .update({ verification_video_url: videoUrl })
-      .eq('user_id', userId);
+      .eq('id', userId);
 
     return verification;
   }
@@ -295,9 +285,9 @@ class WorkerService {
       .order('created_at', { ascending: false });
 
     const { data: worker } = await supabase
-      .from('worker_profiles')
+      .from('workers')
       .select('verification_status')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .maybeSingle();
 
     return {
@@ -321,9 +311,9 @@ class WorkerService {
       const avgRating = Math.round((totalRating / reviews.length) * 10) / 10;
 
       await supabase
-        .from('worker_profiles')
+        .from('workers')
         .update({ rating: avgRating })
-        .eq('user_id', workerId);
+        .eq('id', workerId);
     }
   }
 }

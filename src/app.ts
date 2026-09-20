@@ -17,6 +17,7 @@ import disputeRoutes from './routes/dispute.routes';
 import adminRoutes from './routes/admin.routes';
 import notificationRoutes from './routes/notification.routes';
 import policyRoutes from './routes/policy.routes';
+import aiRoutes from './routes/ai.routes';
 
 const app = express();
 
@@ -64,6 +65,7 @@ app.use('/api/disputes', disputeRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/policies', policyRoutes);
+app.use('/api/ai', aiRoutes);
 
 // ============================================
 // 404 Handler

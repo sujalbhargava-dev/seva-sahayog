@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Menu, Home, Calendar, IndianRupee, MoreHorizontal, ChevronRight, Briefcase, Vote, ShieldCheck, User } from 'lucide-react';
+import { Menu, Home, Calendar, IndianRupee, MoreHorizontal, ChevronRight, Briefcase, Vote, ShieldCheck, User, Zap, BarChart2 } from 'lucide-react';
 import './WorkerHome.css';
 
 export default function WorkerHome() {
@@ -19,23 +19,25 @@ export default function WorkerHome() {
 
       <main style={{ padding: '0 20px 20px' }}>
         {/* Greeting */}
-        <div className="greeting mt-2 mb-6">
-          <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '0 0 4px', color: 'var(--text-main)' }}>Hello, Rohit</h1>
-          <p className="text-muted" style={{ fontSize: '14px' }}>Skilled Hands, Stronger Tomorrow</p>
+        <div className="greeting mt-4 mb-6">
+          <h1 style={{ fontSize: '26px', fontWeight: 700, margin: '0 0 4px', color: 'var(--text-main)', letterSpacing: '-0.5px' }}>Hello, Rohit</h1>
+          <p className="text-muted" style={{ fontSize: '15px' }}>Skilled Hands, Stronger Tomorrow</p>
         </div>
 
         {/* Earnings Card */}
         <div className="earnings-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div className="earnings-top">
             <div>
-              <p style={{ fontSize: '13px', opacity: 0.9 }}>Total Earnings</p>
-              <h2 style={{ fontSize: '32px', fontWeight: 700, margin: '4px 0' }}>₹12,450</h2>
+              <p className="earnings-label">Total Earnings</p>
+              <h2 className="earnings-amount">₹12,450</h2>
             </div>
             <div className="currency-icon">₹</div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-            <p style={{ fontSize: '12px', opacity: 0.8 }}>This Month</p>
-            <p style={{ fontSize: '12px', fontWeight: 600 }}>↑ 12%</p>
+          <div className="earnings-bottom">
+            <p className="earnings-period">This Month</p>
+            <div className="earnings-badge">
+              <span>↑ 12%</span>
+            </div>
           </div>
         </div>
 
@@ -65,6 +67,16 @@ export default function WorkerHome() {
           <button className="menu-item">
             <IndianRupee size={20} className="menu-icon" />
             <span className="flex-grow">Earnings & Payouts</span>
+            <ChevronRight size={20} className="text-muted" />
+          </button>
+          <button className="menu-item" onClick={() => navigate('/worker/demand-insights')}>
+            <Zap size={20} className="menu-icon" style={{ backgroundColor: '#10B981', color: 'white', borderRadius: '4px', padding: '2px' }} />
+            <span className="flex-grow">Demand Insights</span>
+            <ChevronRight size={20} className="text-muted" />
+          </button>
+          <button className="menu-item" onClick={() => navigate('/worker/analytics')}>
+            <BarChart2 size={20} className="menu-icon" style={{ backgroundColor: '#10B981', color: 'white', borderRadius: '4px', padding: '2px' }} />
+            <span className="flex-grow">Analytics</span>
             <ChevronRight size={20} className="text-muted" />
           </button>
           <button className="menu-item" onClick={() => navigate('/worker/governance')}>
