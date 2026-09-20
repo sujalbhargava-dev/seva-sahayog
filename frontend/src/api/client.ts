@@ -1,7 +1,18 @@
 import axios from 'axios';
 
-// Get the backend URL from env, or default to localhost:5000
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Get the backend URL from env, or default to localhost:5000.
+// Every server route is mounted under /api (see the Express app), so the base
+// URL must end with /api or all requests 404 with "Route not found". The env
+// var is allowed to be either the bare origin or the full /api base.
+const normalizeApiUrl = (raw: string) => {
+  const base = raw.trim().replace(/\/+$/, '');
+  if (!base) return '/api';
+  return /\/api$/.test(base) ? base : `${base}/api`;
+};
+
+const API_URL = normalizeApiUrl(
+  import.meta.env.VITE_API_URL || 'http://localhost:5000'
+);
 
 const apiClient = axios.create({
   baseURL: API_URL,
