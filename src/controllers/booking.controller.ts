@@ -57,7 +57,7 @@ export const acceptBooking = asyncHandler(async (req: Request, res: Response) =>
     req.params.id,
     req.user!.userId,
     req.user!.role,
-    BookingStatus.ACCEPTED
+    BookingStatus.CONFIRMED
   );
 
   res.json(

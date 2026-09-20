@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Home, Calendar, IndianRupee, MoreHorizontal, ChevronRight, Briefcase, Vote, ShieldCheck, User, Zap, BarChart2 } from 'lucide-react';
+import { Menu, Home, Calendar, IndianRupee, MoreHorizontal, ChevronRight, Briefcase, Vote, ShieldCheck, User, Zap, BarChart2, Bell } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../api/client';
 import './WorkerHome.css';
@@ -38,8 +38,18 @@ export default function WorkerHome() {
         <button className="back-btn" style={{ padding: '8px' }}>
           <Menu size={24} />
         </button>
-        <div className="w-avatar" style={{ backgroundColor: '#1F2937', color: 'white', width: '36px', height: '36px', margin: 0, fontSize: '14px' }}>
-          {user?.name ? user.name.charAt(0).toUpperCase() : 'W'}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button 
+            className="back-btn" 
+            style={{ padding: '8px', position: 'relative' }}
+            onClick={() => navigate('/worker/notifications')}
+          >
+            <Bell size={24} />
+            <div style={{ position: 'absolute', top: '8px', right: '8px', width: '10px', height: '10px', backgroundColor: '#ef4444', borderRadius: '50%', border: '2px solid var(--bg-app)' }}></div>
+          </button>
+          <div className="w-avatar" style={{ backgroundColor: '#1F2937', color: 'white', width: '36px', height: '36px', margin: 0, fontSize: '14px' }}>
+            {user?.name ? user.name.charAt(0).toUpperCase() : 'W'}
+          </div>
         </div>
       </div>
 

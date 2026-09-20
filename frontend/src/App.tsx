@@ -20,6 +20,7 @@ import WorkerEarnings from './pages/worker/WorkerEarnings';
 import WorkerMore from './pages/worker/WorkerMore';
 import WorkerSelfProfile from './pages/worker/WorkerProfile';
 import CompleteJob from './pages/worker/CompleteJob';
+import WorkerNotifications from './pages/worker/WorkerNotifications';
 
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminHome from './pages/admin/AdminHome';
@@ -92,6 +93,7 @@ function App() {
           <Route path="/worker/analytics" element={<ProtectedRoute role="WORKER"><Analytics /></ProtectedRoute>} />
           <Route path="/worker/governance" element={<ProtectedRoute role="WORKER"><Governance /></ProtectedRoute>} />
           <Route path="/worker/welfare" element={<ProtectedRoute role="WORKER"><WelfareFund /></ProtectedRoute>} />
+          <Route path="/worker/notifications" element={<ProtectedRoute role="WORKER"><WorkerNotifications /></ProtectedRoute>} />
           
           {/* Admin Flow */}
           <Route path="/admin/login" element={<AdminLogin />} />

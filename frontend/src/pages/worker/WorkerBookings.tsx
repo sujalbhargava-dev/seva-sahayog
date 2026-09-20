@@ -26,6 +26,19 @@ export default function WorkerBookings() {
     fetchJobs();
   }, []);
 
+  const handleStatusUpdate = async (id: string, action: 'accept' | 'reject') => {
+    try {
+      await apiClient.patch(`/bookings/${id}/${action}`);
+      // Refresh jobs
+      const res = await apiClient.get('/workers/jobs');
+      if (res.data?.data) {
+        setJobs(res.data.data);
+      }
+    } catch (error) {
+      console.error(`Failed to ${action} job`, error);
+    }
+  };
+
   const upcomingJobs = jobs.filter(j => ['PENDING', 'ACCEPTED', 'CONFIRMED', 'IN_PROGRESS'].includes(j.status?.toUpperCase()));
   const pastJobs = jobs.filter(j => ['COMPLETED', 'CANCELLED', 'REJECTED'].includes(j.status?.toUpperCase()));
   
@@ -69,7 +82,11 @@ export default function WorkerBookings() {
             <div 
               key={job.id} 
               style={{ backgroundColor: 'var(--bg-card)', borderRadius: '16px', padding: '16px', border: '1px solid var(--border)', cursor: 'pointer' }}
-              onClick={() => navigate(`/worker/job/${job.id}/complete`)}
+              onClick={() => {
+                if (['CONFIRMED', 'IN_PROGRESS'].includes(job.status?.toUpperCase())) {
+                  navigate(`/worker/job/${job.id}/complete`);
+                }
+              }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                 <div>
@@ -94,8 +111,25 @@ export default function WorkerBookings() {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
                 <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Estimated Payout</span>
-                <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-main)' }}>₹{job.total_amount}</span>
+                <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-main)' }}>₹{job.amount || job.total_amount || 0}</span>
               </div>
+              
+              {job.status?.toUpperCase() === 'PENDING' && (
+                <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); handleStatusUpdate(job.id, 'accept'); }}
+                    style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: 600, fontSize: '14px', cursor: 'pointer' }}
+                  >
+                    Accept
+                  </button>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); handleStatusUpdate(job.id, 'reject'); }}
+                    style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'white', color: 'var(--text-main)', fontWeight: 600, fontSize: '14px', cursor: 'pointer' }}
+                  >
+                    Decline
+                  </button>
+                </div>
+              )}
             </div>
           ))
         )}

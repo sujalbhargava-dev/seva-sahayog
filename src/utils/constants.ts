@@ -12,7 +12,7 @@ export enum Role {
 // ============================================
 export enum BookingStatus {
   PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
+  CONFIRMED = 'CONFIRMED',
   REJECTED = 'REJECTED',
   IN_PROGRESS = 'IN_PROGRESS',
   COMPLETED = 'COMPLETED',
@@ -25,8 +25,8 @@ export enum BookingStatus {
  * Maps current status → allowed next statuses.
  */
 export const BOOKING_STATUS_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
-  [BookingStatus.PENDING]: [BookingStatus.ACCEPTED, BookingStatus.REJECTED, BookingStatus.CANCELLED],
-  [BookingStatus.ACCEPTED]: [BookingStatus.IN_PROGRESS, BookingStatus.CANCELLED],
+  [BookingStatus.PENDING]: [BookingStatus.CONFIRMED, BookingStatus.REJECTED, BookingStatus.CANCELLED],
+  [BookingStatus.CONFIRMED]: [BookingStatus.IN_PROGRESS, BookingStatus.CANCELLED],
   [BookingStatus.REJECTED]: [],
   [BookingStatus.IN_PROGRESS]: [BookingStatus.COMPLETED, BookingStatus.DISPUTED],
   [BookingStatus.COMPLETED]: [],

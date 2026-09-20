@@ -31,8 +31,8 @@ class PaymentService {
     }
 
     if (
-      booking.status !== BookingStatus.COMPLETED &&
-      booking.status !== BookingStatus.ACCEPTED
+      booking.status !== BookingStatus.CONFIRMED &&
+      booking.status !== BookingStatus.COMPLETED
     ) {
       throw ApiError.badRequest('Booking must be accepted or completed to make payment');
     }

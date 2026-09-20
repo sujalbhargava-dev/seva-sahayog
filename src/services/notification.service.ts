@@ -124,6 +124,17 @@ class NotificationService {
     );
   }
 
+  async notifyBookingCancelled(userId: string, cancelledByCustomer: boolean) {
+    return this.create(
+      userId,
+      'Booking Cancelled',
+      cancelledByCustomer 
+        ? 'A customer has cancelled their booking with you' 
+        : 'Your booking has been cancelled by the worker',
+      NotificationType.GENERAL
+    );
+  }
+
   async notifyBookingCompleted(customerId: string) {
     return this.create(
       customerId,

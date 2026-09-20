@@ -8,8 +8,9 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+
-- MongoDB Atlas or local MongoDB
+- Supabase (PostgreSQL)
 - Python 3.10+ (for AI microservice)
 
 ### Installation
@@ -20,10 +21,7 @@ npm install
 
 # Copy environment template
 cp .env.example .env
-# Edit .env with your credentials
-
-# Seed the database
-npm run seed
+# Edit .env with your Supabase credentials (SUPABASE_URL, SUPABASE_KEY)
 
 # Start development server
 npm run dev
@@ -43,13 +41,12 @@ python main.py
 
 ```
 src/
-├── config/          # Database, Cloudinary, Razorpay, i18n configs
-├── models/          # 12 Mongoose models
+├── config/          # Environment variables, Cloudinary, Razorpay, i18n configs
 ├── routes/          # Express route definitions
 ├── controllers/     # Request handling
-├── services/        # Business logic layer
+├── services/        # Business logic layer (Supabase operations)
 │   └── matching/    # Fair Match Engine
-├── middleware/       # Auth, validation, rate limiting, upload
+├── middleware/      # Auth, validation, rate limiting, upload
 ├── validators/      # Zod schemas
 ├── utils/           # Helpers, constants, error classes
 ├── types/           # TypeScript type definitions
@@ -58,7 +55,7 @@ src/
 └── server.ts        # Entry point
 
 ai-service/          # Python FastAPI demand forecasting
-scripts/             # Database seed script
+supabase/            # Supabase database migrations and schema definitions
 ```
 
 ---
@@ -67,97 +64,105 @@ scripts/             # Database seed script
 
 JWT-based with access token (15 min) + refresh token (7 days).
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/auth/register` | POST | Register customer or worker |
-| `/api/auth/login` | POST | Login |
-| `/api/auth/refresh` | POST | Refresh access token |
-| `/api/auth/logout` | POST | Logout |
-| `/api/auth/me` | GET | Current user profile |
+| Endpoint             | Method | Description                 |
+| -------------------- | ------ | --------------------------- |
+| `/api/auth/register` | POST   | Register customer or worker |
+| `/api/auth/login`    | POST   | Login                       |
+| `/api/auth/refresh`  | POST   | Refresh access token        |
+| `/api/auth/logout`   | POST   | Logout                      |
+| `/api/auth/me`       | GET    | Current user profile        |
 
 ---
 
 ## 📋 API Endpoints
 
 ### Workers
-| Endpoint | Method | Auth |
-|----------|--------|------|
-| `/api/workers` | GET | Public |
-| `/api/workers/:id` | GET | Public |
-| `/api/workers/profile` | PATCH | Worker |
-| `/api/workers/location` | PATCH | Worker |
-| `/api/workers/availability` | PATCH | Worker |
-| `/api/workers/skills` | POST | Worker |
-| `/api/workers/skills/:skill` | DELETE | Worker |
-| `/api/workers/jobs` | GET | Worker |
-| `/api/workers/earnings` | GET | Worker |
-| `/api/workers/reviews` | GET | Worker |
-| `/api/workers/verification/video` | POST | Worker |
-| `/api/workers/verification/status` | GET | Worker |
+
+| Endpoint                           | Method | Auth   |
+| ---------------------------------- | ------ | ------ |
+| `/api/workers`                     | GET    | Public |
+| `/api/workers/:id`                 | GET    | Public |
+| `/api/workers/profile`             | PATCH  | Worker |
+| `/api/workers/location`            | PATCH  | Worker |
+| `/api/workers/availability`        | PATCH  | Worker |
+| `/api/workers/skills`              | POST   | Worker |
+| `/api/workers/skills/:skill`       | DELETE | Worker |
+| `/api/workers/jobs`                | GET    | Worker |
+| `/api/workers/earnings`            | GET    | Worker |
+| `/api/workers/reviews`             | GET    | Worker |
+| `/api/workers/verification/video`  | POST   | Worker |
+| `/api/workers/verification/status` | GET    | Worker |
 
 ### Search
-| Endpoint | Method | Params |
-|----------|--------|--------|
-| `/api/search/workers` | GET | service, latitude, longitude, radius, availability, rating, language |
+
+| Endpoint              | Method | Params                                                               |
+| --------------------- | ------ | -------------------------------------------------------------------- |
+| `/api/search/workers` | GET    | service, latitude, longitude, radius, availability, rating, language |
 
 ### Bookings
-| Endpoint | Method | Auth |
-|----------|--------|------|
-| `/api/bookings` | POST | Customer |
-| `/api/bookings` | GET | Auth |
-| `/api/bookings/:id` | GET | Auth |
-| `/api/bookings/:id/accept` | PATCH | Worker |
-| `/api/bookings/:id/reject` | PATCH | Worker |
-| `/api/bookings/:id/start` | PATCH | Worker |
-| `/api/bookings/:id/complete` | PATCH | Worker |
-| `/api/bookings/:id/cancel` | PATCH | Auth |
+
+| Endpoint                     | Method | Auth     |
+| ---------------------------- | ------ | -------- |
+| `/api/bookings`              | POST   | Customer |
+| `/api/bookings`              | GET    | Auth     |
+| `/api/bookings/:id`          | GET    | Auth     |
+| `/api/bookings/:id/accept`   | PATCH  | Worker   |
+| `/api/bookings/:id/reject`   | PATCH  | Worker   |
+| `/api/bookings/:id/start`    | PATCH  | Worker   |
+| `/api/bookings/:id/complete` | PATCH  | Worker   |
+| `/api/bookings/:id/cancel`   | PATCH  | Auth     |
 
 ### Payments
-| Endpoint | Method | Auth |
-|----------|--------|------|
-| `/api/payments/create-order` | POST | Customer |
-| `/api/payments/verify` | POST | Customer |
-| `/api/payments/:bookingId` | GET | Auth |
-| `/api/payments/webhook` | POST | Public |
+
+| Endpoint                     | Method | Auth     |
+| ---------------------------- | ------ | -------- |
+| `/api/payments/create-order` | POST   | Customer |
+| `/api/payments/verify`       | POST   | Customer |
+| `/api/payments/:bookingId`   | GET    | Auth     |
+| `/api/payments/webhook`      | POST   | Public   |
 
 ### Reviews & Disputes
-| Endpoint | Method | Auth |
-|----------|--------|------|
-| `/api/reviews` | POST | Customer |
-| `/api/reviews/worker/:workerId` | GET | Public |
-| `/api/disputes` | POST | Customer/Worker |
-| `/api/disputes` | GET | Auth |
-| `/api/disputes/:id/resolve` | PATCH | Admin |
+
+| Endpoint                        | Method | Auth            |
+| ------------------------------- | ------ | --------------- |
+| `/api/reviews`                  | POST   | Customer        |
+| `/api/reviews/worker/:workerId` | GET    | Public          |
+| `/api/disputes`                 | POST   | Customer/Worker |
+| `/api/disputes`                 | GET    | Auth            |
+| `/api/disputes/:id/resolve`     | PATCH  | Admin           |
 
 ### Admin
-| Endpoint | Method |
-|----------|--------|
-| `/api/admin/users` | GET |
-| `/api/admin/users/:id` | PATCH |
-| `/api/admin/workers/verify/:id` | PATCH |
-| `/api/admin/skill-verification` | GET |
-| `/api/admin/skill-verification/:id` | PATCH |
-| `/api/admin/disputes` | GET |
-| `/api/admin/disputes/:id/resolve` | PATCH |
-| `/api/admin/bookings` | GET |
-| `/api/admin/payouts` | GET |
-| `/api/admin/stats` | GET |
+
+| Endpoint                            | Method |
+| ----------------------------------- | ------ |
+| `/api/admin/users`                  | GET    |
+| `/api/admin/users/:id`              | PATCH  |
+| `/api/admin/workers/verify/:id`     | PATCH  |
+| `/api/admin/skill-verification`     | GET    |
+| `/api/admin/skill-verification/:id` | PATCH  |
+| `/api/admin/disputes`               | GET    |
+| `/api/admin/disputes/:id/resolve`   | PATCH  |
+| `/api/admin/bookings`               | GET    |
+| `/api/admin/payouts`                | GET    |
+| `/api/admin/stats`                  | GET    |
 
 ### Policy Voting
-| Endpoint | Method | Auth |
-|----------|--------|------|
-| `/api/policies` | GET | Worker/Admin |
-| `/api/policies` | POST | Admin |
-| `/api/policies/:id` | GET | Worker/Admin |
-| `/api/policies/:id/vote` | POST | Worker |
-| `/api/policies/:id/close` | PATCH | Admin |
+
+| Endpoint                  | Method | Auth         |
+| ------------------------- | ------ | ------------ |
+| `/api/policies`           | GET    | Worker/Admin |
+| `/api/policies`           | POST   | Admin        |
+| `/api/policies/:id`       | GET    | Worker/Admin |
+| `/api/policies/:id/vote`  | POST   | Worker       |
+| `/api/policies/:id/close` | PATCH  | Admin        |
 
 ### Notifications
-| Endpoint | Method |
-|----------|--------|
-| `/api/notifications` | GET |
-| `/api/notifications/:id/read` | PATCH |
-| `/api/notifications/read-all` | PATCH |
+
+| Endpoint                      | Method |
+| ----------------------------- | ------ |
+| `/api/notifications`          | GET    |
+| `/api/notifications/:id/read` | PATCH  |
+| `/api/notifications/read-all` | PATCH  |
 
 ---
 
@@ -177,20 +182,19 @@ The **workload factor** ensures fair distribution — workers with fewer recent 
 
 FastAPI service using scikit-learn for demand forecasting:
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/forecast/demand` | GET | Demand forecast by service/area |
-| `/api/forecast/trends` | GET | Weekly/monthly trend analysis |
-| `/health` | GET | Health check |
+| Endpoint               | Method | Description                     |
+| ---------------------- | ------ | ------------------------------- |
+| `/api/forecast/demand` | GET    | Demand forecast by service/area |
+| `/api/forecast/trends` | GET    | Weekly/monthly trend analysis   |
+| `/health`              | GET    | Health check                    |
 
 ---
 
 ## 🔒 Security Features
 
-- bcryptjs password hashing (12 rounds)
-- JWT with refresh token rotation
+- Supabase Auth (Secure JWTs, RLS policies, automated token rotation)
 - Server-side Razorpay signature verification
-- Role-based access control
+- Role-based access control (Admin, Worker, Customer)
 - Rate limiting (100 req/15min general, 20 req/15min auth)
 - Input validation with Zod
 - Booking state machine with transition validation
@@ -201,7 +205,8 @@ FastAPI service using scikit-learn for demand forecasting:
 ## 📦 Seeded Data
 
 Run `npm run seed` to populate:
-- **Admin**: admin@sewashayog.in / Admin@123456
+
+- **Admin**: admin@sewashayog.in / Admin@123
 - **Customer**: customer@example.com / Customer@123
 - **Workers**: 3 sample workers with skills and locations
 - **Services**: 12 service categories

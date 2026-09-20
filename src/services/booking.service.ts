@@ -50,7 +50,7 @@ class BookingService {
       .eq('scheduled_time', input.scheduledTime)
       .in('status', [
         BookingStatus.PENDING,
-        BookingStatus.ACCEPTED,
+        BookingStatus.CONFIRMED,
         BookingStatus.IN_PROGRESS,
       ])
       .maybeSingle();
@@ -253,7 +253,7 @@ class BookingService {
       await notificationService.notifyBookingCompleted(booking.customer_id);
     }
 
-    if (newStatus === BookingStatus.ACCEPTED) {
+    if (newStatus === BookingStatus.CONFIRMED) {
       const { data: worker } = await supabase
         .from('workers')
         .select('name')
@@ -283,6 +283,13 @@ class BookingService {
       }
     }
 
+    if (newStatus === BookingStatus.CANCELLED) {
+      // If customer cancelled it, notify worker. If worker cancelled it, notify customer.
+      const isCustomer = userId === booking.customer_id;
+      const targetUserId = isCustomer ? booking.worker_id : booking.customer_id;
+      await notificationService.notifyBookingCancelled(targetUserId, isCustomer);
+    }
+
     return updatedBooking;
   }
 
@@ -300,7 +307,7 @@ class BookingService {
     const isAdmin = role === Role.ADMIN;
 
     switch (newStatus) {
-      case BookingStatus.ACCEPTED:
+      case BookingStatus.CONFIRMED:
       case BookingStatus.REJECTED:
       case BookingStatus.IN_PROGRESS:
       case BookingStatus.COMPLETED:
