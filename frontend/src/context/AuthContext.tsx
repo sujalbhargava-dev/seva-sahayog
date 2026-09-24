@@ -80,7 +80,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const login = (userData: User, accessToken: string, refreshToken: string) => {
+  const login = (userData: any, accessToken: string, refreshToken: string) => {
+    if (userData.profile_image) {
+      userData.profilePicture = userData.profile_image;
+    }
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
     localStorage.setItem('accessToken', accessToken);
