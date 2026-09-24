@@ -20,6 +20,8 @@ import WorkerBookings from './pages/worker/WorkerBookings';
 import WorkerEarnings from './pages/worker/WorkerEarnings';
 import WorkerMore from './pages/worker/WorkerMore';
 import WorkerSelfProfile from './pages/worker/WorkerProfile';
+import WorkerPersonalInfo from './pages/worker/WorkerPersonalInfo';
+import WorkerDocsKyc from './pages/worker/WorkerDocsKyc';
 import CompleteJob from './pages/worker/CompleteJob';
 import WorkerNotifications from './pages/worker/WorkerNotifications';
 
@@ -89,6 +91,8 @@ function App() {
           <Route path="/worker/earnings" element={<ProtectedRoute role="WORKER"><WorkerEarnings /></ProtectedRoute>} />
           <Route path="/worker/more" element={<ProtectedRoute role="WORKER"><WorkerMore /></ProtectedRoute>} />
           <Route path="/worker/profile" element={<ProtectedRoute role="WORKER"><WorkerSelfProfile /></ProtectedRoute>} />
+          <Route path="/worker/profile/personal-info" element={<ProtectedRoute role="WORKER"><WorkerPersonalInfo /></ProtectedRoute>} />
+          <Route path="/worker/profile/docs" element={<ProtectedRoute role="WORKER"><WorkerDocsKyc /></ProtectedRoute>} />
           <Route path="/worker/job/:id/complete" element={<ProtectedRoute role="WORKER"><CompleteJob /></ProtectedRoute>} />
           <Route path="/worker/demand-insights" element={<ProtectedRoute role="WORKER"><DemandInsights /></ProtectedRoute>} />
           <Route path="/worker/analytics" element={<ProtectedRoute role="WORKER"><Analytics /></ProtectedRoute>} />

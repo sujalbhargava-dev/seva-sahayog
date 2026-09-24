@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Home, Calendar, MessageSquare, User, MapPin, Phone, History, ChevronRight, Save, X } from 'lucide-react';
+import { Home, Calendar, MessageSquare, User, MapPin, Phone, History, ChevronRight, Save, X, Camera } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../api/client';
 import LanguagePicker from '../../components/LanguagePicker';
@@ -18,6 +18,33 @@ export default function CustomerProfile() {
   const [address, setAddress] = useState(user?.address || '');
   const [pincode, setPincode] = useState(user?.pincode || '');
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // 1. Show immediate local preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateUser({ profilePicture: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+
+      // 2. Upload to backend (Supabase Storage)
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await apiClient.post('/users/profile-picture', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (res.data?.data?.profilePicture) {
+          updateUser({ profilePicture: res.data.data.profilePicture });
+        }
+      } catch (error) {
+        console.error('Failed to upload display picture', error);
+      }
+    }
+  };
 
   const handleUpdate = async (field: 'phone' | 'address') => {
     setLoading(true);
@@ -39,8 +66,21 @@ export default function CustomerProfile() {
       <main style={{ padding: '24px 20px', minHeight: '80vh' }}>
         {/* Profile Header */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
-          <div className="avatar" style={{ width: '80px', height: '80px', fontSize: '32px', marginBottom: '16px', backgroundColor: 'var(--primary-light)', color: 'var(--primary)' }}>
-            {user?.name ? user.name.charAt(0).toUpperCase() : 'C'}
+          <div style={{ position: 'relative' }}>
+            <div className="avatar" style={{ width: '80px', height: '80px', fontSize: '32px', marginBottom: '16px', backgroundColor: user?.profilePicture ? 'transparent' : 'var(--primary-light)', color: 'var(--primary)', overflow: 'hidden', padding: 0 }}>
+              {user?.profilePicture ? (
+                <img src={user.profilePicture} alt="DP" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                user?.name ? user.name.charAt(0).toUpperCase() : 'C'
+              )}
+            </div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              style={{ position: 'absolute', bottom: '16px', right: '0px', background: 'var(--primary)', border: '2px solid #ffffff', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
+            >
+              <Camera size={14} color="white" />
+            </button>
+            <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" style={{ display: 'none' }} />
           </div>
           <h2 style={{ fontSize: '22px', fontWeight: 600, margin: 0 }}>{user?.name || 'Customer'}</h2>
           <p className="text-muted mt-1">{user?.email}</p>

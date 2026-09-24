@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import {
   Home, Calendar, IndianRupee, MoreHorizontal,
   ChevronRight, Briefcase, Vote, ShieldCheck, User,
-  Zap, BarChart2, Bell, Menu, TrendingUp, Star, CheckCircle,
+  Zap, BarChart2, Bell, Star, CheckCircle,
   ArrowUpRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -39,20 +39,24 @@ export default function WorkerHome() {
 
       {/* ── Hero Header ── */}
       <div className="wh-hero">
-        <div className="wh-hero-topbar">
-          <button className="wh-icon-btn" aria-label="Menu"><Menu size={20} /></button>
+        <div className="wh-hero-topbar" style={{ justifyContent: 'space-between' }}>
+          <div
+            className="wh-avatar"
+            onClick={() => navigate('/worker/profile')}
+            title="Profile"
+            style={user?.profilePicture ? { background: 'transparent', padding: 0 } : undefined}
+          >
+            {user?.profilePicture ? (
+              <img src={user.profilePicture} alt="DP" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            ) : (
+              user?.name ? user.name.charAt(0).toUpperCase() : 'W'
+            )}
+          </div>
           <div style={{ display: 'flex', gap: '10px' }}>
             <button className="wh-icon-btn" onClick={() => navigate('/worker/notifications')} aria-label="Notifications">
               <Bell size={20} />
               <span className="wh-notif-dot" />
             </button>
-            <div
-              className="wh-avatar"
-              onClick={() => navigate('/worker/profile')}
-              title="Profile"
-            >
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'W'}
-            </div>
           </div>
         </div>
 

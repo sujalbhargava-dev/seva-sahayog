@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { User, FileText, Settings, Loader2, ChevronDown, ChevronUp, LogOut, CheckCircle } from 'lucide-react';
+import { User, FileText, Settings, Loader2, ChevronDown, ChevronUp, LogOut, CheckCircle, Camera } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../api/client';
 import LanguagePicker from '../../components/LanguagePicker';
@@ -9,11 +9,38 @@ import './WorkerShared.css';
 
 export default function WorkerProfile() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { t } = useTranslation();
   const [workerDetails, setWorkerDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // 1. Show immediate local preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateUser({ profilePicture: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+
+      // 2. Upload to backend (Supabase Storage)
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await apiClient.post('/users/profile-picture', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (res.data?.data?.profilePicture) {
+          updateUser({ profilePicture: res.data.data.profilePicture });
+        }
+      } catch (error) {
+        console.error('Failed to upload display picture', error);
+      }
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -40,8 +67,21 @@ export default function WorkerProfile() {
         </div>
         {/* Avatar inline in hero */}
         <div style={{display:'flex', alignItems:'center', gap:'16px', position:'relative', zIndex:1}}>
-          <div style={{width:'64px', height:'64px', borderRadius:'18px', background:'rgba(255,255,255,0.2)', border:'2px solid rgba(255,255,255,0.4)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'26px', fontWeight:800, color:'white', flexShrink:0}}>
-            {user?.name ? user.name.charAt(0).toUpperCase() : 'W'}
+          <div style={{ position: 'relative' }}>
+            <div style={{width:'64px', height:'64px', borderRadius:'18px', background: user?.profilePicture ? 'transparent' : 'rgba(255,255,255,0.2)', border: user?.profilePicture ? 'none' : '2px solid rgba(255,255,255,0.4)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'26px', fontWeight:800, color:'white', flexShrink:0, overflow:'hidden'}}>
+              {user?.profilePicture ? (
+                <img src={user.profilePicture} alt="DP" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                user?.name ? user.name.charAt(0).toUpperCase() : 'W'
+              )}
+            </div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              style={{ position: 'absolute', bottom: '-4px', right: '-4px', background: '#10b981', border: '2px solid #ffffff', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
+            >
+              <Camera size={12} color="white" />
+            </button>
+            <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" style={{ display: 'none' }} />
           </div>
           <div>
             <h2 style={{color:'white', fontSize:'18px', fontWeight:700, margin:'0 0 4px'}}>{user?.name || 'Worker'}</h2>
@@ -62,9 +102,8 @@ export default function WorkerProfile() {
       </div>
 
       <div className="ws-body">
-        {/* Menu Card */}
         <div className="ws-card-sm">
-          <button className="ws-row-item">
+          <button className="ws-row-item" onClick={() => navigate('/worker/profile/personal-info')}>
             <div className="ws-row-icon" style={{background:'#eff6ff'}}><User size={18} color="#2563eb"/></div>
             <div className="ws-row-text">
               <p className="ws-row-title">{t('workerProfile.personalInfo')}</p>
@@ -72,7 +111,7 @@ export default function WorkerProfile() {
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
-          <button className="ws-row-item">
+          <button className="ws-row-item" onClick={() => navigate('/worker/profile/docs')}>
             <div className="ws-row-icon" style={{background:'#fef3c7'}}><FileText size={18} color="#d97706"/></div>
             <div className="ws-row-text">
               <p className="ws-row-title">{t('workerProfile.docsKyc')}</p>

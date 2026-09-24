@@ -60,8 +60,12 @@ export default function WorkerProfile() {
       <main>
         {/* Profile Header */}
         <div className="profile-header text-center pt-10">
-          <div className="profile-avatar">
-            {name.charAt(0).toUpperCase()}
+          <div className="profile-avatar" style={{ backgroundColor: worker.profilePicture ? 'transparent' : 'var(--primary-light)' }}>
+            {worker.profilePicture ? (
+              <img src={worker.profilePicture} alt="DP" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+            ) : (
+              name.charAt(0).toUpperCase()
+            )}
             {isAvailable && <div className="status-indicator"></div>}
           </div>
           

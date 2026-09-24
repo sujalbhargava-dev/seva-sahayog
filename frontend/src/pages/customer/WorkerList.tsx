@@ -71,8 +71,12 @@ export default function WorkerList() {
 
               return (
                 <div key={id} className="worker-card" onClick={() => navigate(`/customer/worker/${id}`)}>
-                  <div className="w-avatar" style={{ backgroundColor: '#FEF08A', color: 'rgba(0,0,0,0.6)' }}>
-                    {name.charAt(0).toUpperCase()}
+                  <div className="w-avatar" style={{ backgroundColor: w.profilePicture ? 'transparent' : '#FEF08A', color: 'rgba(0,0,0,0.6)', padding: 0, overflow: 'hidden' }}>
+                    {w.profilePicture ? (
+                      <img src={w.profilePicture} alt="DP" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      name.charAt(0).toUpperCase()
+                    )}
                   </div>
                   <div className="w-info">
                     <h4>{name}</h4>

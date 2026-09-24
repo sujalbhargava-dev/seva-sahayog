@@ -11,6 +11,7 @@ type User = {
   role: 'CUSTOMER' | 'WORKER' | 'ADMIN';
   address?: string;
   pincode?: string;
+  profilePicture?: string;
 };
 
 interface AuthContextType {
@@ -41,8 +42,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await apiClient.get('/auth/me');
       if (res.data?.data) {
-        setUser(res.data.data);
-        localStorage.setItem('user', JSON.stringify(res.data.data));
+        const fetchedUser = res.data.data;
+        // Map backend profile_image to profilePicture
+        if (fetchedUser.profile_image) {
+          fetchedUser.profilePicture = fetchedUser.profile_image;
+        }
+
+        // Preserve locally uploaded profile picture on refresh
+        try {
+          const storedStr = localStorage.getItem('user');
+          if (storedStr) {
+            const stored = JSON.parse(storedStr);
+            if (stored.profilePicture && !fetchedUser.profilePicture) {
+              fetchedUser.profilePicture = stored.profilePicture;
+            }
+          }
+        } catch (e) {}
+        
+        setUser(fetchedUser);
+        localStorage.setItem('user', JSON.stringify(fetchedUser));
       }
     } catch (error) {
       console.error('Failed to fetch profile', error);
