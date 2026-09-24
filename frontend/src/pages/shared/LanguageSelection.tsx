@@ -1,29 +1,27 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Circle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import './LanguageSelection.css';
 
 const languages = [
-  { id: 'en', code: 'EN', name: 'English', subtitle: 'Continue in English', color: '#374151', bg: '#f3f4f6' },
-  { id: 'hi', code: 'HI', name: 'Hindi', subtitle: 'Hindi mein jaari rakhein', color: '#ca8a04', bg: '#fefce8' },
-  { id: 'bn', code: 'BN', name: 'Bengali', subtitle: 'Bangla-y chaliye jaan', color: '#ef4444', bg: '#fef2f2' },
-  { id: 'mr', code: 'MR', name: 'Marathi', subtitle: 'Marathi madhun continue kara', color: '#f97316', bg: '#fff7ed' },
-  { id: 'ta', code: 'TA', name: 'Tamil', subtitle: 'Tamizhil thodarumgal', color: '#0d9488', bg: '#f0fdfa' },
-  { id: 'te', code: 'TE', name: 'Telugu', subtitle: 'Teluguloki continue avvandi', color: '#3b82f6', bg: '#eff6ff' },
+  { id: 'en', code: 'EN', name: 'English',  subtitle: 'Continue in English',           color: '#374151', bg: '#f3f4f6' },
+  { id: 'hi', code: 'हि', name: 'हिंदी',    subtitle: 'हिंदी में जारी रखें',           color: '#ca8a04', bg: '#fefce8' },
+  { id: 'bn', code: 'বা', name: 'বাংলা',    subtitle: 'বাংলায় চালিয়ে যান',            color: '#ef4444', bg: '#fef2f2' },
+  { id: 'mr', code: 'म',  name: 'मराठी',    subtitle: 'मराठीत पुढे जा',               color: '#f97316', bg: '#fff7ed' },
+  { id: 'ta', code: 'த',  name: 'தமிழ்',    subtitle: 'தமிழில் தொடரவும்',             color: '#0d9488', bg: '#f0fdfa' },
+  { id: 'te', code: 'తె', name: 'తెలుగు',   subtitle: 'తెలుగులో కొనసాగించండి',        color: '#3b82f6', bg: '#eff6ff' },
 ];
 
 export default function LanguageSelection() {
   const navigate = useNavigate();
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const { t, i18n } = useTranslation();
+  const [selectedLanguage, setSelectedLanguage] = useState(i18n.language?.split('-')[0] || 'en');
 
   const handleContinue = () => {
-    // Set Google Translate cookie
-    const domain = window.location.hostname;
-    document.cookie = `googtrans=/en/${selectedLanguage}; path=/; domain=${domain}`;
-    document.cookie = `googtrans=/en/${selectedLanguage}; path=/`; // Also set for current host just in case
-    
-    // Hard navigate to landing page to force full page reload
-    window.location.href = '/landing';
+    // Switch language via i18next (persists to localStorage automatically)
+    i18n.changeLanguage(selectedLanguage);
+    navigate('/landing');
   };
 
   return (
@@ -33,8 +31,8 @@ export default function LanguageSelection() {
         <button onClick={() => navigate(-1)}>
           <ArrowLeft size={24} color="#1f2937" />
         </button>
-        <h1>Choose Your Language</h1>
-        <p>Apni Bhasha Mein, Apni Seva</p>
+        <h1>{t('language.chooseTitle')}</h1>
+        <p>{t('language.subtitle')}</p>
       </div>
 
       {/* Language List */}
@@ -49,19 +47,15 @@ export default function LanguageSelection() {
                 className={`language-item ${isSelected ? 'selected' : ''}`}
               >
                 <div className="language-info-wrapper">
-                  <div 
+                  <div
                     className="language-avatar"
                     style={{ backgroundColor: lang.bg, color: lang.color }}
                   >
                     {lang.code}
                   </div>
                   <div>
-                    <h3 className="language-name">
-                      {lang.name}
-                    </h3>
-                    <p className="language-subtitle">
-                      {lang.subtitle}
-                    </p>
+                    <h3 className="language-name">{lang.name}</h3>
+                    <p className="language-subtitle">{lang.subtitle}</p>
                   </div>
                 </div>
                 <div>
@@ -79,11 +73,8 @@ export default function LanguageSelection() {
 
       {/* Bottom Action */}
       <div className="language-bottom-action">
-        <button
-          onClick={handleContinue}
-          className="btn-continue"
-        >
-          Continue
+        <button onClick={handleContinue} className="btn-continue">
+          {t('language.continue')}
         </button>
       </div>
     </div>

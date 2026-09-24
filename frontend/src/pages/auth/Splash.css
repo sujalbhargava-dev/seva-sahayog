@@ -1,0 +1,260 @@
+/* =====================================================
+   SPLASH SCREEN – Seva Sahayog
+   ===================================================== */
+
+.splash-wrapper {
+  position: fixed;
+  inset: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #004d33 0%, #00703f 45%, #008f52 100%);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* ── Animated background blobs ── */
+.splash-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.25;
+  animation: blobFloat 6s ease-in-out infinite alternate;
+}
+.splash-blob-1 {
+  width: 320px;
+  height: 320px;
+  background: #00ff88;
+  top: -80px;
+  left: -80px;
+  animation-delay: 0s;
+}
+.splash-blob-2 {
+  width: 260px;
+  height: 260px;
+  background: #ffde59;
+  bottom: -60px;
+  right: -60px;
+  animation-delay: -2s;
+}
+.splash-blob-3 {
+  width: 200px;
+  height: 200px;
+  background: #00c8ff;
+  bottom: 120px;
+  left: -40px;
+  animation-delay: -4s;
+}
+
+@keyframes blobFloat {
+  from { transform: scale(1) translate(0, 0); }
+  to   { transform: scale(1.15) translate(20px, 20px); }
+}
+
+/* ── Decorative ring ── */
+.splash-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  animation: ringPulse 3s ease-in-out infinite;
+}
+.splash-ring-1 {
+  width: 200px;
+  height: 200px;
+  animation-delay: 0s;
+}
+.splash-ring-2 {
+  width: 300px;
+  height: 300px;
+  animation-delay: 0.4s;
+}
+.splash-ring-3 {
+  width: 400px;
+  height: 400px;
+  animation-delay: 0.8s;
+}
+
+@keyframes ringPulse {
+  0%, 100% { transform: scale(1); opacity: 0.15; }
+  50%       { transform: scale(1.05); opacity: 0.3; }
+}
+
+/* ── Content layer ── */
+.splash-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Logo container ── */
+.splash-logo-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 8px;
+  animation: splashLogoIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.splash-logo-glow {
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.splash-logo-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.splash-logo-img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 24px;
+  mix-blend-mode: luminosity;
+  filter: brightness(1.4) contrast(1.1);
+  z-index: 1;
+}
+
+@keyframes splashLogoIn {
+  from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.1); }
+}
+
+/* ── App name ── */
+.splash-name {
+  font-size: 36px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  margin-top: 20px;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+  animation: splashTextIn 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) 0.3s both;
+}
+
+.splash-name-hindi {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  animation: splashTextIn 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) 0.45s both;
+}
+
+.splash-tagline {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+  animation: splashTextIn 0.7s ease 0.6s both;
+}
+
+@keyframes splashTextIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Dot loader ── */
+.splash-loader {
+  display: flex;
+  gap: 8px;
+  margin-top: 48px;
+  animation: splashTextIn 0.5s ease 0.8s both;
+}
+
+.splash-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  animation: dotBounce 1.2s ease-in-out infinite;
+}
+.splash-dot:nth-child(1) { animation-delay: 0s; }
+.splash-dot:nth-child(2) { animation-delay: 0.2s; }
+.splash-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: scale(0.7); background: rgba(255,255,255,0.3); }
+  40%            { transform: scale(1.2); background: rgba(255,255,255,0.95); }
+}
+
+/* ── Bottom branding strip ── */
+.splash-bottom {
+  position: absolute;
+  bottom: 36px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+  animation: splashTextIn 0.7s ease 1s both;
+}
+
+.splash-bottom-tag {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.splash-version {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.25);
+  letter-spacing: 0.5px;
+}
+
+/* ── Fade-out exit animation ── */
+.splash-wrapper.splash-exit {
+  animation: splashFadeOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes splashFadeOut {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.04); pointer-events: none; }
+}
+
+/* ── Progress bar ── */
+.splash-progress-track {
+  position: absolute;
+  bottom: 80px;
+  left: 40px;
+  right: 40px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  z-index: 2;
+  animation: splashTextIn 0.5s ease 0.9s both;
+}
+
+.splash-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.95));
+  border-radius: 4px;
+  transition: width linear;
+}

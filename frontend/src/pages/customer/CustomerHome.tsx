@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { MapPin, Search, Home, Calendar, MessageSquare, User, Zap, Droplet, Hammer, Paintbrush, Wrench, Sparkles, IndianRupee } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../api/client';
@@ -8,6 +9,7 @@ import './CustomerHome.css';
 export default function CustomerHome() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [topWorkers, setTopWorkers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,9 +19,7 @@ export default function CustomerHome() {
     const fetchTopWorkers = async () => {
       try {
         const res = await apiClient.get('/workers?limit=3');
-        if (res.data?.data) {
-          setTopWorkers(res.data.data);
-        }
+        if (res.data?.data) setTopWorkers(res.data.data);
       } catch (error) {
         console.error('Failed to fetch top workers', error);
       } finally {
@@ -30,16 +30,16 @@ export default function CustomerHome() {
   }, []);
 
   const categories = [
-    { id: 'electrician', name: 'Electrician', icon: <Zap size={28} color="#374151" strokeWidth={1.5} />, color: '#FEF08A' },
-    { id: 'plumber', name: 'Plumber', icon: <Droplet size={28} color="#374151" strokeWidth={1.5} />, color: '#BFDBFE' },
-    { id: 'carpenter', name: 'Carpenter', icon: <Hammer size={28} color="#374151" strokeWidth={1.5} />, color: '#FED7AA' },
-    { id: 'painter', name: 'Painter', icon: <Paintbrush size={28} color="#374151" strokeWidth={1.5} />, color: '#FECDD3' },
-    { id: 'mechanic', name: 'Mechanic', icon: <Wrench size={28} color="#374151" strokeWidth={1.5} />, color: '#E5E7EB' },
-    { id: 'cleaner', name: 'Cleaner', icon: <Sparkles size={28} color="#374151" strokeWidth={1.5} />, color: '#A7F3D0' },
+    { id: 'electrician', nameKey: 'customerHome.cat_electrician', icon: <Zap size={28} color="#374151" strokeWidth={1.5} />, color: '#FEF08A' },
+    { id: 'plumber',     nameKey: 'customerHome.cat_plumber',     icon: <Droplet size={28} color="#374151" strokeWidth={1.5} />, color: '#BFDBFE' },
+    { id: 'carpenter',  nameKey: 'customerHome.cat_carpenter',   icon: <Hammer size={28} color="#374151" strokeWidth={1.5} />, color: '#FED7AA' },
+    { id: 'painter',    nameKey: 'customerHome.cat_painter',     icon: <Paintbrush size={28} color="#374151" strokeWidth={1.5} />, color: '#FECDD3' },
+    { id: 'mechanic',   nameKey: 'customerHome.cat_mechanic',    icon: <Wrench size={28} color="#374151" strokeWidth={1.5} />, color: '#E5E7EB' },
+    { id: 'cleaner',    nameKey: 'customerHome.cat_cleaner',     icon: <Sparkles size={28} color="#374151" strokeWidth={1.5} />, color: '#A7F3D0' },
   ];
 
-  const filteredCategories = categories.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCategories = categories.filter(c =>
+    t(c.nameKey).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -51,8 +51,8 @@ export default function CustomerHome() {
             {user?.name ? user.name.charAt(0).toUpperCase() : 'C'}
           </div>
           <div className="user-info">
-            <h2>Hi, {user?.name ? user.name.split(' ')[0] : 'Customer'}</h2>
-            <p className="location"><MapPin size={12} /> Gwalior, MP</p>
+            <h2>{t('customerHome.greeting', { name: user?.name?.split(' ')[0] || 'Customer' })}</h2>
+            <p className="location"><MapPin size={12} /> {t('customerHome.location')}</p>
           </div>
         </div>
         <div className="notification-dot"></div>
@@ -62,35 +62,26 @@ export default function CustomerHome() {
         {/* Search */}
         <div className="search-container" style={{ position: 'relative' }}>
           <div className="search-bar">
-            <input 
-              type="text" 
-              placeholder="What service do you need?" 
+            <input
+              type="text"
+              placeholder={t('customerHome.searchPlaceholder')}
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setShowDropdown(true);
-              }}
+              onChange={(e) => { setSearchQuery(e.target.value); setShowDropdown(true); }}
               onFocus={() => setShowDropdown(true)}
               onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
             />
             <Search className="search-icon" size={20} />
           </div>
-          
           {showDropdown && searchQuery && filteredCategories.length > 0 && (
             <div className="search-dropdown">
               {filteredCategories.map(cat => (
-                <div 
+                <div
                   key={cat.id}
                   className="search-dropdown-item"
-                  onMouseDown={(e) => {
-                    e.preventDefault(); // Prevent input from losing focus immediately
-                    navigate(`/customer/workers?service=${cat.name}`);
-                  }}
+                  onMouseDown={(e) => { e.preventDefault(); navigate(`/customer/workers?service=${cat.id}`); }}
                 >
-                  <div className="search-dropdown-icon" style={{ backgroundColor: cat.color }}>
-                    {cat.icon}
-                  </div>
-                  <span>{cat.name}</span>
+                  <div className="search-dropdown-icon" style={{ backgroundColor: cat.color }}>{cat.icon}</div>
+                  <span>{t(cat.nameKey)}</span>
                 </div>
               ))}
             </div>
@@ -99,18 +90,12 @@ export default function CustomerHome() {
 
         {/* Categories */}
         <section className="section">
-          <h3 className="section-title">Browse by Category</h3>
+          <h3 className="section-title">{t('customerHome.browseCategory')}</h3>
           <div className="categories-grid">
             {categories.map(cat => (
-              <div 
-                key={cat.id} 
-                className="category-card"
-                onClick={() => navigate(`/customer/workers?service=${cat.name}`)}
-              >
-                <div className="cat-icon" style={{ backgroundColor: cat.color }}>
-                  {cat.icon}
-                </div>
-                <span>{cat.name}</span>
+              <div key={cat.id} className="category-card" onClick={() => navigate(`/customer/workers?service=${cat.id}`)}>
+                <div className="cat-icon" style={{ backgroundColor: cat.color }}>{cat.icon}</div>
+                <span>{t(cat.nameKey)}</span>
               </div>
             ))}
           </div>
@@ -119,38 +104,29 @@ export default function CustomerHome() {
         {/* Banner */}
         <div className="promo-banner">
           <div className="promo-text">
-            <h4>Local Workers</h4>
-            <h4>Real People</h4>
-            <h4>Fair Prices</h4>
-            <p>Verified & background-checked</p>
+            <h4>{t('customerHome.bannerLine1')}</h4>
+            <h4>{t('customerHome.bannerLine2')}</h4>
+            <h4>{t('customerHome.bannerLine3')}</h4>
+            <p>{t('customerHome.bannerSub')}</p>
           </div>
           <div className="promo-badge">R</div>
         </div>
 
-        {/* Quick Actions (Phase 2 & 3) */}
+        {/* Quick Actions */}
         <section className="section mt-6">
-          <h3 className="section-title">Quick Actions</h3>
+          <h3 className="section-title">{t('customerHome.quickActions')}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-            <button 
-              onClick={() => navigate('/customer/emergency')}
-              style={{ flex: 1, padding: '16px', borderRadius: '12px', backgroundColor: '#FEE2E2', border: '1px solid #FCA5A5', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-            >
+            <button onClick={() => navigate('/customer/emergency')} style={{ flex: 1, padding: '16px', borderRadius: '12px', backgroundColor: '#FEE2E2', border: '1px solid #FCA5A5', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <Zap size={24} color="#DC2626" />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#991B1B' }}>Emergency</span>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#991B1B' }}>{t('customerHome.emergency')}</span>
             </button>
-            <button 
-              onClick={() => navigate('/customer/smart-matching')}
-              style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-            >
+            <button onClick={() => navigate('/customer/smart-matching')} style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <Sparkles size={24} color="#2563EB" />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#1E3A8A', textAlign: 'center' }}>Smart Match</span>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#1E3A8A', textAlign: 'center' }}>{t('customerHome.smartMatch')}</span>
             </button>
-            <button 
-              onClick={() => navigate('/customer/payment-history')}
-              style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#DCFCE7', border: '1px solid #86EFAC', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-            >
+            <button onClick={() => navigate('/customer/payment-history')} style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#DCFCE7', border: '1px solid #86EFAC', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <IndianRupee size={24} color="#16A34A" />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#14532D' }}>Payments</span>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#14532D' }}>{t('customerHome.payments')}</span>
             </button>
           </div>
         </section>
@@ -158,14 +134,13 @@ export default function CustomerHome() {
         {/* Top Rated */}
         <section className="section mt-6">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 className="section-title" style={{ margin: 0 }}>Top Rated Near You</h3>
+            <h3 className="section-title" style={{ margin: 0 }}>{t('customerHome.topRated')}</h3>
             <button className="text-primary" style={{ background: 'none', border: 'none', fontSize: '13px', fontWeight: 600 }} onClick={() => navigate('/customer/workers')}>
-              View All
+              {t('customerHome.viewAll')}
             </button>
           </div>
-          
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '20px' }}>Loading...</div>
+            <div style={{ textAlign: 'center', padding: '20px' }}>{t('customerHome.loading')}</div>
           ) : (
             <div className="worker-list">
               {topWorkers.map((w: any) => (
@@ -175,39 +150,22 @@ export default function CustomerHome() {
                   </div>
                   <div className="w-info">
                     <h4>{w.name || 'Worker'}</h4>
-                    <p>Experience: {w.experience || 0} years</p>
+                    <p>{t('customerHome.experience', { years: w.experience || 0 })}</p>
                   </div>
-                  <div className="w-rating">
-                    ★ {w.rating || 'New'}
-                  </div>
+                  <div className="w-rating">★ {w.rating || 'New'}</div>
                 </div>
               ))}
-              {topWorkers.length === 0 && (
-                <p className="text-muted" style={{ fontSize: '13px' }}>No workers found in your area yet.</p>
-              )}
+              {topWorkers.length === 0 && <p className="text-muted" style={{ fontSize: '13px' }}>{t('customerHome.noWorkers')}</p>}
             </div>
           )}
         </section>
       </main>
 
-      {/* Bottom Nav */}
       <nav className="bottom-nav">
-        <button className="nav-item active" onClick={() => navigate('/customer/home')}>
-          <Home size={24} />
-          <span>Home</span>
-        </button>
-        <button className="nav-item" onClick={() => navigate('/customer/bookings')}>
-          <Calendar size={24} />
-          <span>Bookings</span>
-        </button>
-        <button className="nav-item" onClick={() => navigate('/customer/messages')}>
-          <MessageSquare size={24} />
-          <span>Messages</span>
-        </button>
-        <button className="nav-item" onClick={() => navigate('/customer/profile')}>
-          <User size={24} />
-          <span>Profile</span>
-        </button>
+        <button className="nav-item active" onClick={() => navigate('/customer/home')}><Home size={24} /><span>{t('nav.home')}</span></button>
+        <button className="nav-item" onClick={() => navigate('/customer/bookings')}><Calendar size={24} /><span>{t('nav.bookings')}</span></button>
+        <button className="nav-item" onClick={() => navigate('/customer/messages')}><MessageSquare size={24} /><span>{t('nav.messages')}</span></button>
+        <button className="nav-item" onClick={() => navigate('/customer/profile')}><User size={24} /><span>{t('nav.profile')}</span></button>
       </nav>
     </div>
   );

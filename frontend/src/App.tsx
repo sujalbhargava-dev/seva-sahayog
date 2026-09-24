@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
+import Splash from './pages/auth/Splash';
 import Landing from './pages/auth/Landing';
 import Login from './pages/auth/Login';
 import CustomerRegistration from './pages/auth/CustomerRegistration';
@@ -60,7 +61,7 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Navigate to="/landing" replace />} />
+          <Route path="/" element={<Splash />} />
           
           {/* Auth Flow */}
           <Route path="/language" element={<LanguageSelection />} />

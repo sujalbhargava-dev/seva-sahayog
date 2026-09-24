@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Shield, FileText, Settings, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { ArrowLeft, User, Shield, FileText, Settings, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../api/client';
+import LanguagePicker from '../../components/LanguagePicker';
 import './WorkerHome.css';
 
 export default function WorkerProfile() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [workerDetails, setWorkerDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -17,28 +21,21 @@ export default function WorkerProfile() {
       try {
         const res = await apiClient.get(`/workers/${user.id}`);
         setWorkerDetails(res.data?.data);
-      } catch (error) {
-        console.error('Failed to fetch worker details', error);
-      } finally {
-        setIsLoading(false);
-      }
+      } catch (error) { console.error('Failed to fetch worker details', error); }
+      finally { setIsLoading(false); }
     };
     fetchWorker();
   }, [user]);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
     <div className="app-container">
-      {/* Header */}
       <div className="app-header" style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '16px' }}>
         <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}>
           <ArrowLeft size={24} color="var(--text-main)" />
         </button>
-        <h1 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>Profile & Documents</h1>
+        <h1 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>{t('workerProfile.title')}</h1>
       </div>
 
       <main style={{ padding: '20px' }}>
@@ -54,12 +51,11 @@ export default function WorkerProfile() {
               <Loader2 className="animate-spin text-muted" size={16} />
             ) : workerDetails?.verification_status === 'APPROVED' ? (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#DCFCE7', color: '#16A34A', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 }}>
-                <Shield size={14} />
-                Verified Background
+                <Shield size={14} /> {t('workerProfile.verifiedBg')}
               </div>
             ) : (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#FEF9C3', color: '#CA8A04', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 }}>
-                Pending Verification
+                {t('workerProfile.pendingVerification')}
               </div>
             )}
           </div>
@@ -68,31 +64,25 @@ export default function WorkerProfile() {
         {/* Menu Options */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
           <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', cursor: 'pointer' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <User size={20} color="var(--primary)" />
-              <span style={{ fontSize: '15px', fontWeight: 500 }}>Personal Information</span>
-            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><User size={20} color="var(--primary)" /><span style={{ fontSize: '15px', fontWeight: 500 }}>{t('workerProfile.personalInfo')}</span></div>
           </button>
           <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', cursor: 'pointer' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <FileText size={20} color="var(--primary)" />
-              <span style={{ fontSize: '15px', fontWeight: 500 }}>Documents & KYC</span>
-            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><FileText size={20} color="var(--primary)" /><span style={{ fontSize: '15px', fontWeight: 500 }}>{t('workerProfile.docsKyc')}</span></div>
           </button>
-          <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', cursor: 'pointer' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Settings size={20} color="var(--primary)" />
-              <span style={{ fontSize: '15px', fontWeight: 500 }}>App Settings</span>
-            </div>
+          <button onClick={() => setSettingsOpen(prev => !prev)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', cursor: 'pointer', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><Settings size={20} color="var(--primary)" /><span style={{ fontSize: '15px', fontWeight: 500 }}>{t('workerProfile.appSettings')}</span></div>
+            {settingsOpen ? <ChevronUp size={18} color="#94a3b8" /> : <ChevronDown size={18} color="#94a3b8" />}
           </button>
+          {settingsOpen && (
+            <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '8px 16px', marginTop: '-4px' }}>
+              <p style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px', marginTop: '8px' }}>{t('workerProfile.language')}</p>
+              <LanguagePicker />
+            </div>
+          )}
         </div>
 
-        {/* Logout */}
-        <button 
-          onClick={handleLogout}
-          style={{ width: '100%', padding: '16px', backgroundColor: '#FEE2E2', color: '#DC2626', border: '1px solid #FCA5A5', borderRadius: '12px', fontSize: '16px', fontWeight: 600, cursor: 'pointer' }}
-        >
-          Log Out
+        <button onClick={handleLogout} style={{ width: '100%', padding: '16px', backgroundColor: '#FEE2E2', color: '#DC2626', border: '1px solid #FCA5A5', borderRadius: '12px', fontSize: '16px', fontWeight: 600, cursor: 'pointer' }}>
+          {t('workerProfile.logOut')}
         </button>
       </main>
     </div>

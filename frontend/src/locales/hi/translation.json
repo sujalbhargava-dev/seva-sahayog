@@ -1,0 +1,77 @@
+{
+  "language": { "chooseTitle": "अपनी भाषा चुनें", "subtitle": "अपनी भाषा में, अपनी सेवा", "continue": "जारी रखें", "selected": "हिंदी" },
+  "landing": {
+    "langBtn": "हिंदी", "heroTitle": "विश्वसनीय मदद,", "heroHighlight": "जब भी ज़रूरत हो",
+    "heroSubtitle": "अपने क्षेत्र के कुशल कामगारों से जुड़ें — स्वच्छ, सुरक्षित और मज़बूत समुदाय के लिए।",
+    "roleTitle": "क्या आप ग्राहक हैं या कामगार?", "roleSubtitle": "जारी रखने के लिए एक विकल्प चुनें",
+    "customerTitle": "ग्राहक", "customerDesc": "नज़दीकी विश्वसनीय कामगार बुक करें",
+    "workerTitle": "कामगार", "workerDesc": "काम खोजें और अपना व्यवसाय बढ़ाएं",
+    "trustVerified": "सत्यापित कामगार", "trustLocal": "स्थानीय अवसर", "trustCommunity": "मज़बूत समुदाय",
+    "legal": "जारी रखकर आप सहमत हैं:", "termsOfService": "सेवा की शर्तें", "and": "और", "privacyPolicy": "गोपनीयता नीति",
+    "alreadyAccount": "पहले से खाता है?", "logIn": "लॉग इन करें", "tagline": "एक बेहतर कल के लिए"
+  },
+  "login": {
+    "title": "लॉग इन", "subtitle": "वापस स्वागत है! जारी रखने के लिए लॉग इन करें",
+    "tabLogin": "लॉग इन", "tabRegister": "रजिस्टर",
+    "emailLabel": "ईमेल या मोबाइल नंबर", "emailPlaceholder": "you@example.com",
+    "passwordLabel": "पासवर्ड", "forgotPassword": "पासवर्ड भूल गए?",
+    "loginBtn": "लॉग इन", "loggingIn": "लॉग इन हो रहा है...",
+    "noAccount": "खाता नहीं है?", "register": "रजिस्टर", "errorFallback": "लॉग इन विफल रहा"
+  },
+  "splash": { "nameHindi": "सेवा सहयोग", "tagline": "लोग · कौशल · मज़बूत समुदाय", "bottomTag": "विश्वसनीय · स्थानीय · समुदाय" },
+  "nav": { "home": "होम", "bookings": "बुकिंग", "messages": "संदेश", "profile": "प्रोफ़ाइल", "earnings": "कमाई", "more": "अधिक" },
+  "customerHome": {
+    "greeting": "नमस्ते, {{name}}", "location": "ग्वालियर, MP",
+    "searchPlaceholder": "आपको कौन सी सेवा चाहिए?",
+    "browseCategory": "श्रेणी के अनुसार खोजें",
+    "cat_electrician": "इलेक्ट्रीशियन", "cat_plumber": "प्लंबर", "cat_carpenter": "बढ़ई",
+    "cat_painter": "पेंटर", "cat_mechanic": "मैकेनिक", "cat_cleaner": "सफाईकर्मी",
+    "bannerLine1": "स्थानीय कामगार", "bannerLine2": "असली लोग", "bannerLine3": "उचित मूल्य", "bannerSub": "सत्यापित और बैकग्राउंड-चेक्ड",
+    "quickActions": "त्वरित कार्य", "emergency": "आपातकाल", "smartMatch": "स्मार्ट मैच", "payments": "भुगतान",
+    "topRated": "आपके पास शीर्ष रेटेड", "viewAll": "सभी देखें",
+    "experience": "अनुभव: {{years}} वर्ष", "noWorkers": "आपके क्षेत्र में अभी कोई कामगार नहीं मिला।",
+    "loading": "लोड हो रहा है..."
+  },
+  "customerBookings": {
+    "title": "मेरी बुकिंग", "upcoming": "आगामी", "past": "पिछली",
+    "noBookings": "कोई {{tab}} बुकिंग नहीं", "noBookingsDesc": "अभी कोई {{tab}} बुकिंग नहीं है।",
+    "worker": "कामगार: {{name}}", "assignedSoon": "जल्द असाइन होगा",
+    "estimatedCost": "अनुमानित लागत", "cancelBooking": "बुकिंग रद्द करें"
+  },
+  "customerProfile": {
+    "title": "प्रोफ़ाइल", "phoneNumber": "फ़ोन नंबर", "addPhone": "फ़ोन नंबर जोड़ें",
+    "edit": "संपादित करें", "savedAddress": "सहेजा गया पता", "addAddress": "पता जोड़ें",
+    "addressPlaceholder": "मकान नं., क्षेत्र, सड़क", "pincodePlaceholder": "पिनकोड",
+    "bookingHistory": "बुकिंग इतिहास", "viewPastJobs": "पिछले और चल रहे काम देखें",
+    "settings": "सेटिंग", "logOut": "लॉग आउट"
+  },
+  "workerHome": {
+    "greeting": "नमस्ते, {{name}}", "subtitle": "कुशल हाथ, मज़बूत कल",
+    "totalEarnings": "कुल कमाई", "thisMonth": "इस महीने",
+    "jobsCompleted": "पूर्ण काम", "rating": "रेटिंग", "completionRate": "पूर्णता दर",
+    "myBookings": "मेरी बुकिंग", "earningsPayouts": "कमाई और भुगतान",
+    "demandInsights": "मांग की जानकारी", "analytics": "विश्लेषण",
+    "cooperativeVotes": "सहकारी मत", "welfarePerGig": "(प्रति काम 5%)",
+    "welfareFund": "कल्याण कोष", "profileDocs": "प्रोफ़ाइल और दस्तावेज़"
+  },
+  "workerBookings": {
+    "title": "मेरी बुकिंग", "upcoming": "आगामी", "past": "पिछली",
+    "loadingBookings": "बुकिंग लोड हो रही है...",
+    "noBookings": "कोई {{tab}} बुकिंग नहीं", "noBookingsDesc": "अभी कोई {{tab}} बुकिंग नहीं है।",
+    "estimatedPayout": "अनुमानित भुगतान", "accept": "स्वीकार करें", "decline": "अस्वीकार करें"
+  },
+  "workerEarnings": {
+    "title": "कमाई और भुगतान", "availableBalance": "उपलब्ध शेष",
+    "withdrawFunds": "धनराशि निकालें", "platformFees": "प्लेटफ़ॉर्म शुल्क",
+    "welfareFund": "कल्याण कोष", "recentTransactions": "हाल के लेनदेन",
+    "loading": "लोड हो रहा है...", "noTransactions": "अभी कोई लेनदेन नहीं।", "jobPayout": "काम का भुगतान"
+  },
+  "workerProfile": {
+    "title": "प्रोफ़ाइल और दस्तावेज़", "verifiedBg": "सत्यापित बैकग्राउंड",
+    "pendingVerification": "सत्यापन लंबित", "personalInfo": "व्यक्तिगत जानकारी",
+    "docsKyc": "दस्तावेज़ और KYC", "appSettings": "ऐप सेटिंग", "language": "भाषा", "logOut": "लॉग आउट"
+  },
+  "workerMore": { "title": "अधिक विकल्प", "subtitle": "सेटिंग, दस्तावेज़ और कल्याण कोष जानकारी।", "logOut": "लॉग आउट" },
+  "langPicker": { "title": "भाषा चुनें", "appLanguage": "ऐप भाषा" },
+  "common": { "loading": "लोड हो रहा है...", "back": "वापस", "save": "सहेजें", "cancel": "रद्द करें", "noData": "कोई डेटा उपलब्ध नहीं" }
+}
