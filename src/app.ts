@@ -24,6 +24,9 @@ const app = express();
 // ============================================
 // Core Middleware
 // ============================================
+// Trust the reverse proxy (Render) to correctly resolve client IP for rate limiting
+app.set('trust proxy', 1);
+
 const allowedOrigins = [
   'https://sewa-sahayog.vercel.app',
   'http://localhost:5173',
