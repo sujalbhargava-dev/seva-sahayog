@@ -23,6 +23,11 @@ export default function WorkerRegistration() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [workVideo, setWorkVideo] = useState<File | null>(null);
+  const [certificate, setCertificate] = useState<File | null>(null);
+  const [idProof, setIdProof] = useState<File | null>(null);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -40,6 +45,24 @@ export default function WorkerRegistration() {
       if (res.data?.data) {
         const { user, accessToken, refreshToken } = res.data.data;
         login(user, accessToken, refreshToken);
+        
+        const headers = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'multipart/form-data' };
+        
+        if (profilePic) {
+          const fd = new FormData();
+          fd.append('image', profilePic);
+          apiClient.post('/users/profile-picture', fd, { headers }).catch(console.error);
+        }
+        
+        if (workVideo || idProof || certificate) {
+          const fd = new FormData();
+          if (workVideo) fd.append('video', workVideo);
+          if (idProof) fd.append('idProof', idProof);
+          if (certificate) fd.append('certificate', certificate);
+          fd.append('skills', JSON.stringify([]));
+          apiClient.post('/workers/verification/documents', fd, { headers }).catch(console.error);
+        }
+
         navigate('/worker/home');
       }
     } catch (err: any) {
@@ -64,10 +87,11 @@ export default function WorkerRegistration() {
         <form className="auth-form" onSubmit={handleRegister}>
           <div className="section-title">PERSONAL DETAILS</div>
           
-          <div className="upload-box mb-4">
-            <span className="text-primary font-semibold">+ Tap to upload</span>
+          <label className="upload-box mb-4" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+            <input type="file" accept="image/jpeg, image/png" style={{ display: 'none' }} onChange={(e) => setProfilePic(e.target.files?.[0] || null)} />
+            <span className="text-primary font-semibold">{profilePic ? profilePic.name : '+ Tap to upload'}</span>
             <span className="text-muted text-xs">JPG or PNG, max 5MB</span>
-          </div>
+          </label>
 
           <div className="input-group">
             <label>Full Name</label>
@@ -160,26 +184,32 @@ export default function WorkerRegistration() {
 
           <div className="input-group">
             <label>Work Sample Video</label>
-            <div className="upload-box">
-              <span className="text-primary font-semibold">+ Tap to upload</span>
+            <label className="upload-box" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+              <input type="file" accept="video/mp4, video/webm" style={{ display: 'none' }} onChange={(e) => setWorkVideo(e.target.files?.[0] || null)} />
+              <span className="text-primary font-semibold">{workVideo ? workVideo.name : '+ Tap to upload'}</span>
               <span className="text-muted text-xs">Show your best work, max 60s</span>
-            </div>
+            </label>
           </div>
 
           <div className="input-group">
             <label>Certificate (optional)</label>
-            <div className="upload-box">
-              <span className="text-primary font-semibold">+ Tap to upload</span>
+            <label className="upload-box" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+              <input type="file" accept="image/jpeg, image/png" style={{ display: 'none' }} onChange={(e) => setCertificate(e.target.files?.[0] || null)} />
+              <span className="text-primary font-semibold">{certificate ? certificate.name : '+ Tap to upload'}</span>
               <span className="text-muted text-xs">Trade certificate or license</span>
-            </div>
+            </label>
           </div>
 
           {/* VERIFICATION */}
           <div className="section-title mt-6">VERIFICATION</div>
 
           <div className="input-group">
-            <label>Aadhaar Card Number</label>
-            <input type="text" placeholder="XXXX XXXX XXXX" required />
+            <label>Aadhaar Card Document</label>
+            <label className="upload-box" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+              <input type="file" accept="image/jpeg, image/png" style={{ display: 'none' }} onChange={(e) => setIdProof(e.target.files?.[0] || null)} />
+              <span className="text-primary font-semibold">{idProof ? idProof.name : '+ Tap to upload'}</span>
+              <span className="text-muted text-xs">Clear photo or PDF of Aadhaar</span>
+            </label>
           </div>
 
           {error && (

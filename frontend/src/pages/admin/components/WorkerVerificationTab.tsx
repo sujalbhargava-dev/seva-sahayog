@@ -15,8 +15,8 @@ export default function WorkerVerificationTab() {
     setLoading(true);
     try {
       const res = await apiClient.get(`/admin/skill-verification?status=${activeTab}`);
-      if (res.data?.data?.data) {
-        setApplications(res.data.data.data);
+      if (res.data?.data) {
+        setApplications(res.data.data);
       }
     } catch (error) {
       console.error('Failed to fetch verification applications', error);

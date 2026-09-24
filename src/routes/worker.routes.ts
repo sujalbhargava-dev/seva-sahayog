@@ -82,19 +82,20 @@ router.get(
   workerController.getWorkerReviews
 );
 
-router.post(
-  '/verification/video',
-  authenticate,
-  authorize(Role.WORKER),
-  upload.single('video'),
-  workerController.uploadVerificationVideo
-);
 
 router.get(
   '/verification/status',
   authenticate,
   authorize(Role.WORKER),
   workerController.getVerificationStatus
+);
+
+router.post(
+  '/verification/documents',
+  authenticate,
+  authorize(Role.WORKER),
+  upload.fields([{ name: 'video', maxCount: 1 }, { name: 'idProof', maxCount: 1 }, { name: 'certificate', maxCount: 1 }]),
+  workerController.uploadVerificationDocuments
 );
 
 // Public routes (must be LAST — /:id is a wildcard that catches everything)

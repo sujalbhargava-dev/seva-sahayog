@@ -18,8 +18,8 @@ export default function GovernanceTab() {
     setLoading(true);
     try {
       const res = await apiClient.get('/policies');
-      if (res.data?.data?.data) {
-        const data = res.data.data.data;
+      if (res.data?.data) {
+        const data = res.data.data;
         setProposals(data);
         const activeCount = data.filter((p: any) => p.status === 'ACTIVE').length;
         setStats(prev => ({ ...prev, active: activeCount }));

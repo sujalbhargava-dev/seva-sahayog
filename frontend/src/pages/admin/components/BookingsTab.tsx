@@ -20,8 +20,8 @@ export default function BookingsTab() {
       if (status) queryParams.append('status', status);
 
       const res = await apiClient.get(`/admin/bookings?${queryParams.toString()}`);
-      if (res.data?.data?.data) {
-        setBookings(res.data.data.data);
+      if (res.data?.data) {
+        setBookings(res.data.data);
       }
     } catch (error) {
       console.error('Failed to fetch bookings', error);

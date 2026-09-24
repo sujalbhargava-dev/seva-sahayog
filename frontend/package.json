@@ -13,6 +13,7 @@
     "axios": "^1.20.0",
     "i18next": "^26.4.2",
     "i18next-browser-languagedetector": "^8.2.1",
+    "imagekitio-react": "^4.3.0",
     "lucide-react": "^1.47.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

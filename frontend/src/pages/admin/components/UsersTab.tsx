@@ -24,8 +24,8 @@ export default function UsersTab() {
       if (search) queryParams.append('search', search);
 
       const res = await apiClient.get(`/admin/users?${queryParams.toString()}`);
-      if (res.data?.data?.data) {
-        setUsers(res.data.data.data);
+      if (res.data?.data) {
+        setUsers(res.data.data);
       }
     } catch (error) {
       console.error('Failed to fetch users', error);

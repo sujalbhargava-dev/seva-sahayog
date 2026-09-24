@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiResponse } from '../utils/ApiResponse';
 import workerService from '../services/worker.service';
-import { uploadToCloudinary } from '../middleware/upload';
+import { uploadToImageKit } from '../middleware/upload';
 
 /**
  * GET /api/workers
@@ -157,35 +157,45 @@ export const getWorkerReviews = asyncHandler(async (req: Request, res: Response)
 });
 
 /**
- * POST /api/workers/verification/video
+ * POST /api/workers/verification/documents
  */
-export const uploadVerificationVideo = asyncHandler(
+export const uploadVerificationDocuments = asyncHandler(
   async (req: Request, res: Response) => {
-    if (!req.file) {
-      return res.status(400).json(new ApiResponse(400, 'Video file is required'));
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    
+    let videoUrl = '';
+    let idProofUrl = '';
+    let certificateUrl = '';
+
+    if (files && files.video && files.video[0]) {
+      const { url } = await uploadToImageKit(files.video[0].buffer, 'verification-videos', 'video');
+      videoUrl = url;
+    }
+    
+    if (files && files.idProof && files.idProof[0]) {
+      const { url } = await uploadToImageKit(files.idProof[0].buffer, 'verification-docs', 'image');
+      idProofUrl = url;
     }
 
-    // Upload to Cloudinary
-    const { url } = await uploadToCloudinary(
-      req.file.buffer,
-      'verification-videos',
-      'video'
-    );
+    if (files && files.certificate && files.certificate[0]) {
+      const { url } = await uploadToImageKit(files.certificate[0].buffer, 'verification-docs', 'image');
+      certificateUrl = url;
+    }
 
-    const skills = req.body.skills
-      ? JSON.parse(req.body.skills)
-      : [];
+    const skills = req.body.skills ? JSON.parse(req.body.skills) : [];
 
-    const verification = await workerService.uploadVerificationVideo(
+    const verification = await workerService.uploadVerificationDocuments(
       req.user!.userId,
-      url,
+      videoUrl,
+      idProofUrl,
+      certificateUrl,
       skills
     );
 
     res.status(201).json(
       new ApiResponse(
         201,
-        req.t?.('worker.verificationUploaded') || 'Verification video uploaded',
+        req.t?.('worker.verificationUploaded') || 'Verification documents uploaded',
         verification
       )
     );

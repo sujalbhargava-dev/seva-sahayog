@@ -15,9 +15,9 @@ export default function Governance() {
   const fetchPolicies = async () => {
     try {
       const res = await apiClient.get('/policies');
-      if (res.data?.data?.data) {
+      if (res.data?.data) {
         const detailed = await Promise.all(
-          res.data.data.data.map(async (p: any) => {
+          res.data.data.map(async (p: any) => {
             try { return (await apiClient.get(`/policies/${p.id}`)).data?.data; }
             catch { return null; }
           })

@@ -238,11 +238,13 @@ class WorkerService {
   }
 
   /**
-   * Upload verification video (saves to Cloudinary, creates SkillVerification record).
+   * Upload verification documents (saves to Cloudinary, creates SkillVerification record).
    */
-  async uploadVerificationVideo(
+  async uploadVerificationDocuments(
     userId: string,
     videoUrl: string,
+    idProofUrl: string,
+    certificateUrl: string,
     skills: string[]
   ) {
     const { data: worker } = await supabase
@@ -258,18 +260,22 @@ class WorkerService {
       .insert({
         worker_id: userId,
         video_url: videoUrl,
+        id_proof_url: idProofUrl,
+        certificate_url: certificateUrl,
         skills,
       })
       .select()
       .single();
 
-    if (error || !verification) throw new ApiError(500, 'Failed to create verification record');
+    if (error || !verification) throw new ApiError(500, 'Failed to create verification record: ' + error?.message);
 
-    // Update worker profile with latest video URL
-    await supabase
-      .from('workers')
-      .update({ verification_video_url: videoUrl })
-      .eq('id', userId);
+    // Update worker profile with latest video URL if provided
+    if (videoUrl) {
+      await supabase
+        .from('workers')
+        .update({ verification_video_url: videoUrl })
+        .eq('id', userId);
+    }
 
     return verification;
   }
