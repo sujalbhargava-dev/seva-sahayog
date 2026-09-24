@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Home, Calendar, IndianRupee, MoreHorizontal, ArrowDownCircle, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { Home, Calendar, IndianRupee, MoreHorizontal, ArrowUpRight, ShieldCheck, TrendingDown } from 'lucide-react';
 import apiClient from '../../api/client';
-import './WorkerHome.css';
+import './WorkerShared.css';
 
 export default function WorkerEarnings() {
   const navigate = useNavigate();
@@ -12,94 +12,96 @@ export default function WorkerEarnings() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEarnings = async () => {
+    (async () => {
       try {
         const res = await apiClient.get('/workers/earnings');
         if (res.data?.data) setEarningsData(res.data.data);
-      } catch (error) { console.error('Failed to fetch earnings', error); }
+      } catch (e) { console.error(e); }
       finally { setLoading(false); }
-    };
-    fetchEarnings();
+    })();
   }, []);
 
   const summary = earningsData?.summary || { totalEarnings: 0, totalFees: 0, totalWelfare: 0 };
   const transactions = earningsData?.earnings || [];
 
   return (
-    <div className="app-container with-bottom-nav">
-      <div className="app-header" style={{ padding: '16px 20px', backgroundColor: 'var(--primary)', color: 'white' }}>
-        <h1 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>{t('workerEarnings.title')}</h1>
+    <div className="ws-page">
+      <div className="ws-header">
+        <div className="ws-header-row">
+          <button className="ws-back-btn" onClick={() => navigate('/worker/home')}>
+            <Home size={18} />
+          </button>
+          <h1 className="ws-header-title">{t('workerEarnings.title')}</h1>
+        </div>
+        <p className="ws-header-sub">Your financial overview</p>
       </div>
 
-      <main style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {/* Balance Card */}
-        <div style={{ backgroundColor: 'var(--primary)', color: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)', marginTop: '-10px' }}>
-          <p style={{ fontSize: '14px', opacity: 0.9, margin: '0 0 8px 0' }}>{t('workerEarnings.availableBalance')}</p>
-          <h2 style={{ fontSize: '36px', fontWeight: 700, margin: '0 0 16px 0', letterSpacing: '-1px' }}>
-            {loading ? '₹...' : `₹${summary.totalEarnings.toLocaleString('en-IN')}`}
+      <div className="ws-body">
+        {/* Balance Hero Card */}
+        <div className="ws-balance-card">
+          <p className="ws-balance-label">{t('workerEarnings.availableBalance')}</p>
+          <h2 className="ws-balance-amount">
+            {loading ? '₹ —' : `₹${summary.totalEarnings.toLocaleString('en-IN')}`}
           </h2>
-          <button style={{ width: '100%', padding: '14px', backgroundColor: 'white', color: 'var(--primary)', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
-            {t('workerEarnings.withdrawFunds')}
+          <p className="ws-balance-sub">Lifetime earnings on Seva Sahayog</p>
+          <button className="ws-balance-btn" onClick={() => {}}>
+            {t('workerEarnings.withdrawFunds')} →
           </button>
         </div>
 
-        {/* Deductions Row */}
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <div style={{ flex: 1, backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)' }}>
-              <ArrowDownCircle size={16} />
-              <span style={{ fontSize: '12px', fontWeight: 500 }}>{t('workerEarnings.platformFees')}</span>
+        {/* Deductions */}
+        <div className="ws-stats-row">
+          <div className="ws-stat-pill">
+            <div style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'5px', marginBottom:'6px'}}>
+              <TrendingDown size={14} color="#ef4444"/>
+              <span style={{fontSize:'11px', fontWeight:600, color:'#ef4444'}}>{t('workerEarnings.platformFees')}</span>
             </div>
-            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-main)' }}>
-              {loading ? '-' : `₹${summary.totalFees.toLocaleString('en-IN')}`}
-            </span>
+            <h4>{loading ? '—' : `₹${summary.totalFees.toLocaleString('en-IN')}`}</h4>
           </div>
-          <div style={{ flex: 1, backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)' }}>
-              <ShieldCheck size={16} />
-              <span style={{ fontSize: '12px', fontWeight: 500 }}>{t('workerEarnings.welfareFund')}</span>
+          <div className="ws-stat-pill">
+            <div style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'5px', marginBottom:'6px'}}>
+              <ShieldCheck size={14} color="#10b981"/>
+              <span style={{fontSize:'11px', fontWeight:600, color:'#10b981'}}>{t('workerEarnings.welfareFund')}</span>
             </div>
-            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-main)' }}>
-              {loading ? '-' : `₹${summary.totalWelfare.toLocaleString('en-IN')}`}
-            </span>
+            <h4>{loading ? '—' : `₹${summary.totalWelfare.toLocaleString('en-IN')}`}</h4>
           </div>
         </div>
 
         {/* Transactions */}
-        <div>
-          <h3 style={{ fontSize: '16px', fontWeight: 600, margin: '0 0 16px 0', color: 'var(--text-main)' }}>{t('workerEarnings.recentTransactions')}</h3>
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>{t('workerEarnings.loading')}</div>
-          ) : transactions.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '30px 20px', backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-              <p className="text-muted" style={{ margin: 0, fontSize: '14px' }}>{t('workerEarnings.noTransactions')}</p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {transactions.map((tx: any) => (
-                <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#DCFCE7', color: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ArrowUpRight size={20} /></div>
-                    <div>
-                      <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 600 }}>{t('workerEarnings.jobPayout')}</h4>
-                      <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)' }}>{new Date(tx.created_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 700, color: '#16A34A' }}>+ ₹{tx.net_amount}</h4>
-                  </div>
+        <p className="ws-label">{t('workerEarnings.recentTransactions')}</p>
+        {loading ? (
+          <div className="ws-empty">
+            <p>{t('workerEarnings.loading')}</p>
+          </div>
+        ) : transactions.length === 0 ? (
+          <div className="ws-empty">
+            <div className="ws-empty-icon" style={{background:'#f0fdf4'}}><IndianRupee size={32} color="#10b981"/></div>
+            <h3>No Transactions Yet</h3>
+            <p>{t('workerEarnings.noTransactions')}</p>
+          </div>
+        ) : (
+          <div className="ws-card-sm">
+            {transactions.map((tx: any, i: number) => (
+              <div key={tx.id} className="ws-row-item" style={i===0?{borderTop:'none'}:{}}>
+                <div className="ws-row-icon" style={{background:'#d1fae5'}}>
+                  <ArrowUpRight size={18} color="#10b981"/>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
+                <div className="ws-row-text">
+                  <p className="ws-row-title">{t('workerEarnings.jobPayout')}</p>
+                  <p className="ws-row-desc">{new Date(tx.created_at).toLocaleDateString('en-IN', {month:'short', day:'numeric', year:'numeric'})}</p>
+                </div>
+                <span style={{fontSize:'16px', fontWeight:800, color:'#10b981'}}>+ ₹{tx.net_amount}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
-      <nav className="bottom-nav">
-        <button className="nav-item" onClick={() => navigate('/worker/home')}><Home size={24} /><span>{t('nav.home')}</span></button>
-        <button className="nav-item" onClick={() => navigate('/worker/bookings')}><Calendar size={24} /><span>{t('nav.bookings')}</span></button>
-        <button className="nav-item active" onClick={() => navigate('/worker/earnings')}><IndianRupee size={24} /><span>{t('nav.earnings')}</span></button>
-        <button className="nav-item" onClick={() => navigate('/worker/more')}><MoreHorizontal size={24} /><span>{t('nav.more')}</span></button>
+      <nav className="wh-bottom-nav">
+        <button className="wh-nav-item" onClick={() => navigate('/worker/home')}><Home size={22}/><span>{t('nav.home')}</span></button>
+        <button className="wh-nav-item" onClick={() => navigate('/worker/bookings')}><Calendar size={22}/><span>{t('nav.bookings')}</span></button>
+        <button className="wh-nav-item active" onClick={() => navigate('/worker/earnings')}><IndianRupee size={22}/><span>{t('nav.earnings')}</span><span className="wh-nav-active-dot"/></button>
+        <button className="wh-nav-item" onClick={() => navigate('/worker/more')}><MoreHorizontal size={22}/><span>{t('nav.more')}</span></button>
       </nav>
     </div>
   );

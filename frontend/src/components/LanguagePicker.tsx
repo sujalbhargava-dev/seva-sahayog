@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Globe, CheckCircle2, Circle, ChevronRight, X } from 'lucide-react';
 import './LanguagePicker.css';
@@ -31,6 +32,52 @@ export default function LanguagePicker({ showLabel = true }: Props) {
     setOpen(false);
   };
 
+  const sheetContent = open ? (
+    <>
+      <div className="lang-picker-backdrop" onClick={() => setOpen(false)} />
+      <div className="lang-picker-sheet" role="dialog" aria-modal="true" aria-label="Choose language">
+        <div className="lang-picker-handle" />
+
+        <div className="lang-picker-header">
+          <span className="lang-picker-title">{t('langPicker.title')}</span>
+          <button className="lang-picker-close" onClick={() => setOpen(false)} aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="lang-picker-list">
+          {LANGUAGES.map(lang => {
+            const isActive = lang.id === currentId;
+            return (
+              <button
+                key={lang.id}
+                className={`lang-picker-item${isActive ? ' active' : ''}`}
+                onClick={() => handleSelect(lang.id)}
+              >
+                <div
+                  className="lang-picker-avatar"
+                  style={{ backgroundColor: lang.bg, color: lang.color }}
+                >
+                  {lang.code}
+                </div>
+                <div className="lang-picker-text">
+                  <p className="lang-picker-name">{lang.name}</p>
+                  <p className="lang-picker-subtitle">{lang.subtitle}</p>
+                </div>
+                <div className="lang-picker-check">
+                  {isActive
+                    ? <CheckCircle2 size={22} color="#16a34a" />
+                    : <Circle size={22} color="#d1d5db" />
+                  }
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </>
+  ) : null;
+
   return (
     <>
       {/* ── Trigger row ── */}
@@ -57,52 +104,8 @@ export default function LanguagePicker({ showLabel = true }: Props) {
         </div>
       </button>
 
-      {/* ── Bottom sheet ── */}
-      {open && (
-        <>
-          <div className="lang-picker-backdrop" onClick={() => setOpen(false)} />
-          <div className="lang-picker-sheet" role="dialog" aria-modal="true" aria-label="Choose language">
-            <div className="lang-picker-handle" />
-
-            <div className="lang-picker-header">
-              <span className="lang-picker-title">{t('langPicker.title')}</span>
-              <button className="lang-picker-close" onClick={() => setOpen(false)} aria-label="Close">
-                <X size={16} />
-              </button>
-            </div>
-
-            <div className="lang-picker-list">
-              {LANGUAGES.map(lang => {
-                const isActive = lang.id === currentId;
-                return (
-                  <button
-                    key={lang.id}
-                    className={`lang-picker-item${isActive ? ' active' : ''}`}
-                    onClick={() => handleSelect(lang.id)}
-                  >
-                    <div
-                      className="lang-picker-avatar"
-                      style={{ backgroundColor: lang.bg, color: lang.color }}
-                    >
-                      {lang.code}
-                    </div>
-                    <div className="lang-picker-text">
-                      <p className="lang-picker-name">{lang.name}</p>
-                      <p className="lang-picker-subtitle">{lang.subtitle}</p>
-                    </div>
-                    <div className="lang-picker-check">
-                      {isActive
-                        ? <CheckCircle2 size={22} color="#16a34a" />
-                        : <Circle size={22} color="#d1d5db" />
-                      }
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </>
-      )}
+      {/* ── Bottom sheet rendered in Portal ── */}
+      {open && createPortal(sheetContent, document.body)}
     </>
   );
 }

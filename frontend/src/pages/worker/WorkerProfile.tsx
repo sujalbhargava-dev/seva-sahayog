@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, User, Shield, FileText, Settings, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, FileText, Settings, Loader2, ChevronDown, ChevronUp, LogOut, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../api/client';
 import LanguagePicker from '../../components/LanguagePicker';
-import './WorkerHome.css';
+import './WorkerShared.css';
 
 export default function WorkerProfile() {
   const navigate = useNavigate();
@@ -17,74 +17,94 @@ export default function WorkerProfile() {
 
   useEffect(() => {
     if (!user) return;
-    const fetchWorker = async () => {
+    (async () => {
       try {
         const res = await apiClient.get(`/workers/${user.id}`);
         setWorkerDetails(res.data?.data);
-      } catch (error) { console.error('Failed to fetch worker details', error); }
+      } catch (e) { console.error(e); }
       finally { setIsLoading(false); }
-    };
-    fetchWorker();
+    })();
   }, [user]);
 
-  const handleLogout = () => { logout(); navigate('/login'); };
+  const isVerified = workerDetails?.verification_status === 'APPROVED';
 
   return (
-    <div className="app-container">
-      <div className="app-header" style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}>
-          <ArrowLeft size={24} color="var(--text-main)" />
-        </button>
-        <h1 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>{t('workerProfile.title')}</h1>
-      </div>
-
-      <main style={{ padding: '20px' }}>
-        {/* Profile Card */}
-        <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '16px', padding: '20px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-          <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', fontWeight: 600 }}>
+    <div className="ws-page">
+      {/* Hero Header with Profile */}
+      <div className="ws-header" style={{paddingBottom:'64px'}}>
+        <div className="ws-header-row" style={{marginBottom:'20px'}}>
+          <button className="ws-back-btn" onClick={() => navigate(-1 as any)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <h1 className="ws-header-title">{t('workerProfile.title')}</h1>
+        </div>
+        {/* Avatar inline in hero */}
+        <div style={{display:'flex', alignItems:'center', gap:'16px', position:'relative', zIndex:1}}>
+          <div style={{width:'64px', height:'64px', borderRadius:'18px', background:'rgba(255,255,255,0.2)', border:'2px solid rgba(255,255,255,0.4)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'26px', fontWeight:800, color:'white', flexShrink:0}}>
             {user?.name ? user.name.charAt(0).toUpperCase() : 'W'}
           </div>
           <div>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 4px 0' }}>{user?.name || 'Worker Name'}</h2>
-            <p className="text-muted" style={{ margin: '0 0 4px 0', fontSize: '14px' }}>{user?.phone || '+91 98765 43210'}</p>
+            <h2 style={{color:'white', fontSize:'18px', fontWeight:700, margin:'0 0 4px'}}>{user?.name || 'Worker'}</h2>
+            <p style={{color:'rgba(255,255,255,0.75)', fontSize:'13px', margin:'0 0 6px'}}>{user?.phone || user?.email || ''}</p>
             {isLoading ? (
-              <Loader2 className="animate-spin text-muted" size={16} />
-            ) : workerDetails?.verification_status === 'APPROVED' ? (
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#DCFCE7', color: '#16A34A', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 }}>
-                <Shield size={14} /> {t('workerProfile.verifiedBg')}
-              </div>
+              <Loader2 size={14} color="rgba(255,255,255,0.7)" className="animate-spin"/>
+            ) : isVerified ? (
+              <span style={{display:'inline-flex', alignItems:'center', gap:'4px', background:'rgba(255,255,255,0.2)', color:'white', fontSize:'11px', fontWeight:700, padding:'3px 10px', borderRadius:'20px'}}>
+                <CheckCircle size={11}/> {t('workerProfile.verifiedBg')}
+              </span>
             ) : (
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#FEF9C3', color: '#CA8A04', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 }}>
+              <span style={{display:'inline-flex', alignItems:'center', gap:'4px', background:'rgba(250,204,21,0.2)', color:'#fde68a', fontSize:'11px', fontWeight:700, padding:'3px 10px', borderRadius:'20px'}}>
                 {t('workerProfile.pendingVerification')}
-              </div>
+              </span>
             )}
           </div>
         </div>
+      </div>
 
-        {/* Menu Options */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
-          <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', cursor: 'pointer' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><User size={20} color="var(--primary)" /><span style={{ fontSize: '15px', fontWeight: 500 }}>{t('workerProfile.personalInfo')}</span></div>
+      <div className="ws-body">
+        {/* Menu Card */}
+        <div className="ws-card-sm">
+          <button className="ws-row-item">
+            <div className="ws-row-icon" style={{background:'#eff6ff'}}><User size={18} color="#2563eb"/></div>
+            <div className="ws-row-text">
+              <p className="ws-row-title">{t('workerProfile.personalInfo')}</p>
+              <p className="ws-row-desc">Name, phone, address</p>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
-          <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', cursor: 'pointer' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><FileText size={20} color="var(--primary)" /><span style={{ fontSize: '15px', fontWeight: 500 }}>{t('workerProfile.docsKyc')}</span></div>
+          <button className="ws-row-item">
+            <div className="ws-row-icon" style={{background:'#fef3c7'}}><FileText size={18} color="#d97706"/></div>
+            <div className="ws-row-text">
+              <p className="ws-row-title">{t('workerProfile.docsKyc')}</p>
+              <p className="ws-row-desc">Aadhaar, PAN, verification</p>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
-          <button onClick={() => setSettingsOpen(prev => !prev)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', cursor: 'pointer', width: '100%' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><Settings size={20} color="var(--primary)" /><span style={{ fontSize: '15px', fontWeight: 500 }}>{t('workerProfile.appSettings')}</span></div>
-            {settingsOpen ? <ChevronUp size={18} color="#94a3b8" /> : <ChevronDown size={18} color="#94a3b8" />}
+
+          {/* Settings toggle */}
+          <button className="ws-row-item" onClick={() => setSettingsOpen(p => !p)} style={{borderBottom: settingsOpen ? '1px solid #f3f4f6' : 'none'}}>
+            <div className="ws-row-icon" style={{background:'#f0fdf4'}}><Settings size={18} color="#10b981"/></div>
+            <div className="ws-row-text">
+              <p className="ws-row-title">{t('workerProfile.appSettings')}</p>
+              <p className="ws-row-desc">Language, notifications</p>
+            </div>
+            {settingsOpen ? <ChevronUp size={16} color="#d1d5db"/> : <ChevronDown size={16} color="#d1d5db"/>}
           </button>
           {settingsOpen && (
-            <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '8px 16px', marginTop: '-4px' }}>
-              <p style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px', marginTop: '8px' }}>{t('workerProfile.language')}</p>
+            <div style={{padding:'4px 20px 12px', borderBottom:'1px solid #f3f4f6'}}>
+              <p style={{fontSize:'11px', fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.7px', margin:'8px 0 4px'}}>{t('workerProfile.language')}</p>
               <LanguagePicker />
             </div>
           )}
         </div>
 
-        <button onClick={handleLogout} style={{ width: '100%', padding: '16px', backgroundColor: '#FEE2E2', color: '#DC2626', border: '1px solid #FCA5A5', borderRadius: '12px', fontSize: '16px', fontWeight: 600, cursor: 'pointer' }}>
-          {t('workerProfile.logOut')}
+        {/* Logout */}
+        <button
+          onClick={() => { logout(); navigate('/login'); }}
+          style={{width:'100%', padding:'15px', background:'#fee2e2', color:'#dc2626', border:'none', borderRadius:'14px', fontSize:'15px', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', marginTop:'4px'}}>
+          <LogOut size={18}/> {t('workerProfile.logOut')}
         </button>
-      </main>
+      </div>
     </div>
   );
 }

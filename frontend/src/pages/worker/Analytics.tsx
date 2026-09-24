@@ -1,124 +1,116 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { BarChart2, Star, Users, Clock } from 'lucide-react';
 import apiClient from '../../api/client';
-import './Analytics.css';
+import './WorkerShared.css';
 
 export default function Analytics() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('Week');
-  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
+    (async () => {
       try {
         const res = await apiClient.get('/workers/analytics');
-        if (res.data?.data) {
-          setAnalyticsData(res.data.data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch analytics', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAnalytics();
+        if (res.data?.data) setData(res.data.data);
+      } catch (e) { console.error(e); }
+      finally { setLoading(false); }
+    })();
   }, []);
 
-  if (loading) {
-    return <div className="analytics-page" style={{ justifyContent: 'center', alignItems: 'center' }}>Loading...</div>;
-  }
-
-  const chartData = analyticsData?.chartData || [];
-  const stats = analyticsData?.stats || {};
-  const categories = analyticsData?.categories || [];
+  const chartData  = data?.chartData  || [];
+  const stats      = data?.stats      || {};
+  const categories = data?.categories || [];
 
   return (
-    <div className="analytics-page">
-      {/* Header */}
-      <div className="analytics-header">
-        <button onClick={() => navigate(-1)}>
-          <ArrowLeft size={24} color="#1f2937" />
-        </button>
-        <h1>Analytics</h1>
-        <div style={{ width: '40px' }}></div> {/* Spacer for centering */}
+    <div className="ws-page">
+      <div className="ws-header">
+        <div className="ws-header-row">
+          <button className="ws-back-btn" onClick={() => navigate(-1 as any)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <h1 className="ws-header-title">{t('analytics.title')}</h1>
+        </div>
+        <p className="ws-header-sub">{t('analytics.subtitle')}</p>
       </div>
 
-      <div className="analytics-content">
-        {/* Tabs */}
-        <div className="tabs-container">
-          {['Week', 'Month', 'Year'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`tab-button ${activeTab === tab ? 'active' : ''}`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+      <div className="ws-body">
+        {loading ? (
+          <div className="ws-empty"><p>{t('analytics.loading')}</p></div>
+        ) : (
+          <>
+            {/* Tabs */}
+            <div className="ws-tabs">
+              {['Week','Month','Year'].map(tab => (
+                <button key={tab} className={`ws-tab ${activeTab===tab?'active':''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
+              ))}
+            </div>
 
-        {/* Earnings Chart */}
-        <div className="card">
-          <div className="card-title-row">
-            <h3>Earnings This {activeTab}</h3>
-            <span className="earnings-value">₹{analyticsData?.earnings?.toLocaleString('en-IN') || '0'}</span>
-          </div>
-          
-          <div className="chart-container">
-            {chartData.map((data: any, index: number) => (
-              <div key={index} className="chart-bar-col">
-                <div 
-                  className={`chart-bar ${data.active ? 'active' : 'inactive'}`}
-                  style={{ height: `${data.value}%` }}
-                ></div>
-                <span className="chart-label">
-                  {data.day}
-                </span>
+            {/* Earnings chart card */}
+            <div className="ws-card">
+              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'4px'}}>
+                <p className="ws-label" style={{margin:0}}>{t('analytics.earningsThis', {period: activeTab})}</p>
+                <span style={{fontSize:'18px', fontWeight:800, color:'#111827'}}>₹{data?.earnings?.toLocaleString('en-IN') || '0'}</span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-value">{stats.jobs || 0}</div>
-            <div className="stat-label">Jobs This {activeTab}</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{stats.rating || 0}</div>
-            <div className="stat-label">Avg Rating</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{stats.repeatCustomers || '0%'}</div>
-            <div className="stat-label">Repeat Customers</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{stats.avgResponse || '0 min'}</div>
-            <div className="stat-label">Avg Response</div>
-          </div>
-        </div>
-
-        {/* Jobs by Category */}
-        <div className="card">
-          <h3 style={{ margin: '0 0 24px 0', color: '#111827', fontWeight: 700 }}>Jobs by Category</h3>
-          
-          <div className="category-list">
-            {categories.map((cat: any, index: number) => (
-              <div key={index}>
-                <div className="category-item-header">
-                  <span>{cat.name}</span>
-                  <span>{cat.percentage}%</span>
-                </div>
-                <div className="progress-bg">
-                  <div className="progress-fill" style={{ width: `${cat.percentage}%`, backgroundColor: cat.color }}></div>
-                </div>
+              <div className="ws-chart">
+                {chartData.map((d: any, i: number) => (
+                  <div key={i} className="ws-bar-col">
+                    <div className={`ws-bar ${d.active?'active':''}`} style={{height:`${Math.max(d.value,8)}%`}}/>
+                    <span className={`ws-bar-label ${d.active?'active':''}`}>{d.day}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+
+            {/* Stats 2×2 */}
+            <div className="ws-stats-row">
+              <div className="ws-stat-pill">
+                <div style={{display:'flex', justifyContent:'center', marginBottom:'6px'}}><BarChart2 size={16} color="#10b981"/></div>
+                <h4>{stats.jobs || 0}</h4>
+                <p>{t('analytics.jobsThis', {period: activeTab})}</p>
+              </div>
+              <div className="ws-stat-pill">
+                <div style={{display:'flex', justifyContent:'center', marginBottom:'6px'}}><Star size={16} color="#f59e0b"/></div>
+                <h4>{stats.rating || '—'}</h4>
+                <p>{t('analytics.avgRating')}</p>
+              </div>
+              <div className="ws-stat-pill">
+                <div style={{display:'flex', justifyContent:'center', marginBottom:'6px'}}><Users size={16} color="#6366f1"/></div>
+                <h4>{stats.repeatCustomers || '0%'}</h4>
+                <p>{t('analytics.repeatCustomers')}</p>
+              </div>
+              <div className="ws-stat-pill">
+                <div style={{display:'flex', justifyContent:'center', marginBottom:'6px'}}><Clock size={16} color="#64748b"/></div>
+                <h4>{stats.avgResponse || '—'}</h4>
+                <p>{t('analytics.avgResponse')}</p>
+              </div>
+            </div>
+
+            {/* Categories */}
+            {categories.length > 0 && (
+              <>
+                <p className="ws-label">{t('analytics.jobsByCategory')}</p>
+                <div className="ws-card">
+                  {categories.map((cat: any, i: number) => (
+                    <div key={i} style={{marginBottom: i < categories.length-1 ? '16px' : 0}}>
+                      <div style={{display:'flex', justifyContent:'space-between', marginBottom:'6px'}}>
+                        <span style={{fontSize:'13px', fontWeight:600, color:'#374151'}}>{cat.name}</span>
+                        <span style={{fontSize:'13px', fontWeight:700, color:'#10b981'}}>{cat.percentage}%</span>
+                      </div>
+                      <div className="ws-progress-bg">
+                        <div className="ws-progress-fill" style={{width:`${cat.percentage}%`, background: cat.color || 'linear-gradient(90deg, #10b981, #064e35)'}}/>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

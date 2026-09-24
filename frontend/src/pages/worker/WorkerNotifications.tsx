@@ -1,129 +1,118 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Bell, Loader2, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { CheckCheck, CheckCircle2, Loader2, Inbox } from 'lucide-react';
 import apiClient from '../../api/client';
+import './WorkerShared.css';
 
 interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: string;
-  is_read: boolean;
-  created_at: string;
+  id: string; title: string; message: string;
+  type: string; is_read: boolean; created_at: string;
 }
 
 export default function WorkerNotifications() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
+  useEffect(() => { fetchAll(); }, []);
 
-  const fetchNotifications = async () => {
+  const fetchAll = async () => {
     try {
       const res = await apiClient.get('/notifications');
       setNotifications(res.data?.data || []);
-    } catch (error) {
-      console.error('Failed to fetch notifications', error);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
-  const markAsRead = async (id: string) => {
+  const markRead = async (id: string) => {
     try {
       await apiClient.patch(`/notifications/${id}/read`);
-      setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, is_read: true } : n)
-      );
-    } catch (error) {
-      console.error('Failed to mark notification as read', error);
-    }
+      setNotifications(prev => prev.map(n => n.id===id ? {...n, is_read:true} : n));
+    } catch (e) { console.error(e); }
   };
 
-  const markAllAsRead = async () => {
+  const markAllRead = async () => {
     try {
       await apiClient.patch('/notifications/read-all');
-      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-    } catch (error) {
-      console.error('Failed to mark all as read', error);
-    }
+      setNotifications(prev => prev.map(n => ({...n, is_read:true})));
+    } catch (e) { console.error(e); }
   };
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unread = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className="app-container" style={{ paddingBottom: '32px' }}>
-      {/* Header */}
-      <div className="app-header" style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button className="back-btn" onClick={() => navigate('/worker/home')} style={{ padding: 0 }}>
-            <ChevronLeft size={24} />
+    <div className="ws-page">
+      <div className="ws-header">
+        <div className="ws-header-row">
+          <button className="ws-back-btn" onClick={() => navigate('/worker/home')}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
-          <h1 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>Notifications</h1>
+          <h1 className="ws-header-title">{t('workerNotifications.title')}</h1>
+          {unread > 0 && (
+            <button className="ws-header-action" onClick={markAllRead}>
+              <CheckCheck size={13} style={{display:'inline', marginRight:'4px'}}/>{t('workerNotifications.markAllRead')}
+            </button>
+          )}
         </div>
-        {unreadCount > 0 && (
-          <button 
-            onClick={markAllAsRead}
-            style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}
-          >
-            Mark all read
-          </button>
-        )}
+        <p className="ws-header-sub">{unread > 0 ? t('workerNotifications.unreadCount', {count: unread}) : t('workerNotifications.allCaughtUp')}</p>
       </div>
 
-      <main style={{ padding: '20px' }}>
+      <div className="ws-body">
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
-            <Loader2 className="animate-spin text-primary" size={32} />
+          <div className="ws-empty">
+            <Loader2 size={32} color="#10b981" className="animate-spin"/>
           </div>
         ) : notifications.length === 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '60px' }}>
-            <div style={{ width: '64px', height: '64px', borderRadius: '32px', backgroundColor: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-              <Bell size={32} className="text-muted" />
-            </div>
-            <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>No notifications</h2>
-            <p className="text-muted text-center" style={{ fontSize: '14px' }}>You're all caught up! New alerts will appear here.</p>
+          <div className="ws-empty">
+            <div className="ws-empty-icon" style={{background:'#f0fdf4'}}><Inbox size={32} color="#10b981"/></div>
+            <h3>{t('workerNotifications.noNotifications')}</h3>
+            <p>{t('workerNotifications.noNotificationsDesc')}</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {notifications.map(notification => (
-              <div 
-                key={notification.id} 
-                onClick={() => !notification.is_read && markAsRead(notification.id)}
-                style={{ 
-                  padding: '16px', 
-                  backgroundColor: notification.is_read ? 'var(--bg-card)' : '#F0FDF4', 
-                  borderRadius: '12px', 
-                  border: `1px solid ${notification.is_read ? 'var(--border)' : '#BBF7D0'}`,
-                  cursor: notification.is_read ? 'default' : 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 600, margin: 0, color: 'var(--text-main)' }}>
-                    {notification.title}
-                  </h3>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                    {new Date(notification.created_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
-                  </span>
-                </div>
-                <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: '0 0 12px 0', lineHeight: 1.4 }}>
-                  {notification.message}
-                </p>
-                {!notification.is_read && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--primary)', fontSize: '12px', fontWeight: 600 }}>
-                    <CheckCircle2 size={14} />
-                    <span>Tap to mark read</span>
+          <>
+            {/* Unread */}
+            {notifications.filter(n => !n.is_read).length > 0 && (
+              <>
+                <p className="ws-label">{t('workerNotifications.new')}</p>
+                {notifications.filter(n => !n.is_read).map(n => {
+                  return (
+                    <div key={n.id} className="ws-notif-item ws-notif-unread" onClick={() => markRead(n.id)}>
+                      <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'6px'}}>
+                        <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                          <span className="ws-notif-dot"/>
+                          <h4 style={{fontSize:'14px', fontWeight:700, color:'#111827', margin:0}}>{n.title}</h4>
+                        </div>
+                        <span style={{fontSize:'11px', color:'#9ca3af', flexShrink:0}}>{new Date(n.created_at).toLocaleDateString('en-IN',{month:'short', day:'numeric'})}</span>
+                      </div>
+                      <p style={{fontSize:'13px', color:'#4b5563', margin:'0 0 8px', lineHeight:1.5}}>{n.message}</p>
+                      <div style={{display:'flex', alignItems:'center', gap:'4px', color:'#10b981', fontSize:'11px', fontWeight:600}}>
+                        <CheckCircle2 size={12}/> {t('workerNotifications.tapToMarkRead')}
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
+            {/* Read */}
+            {notifications.filter(n => n.is_read).length > 0 && (
+              <>
+                <p className="ws-label" style={{marginTop:'8px'}}>{t('workerNotifications.earlier')}</p>
+                {notifications.filter(n => n.is_read).map(n => (
+                  <div key={n.id} className="ws-notif-item ws-notif-read">
+                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'5px'}}>
+                      <h4 style={{fontSize:'14px', fontWeight:600, color:'#374151', margin:0}}>{n.title}</h4>
+                      <span style={{fontSize:'11px', color:'#9ca3af', flexShrink:0}}>{new Date(n.created_at).toLocaleDateString('en-IN',{month:'short', day:'numeric'})}</span>
+                    </div>
+                    <p style={{fontSize:'13px', color:'#9ca3af', margin:0, lineHeight:1.5}}>{n.message}</p>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                ))}
+              </>
+            )}
+          </>
         )}
-      </main>
+      </div>
     </div>
   );
 }
