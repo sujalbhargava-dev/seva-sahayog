@@ -238,7 +238,7 @@ class WorkerService {
   }
 
   /**
-   * Upload verification documents (saves to Cloudinary, creates SkillVerification record).
+   * Upload verification documents (creates SkillVerification record).
    */
   async uploadVerificationDocuments(
     userId: string,

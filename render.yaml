@@ -23,9 +23,9 @@ services:
         sync: false
       - key: RAZORPAY_WEBHOOK_SECRET
         sync: false
-      - key: CLOUDINARY_CLOUD_NAME
+      - key: IMAGEKIT_PUBLIC_KEY
         sync: false
-      - key: CLOUDINARY_API_KEY
+      - key: IMAGEKIT_PRIVATE_KEY
         sync: false
-      - key: CLOUDINARY_API_SECRET
+      - key: IMAGEKIT_URL_ENDPOINT
         sync: false

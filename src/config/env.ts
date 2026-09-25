@@ -23,10 +23,10 @@ const envSchema = z.object({
   RAZORPAY_KEY_SECRET: z.string().default(''),
   RAZORPAY_WEBHOOK_SECRET: z.string().default(''),
 
-  // Cloudinary
-  CLOUDINARY_CLOUD_NAME: z.string().default(''),
-  CLOUDINARY_API_KEY: z.string().default(''),
-  CLOUDINARY_API_SECRET: z.string().default(''),
+  // ImageKit
+  IMAGEKIT_PUBLIC_KEY: z.string().default(''),
+  IMAGEKIT_PRIVATE_KEY: z.string().default(''),
+  IMAGEKIT_URL_ENDPOINT: z.string().default(''),
 
   // AI Service
   AI_SERVICE_URL: z.string().default('http://localhost:8000'),
