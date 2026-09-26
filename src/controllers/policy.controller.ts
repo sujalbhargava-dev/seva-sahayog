@@ -17,7 +17,7 @@ export const getPolicies = asyncHandler(async (req: Request, res: Response) => {
 
   let query = supabase
     .from('policy_votes')
-    .select('*, created_by_user:users!created_by(name)', { count: 'exact' });
+    .select('*, created_by_user:workers!created_by(name)', { count: 'exact' });
 
   if (status) {
     query = query.eq('status', status);
@@ -48,7 +48,7 @@ export const createPolicy = asyncHandler(async (req: Request, res: Response) => 
       options,
       start_date: new Date(startDate).toISOString(),
       end_date: new Date(endDate).toISOString(),
-      created_by: req.user!.userId,
+      created_by: req.user!.role === Role.ADMIN ? null : req.user!.userId,
       status: PolicyStatus.ACTIVE,
     })
     .select()
@@ -69,7 +69,7 @@ export const createPolicy = asyncHandler(async (req: Request, res: Response) => 
 export const getPolicyById = asyncHandler(async (req: Request, res: Response) => {
   const { data: policy, error } = await supabase
     .from('policy_votes')
-    .select('*, created_by_user:users!created_by(name)')
+    .select('*, created_by_user:workers!created_by(name)')
     .eq('id', req.params.id)
     .maybeSingle();
 
