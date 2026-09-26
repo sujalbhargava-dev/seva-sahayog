@@ -47,16 +47,16 @@ export async function uploadToImageKit(
   resourceType: 'image' | 'video' = 'image'
 ): Promise<{ url: string; publicId: string }> {
   try {
-    const result = await imagekit.upload({
-      file: fileBuffer, 
+    const result = await imagekit.files.upload({
+      file: fileBuffer.toString('base64'), 
       fileName: 'upload', // ImageKit will auto-generate unique names or we can use original names
       folder: `/sewashayog/${folder}`,
       // Optionally handle transformations or resource types here if needed
     });
 
     return {
-      url: result.url,
-      publicId: result.fileId,
+      url: result.url || '',
+      publicId: result.fileId || '',
     };
   } catch (error: any) {
     throw new ApiError(500, `ImageKit upload failed: ${error.message}`);
