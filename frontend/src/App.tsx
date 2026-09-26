@@ -61,7 +61,6 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: 
 }
 
 function App() {
-    const { t } = useTranslation();
   return (
     <AuthProvider>
       <Router>
