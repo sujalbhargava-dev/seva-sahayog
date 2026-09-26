@@ -1,8 +1,10 @@
 import { Search, ChevronDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import apiClient from '../../../api/client';
+import { useTranslation } from "react-i18next";
 
 export default function UsersTab() {
+    const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('All Users');
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,14 +45,14 @@ export default function UsersTab() {
     <div>
       <div className="admin-page-header">
         <div className="admin-page-title">
-          <h1>Users</h1>
-          <p>Manage users across the platform</p>
+          <h1>{t('newlyAdded.users')}</h1>
+          <p>{t('newlyAdded.manageUsersAcrossThe')}</p>
         </div>
         <form onSubmit={handleSearch} className="admin-search-bar">
           <Search size={16} color="#9CA3AF" />
           <input 
             type="text" 
-            placeholder="Search by name, email..." 
+            placeholder={t('newlyAdded.searchByNameEmail')} 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -73,19 +75,19 @@ export default function UsersTab() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>User</th>
-              <th>Role</th>
-              <th>Location</th>
-              <th>Joined</th>
-              <th>Status</th>
+              <th>{t('newlyAdded.user')}</th>
+              <th>{t('newlyAdded.role')}</th>
+              <th>{t('newlyAdded.location')}</th>
+              <th>{t('newlyAdded.joined')}</th>
+              <th>{t('newlyAdded.status')}</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} style={{ textAlign: 'center', padding: '24px' }}>Loading...</td></tr>
+              <tr><td colSpan={6} style={{ textAlign: 'center', padding: '24px' }}>{t('newlyAdded.loading')}</td></tr>
             ) : users.length === 0 ? (
-              <tr><td colSpan={6} style={{ textAlign: 'center', padding: '24px' }}>No users found</td></tr>
+              <tr><td colSpan={6} style={{ textAlign: 'center', padding: '24px' }}>{t('newlyAdded.noUsersFound')}</td></tr>
             ) : users.map(u => (
               <tr key={u.id}>
                 <td>
@@ -109,7 +111,7 @@ export default function UsersTab() {
                 </td>
                 <td>
                   <span style={{ color: '#059669', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    Edit <ChevronDown size={14} />
+                    {t('newlyAdded.edit')}<ChevronDown size={14} />
                   </span>
                 </td>
               </tr>

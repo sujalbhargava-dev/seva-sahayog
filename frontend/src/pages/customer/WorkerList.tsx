@@ -3,8 +3,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, SlidersHorizontal } from 'lucide-react';
 import apiClient from '../../api/client';
 import './WorkerList.css';
+import { useTranslation } from "react-i18next";
 
 export default function WorkerList() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const service = searchParams.get('service');
@@ -51,13 +53,13 @@ export default function WorkerList() {
       <main style={{ padding: '16px 20px' }}>
         {/* Filters */}
         <div className="chips-container mb-4">
-          <button className="chip active">Available Nearby</button>
-          <button className="chip">Top Rated</button>
+          <button className="chip active">{t('newlyAdded.availableNearby')}</button>
+          <button className="chip">{t('newlyAdded.topRated')}</button>
         </div>
 
         {/* List */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>Loading workers...</div>
+          <div style={{ textAlign: 'center', padding: '40px' }}>{t('newlyAdded.loadingWorkers')}</div>
         ) : (
           <div className="worker-list">
             {workers.map(w => {
@@ -73,7 +75,7 @@ export default function WorkerList() {
                 <div key={id} className="worker-card" onClick={() => navigate(`/customer/worker/${id}`)}>
                   <div className="w-avatar" style={{ backgroundColor: w.profilePicture ? 'transparent' : '#FEF08A', color: 'rgba(0,0,0,0.6)', padding: 0, overflow: 'hidden' }}>
                     {w.profilePicture ? (
-                      <img src={w.profilePicture} alt="DP" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={w.profilePicture} alt={t('newlyAdded.dP')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                       name.charAt(0).toUpperCase()
                     )}
@@ -87,12 +89,11 @@ export default function WorkerList() {
                     <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                       {isAvailable && (
                         <div className="status-badge mt-2" style={{ marginTop: 0 }}>
-                          <span className="status-dot"></span> Available
-                        </div>
+                          <span className="status-dot"></span> {t('newlyAdded.available')}</div>
                       )}
                       {score && (
                         <div className="status-badge mt-2" style={{ marginTop: 0, backgroundColor: '#E0F2FE', color: '#0369A1' }}>
-                          Match Score: {Math.round(score * 100)}%
+                          {t('newlyAdded.matchScore')}{Math.round(score * 100)}%
                         </div>
                       )}
                     </div>
@@ -103,8 +104,7 @@ export default function WorkerList() {
             })}
             {workers.length === 0 && (
               <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                No workers found in your area yet.
-              </div>
+                {t('newlyAdded.noWorkersFoundIn')}</div>
             )}
           </div>
         )}

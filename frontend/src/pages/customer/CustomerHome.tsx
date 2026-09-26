@@ -49,7 +49,7 @@ export default function CustomerHome() {
         <div className="header-profile">
           <div className="avatar" style={{ backgroundColor: user?.profilePicture ? 'transparent' : undefined, padding: 0, overflow: 'hidden' }}>
             {user?.profilePicture ? (
-              <img src={user.profilePicture} alt="DP" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={user.profilePicture} alt={t('newlyAdded.dP')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
               user?.name ? user.name.charAt(0).toUpperCase() : 'C'
             )}
@@ -113,7 +113,7 @@ export default function CustomerHome() {
             <h4>{t('customerHome.bannerLine3')}</h4>
             <p>{t('customerHome.bannerSub')}</p>
           </div>
-          <div className="promo-badge">R</div>
+          <div className="promo-badge">{t('newlyAdded.r')}</div>
         </div>
 
         {/* Quick Actions */}
@@ -151,7 +151,7 @@ export default function CustomerHome() {
                 <div key={w.id} className="worker-card" onClick={() => navigate(`/customer/worker/${w.id}`)}>
                   <div className="w-avatar" style={{ backgroundColor: w.profilePicture ? 'transparent' : '#FEF08A', color: 'rgba(0,0,0,0.6)', padding: 0, overflow: 'hidden' }}>
                     {w.profilePicture ? (
-                      <img src={w.profilePicture} alt="DP" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={w.profilePicture} alt={t('newlyAdded.dP')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                       w.name ? w.name.charAt(0).toUpperCase() : 'W'
                     )}

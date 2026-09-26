@@ -3,8 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Share2, MapPin, Briefcase, CheckCircle, MessageSquare } from 'lucide-react';
 import apiClient from '../../api/client';
 import './WorkerProfile.css';
+import { useTranslation } from "react-i18next";
 
 export default function WorkerProfile() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   
@@ -29,11 +31,11 @@ export default function WorkerProfile() {
   }, [id]);
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '40px' }}>Loading profile...</div>;
+    return <div style={{ textAlign: 'center', padding: '40px' }}>{t('newlyAdded.loadingProfile')}</div>;
   }
 
   if (!worker) {
-    return <div style={{ textAlign: 'center', padding: '40px' }}>Worker not found</div>;
+    return <div style={{ textAlign: 'center', padding: '40px' }}>{t('newlyAdded.workerNotFound')}</div>;
   }
 
   const name = worker.name || 'Worker';
@@ -62,7 +64,7 @@ export default function WorkerProfile() {
         <div className="profile-header text-center pt-10">
           <div className="profile-avatar" style={{ backgroundColor: worker.profilePicture ? 'transparent' : 'var(--primary-light)' }}>
             {worker.profilePicture ? (
-              <img src={worker.profilePicture} alt="DP" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+              <img src={worker.profilePicture} alt={t('newlyAdded.dP')} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
             ) : (
               name.charAt(0).toUpperCase()
             )}
@@ -72,12 +74,11 @@ export default function WorkerProfile() {
           <div className="mt-4">
             {isAvailable && (
               <span className="status-badge" style={{ marginBottom: '8px' }}>
-                <span className="status-dot"></span> Available
-              </span>
+                <span className="status-dot"></span> {t('newlyAdded.available')}</span>
             )}
             <h1 className="profile-name">{name} {worker.verification_status === 'APPROVED' && <CheckCircle size={16} color="#10B981" />}</h1>
-            <p className="profile-subtitle">{skills[0]} • {experience} yrs experience</p>
-            <p className="w-rating mt-2">★ {rating} <span className="text-muted" style={{fontWeight: 400}}>({totalJobs} jobs)</span></p>
+            <p className="profile-subtitle">{skills[0]} • {experience} {t('newlyAdded.yrsExperience')}</p>
+            <p className="w-rating mt-2">★ {rating} <span className="text-muted" style={{fontWeight: 400}}>({totalJobs} {t('newlyAdded.jobs')}</span></p>
           </div>
         </div>
 
@@ -85,18 +86,18 @@ export default function WorkerProfile() {
         <div className="stats-container mt-6">
           <div className="stat-box">
             <MapPin size={20} className="text-primary mb-2" />
-            <span className="stat-val">Nearby</span>
-            <span className="stat-lbl">location</span>
+            <span className="stat-val">{t('newlyAdded.nearby')}</span>
+            <span className="stat-lbl">{t('newlyAdded.location')}</span>
           </div>
           <div className="stat-box">
             <Briefcase size={20} className="text-primary mb-2" />
-            <span className="stat-val">{experience} years</span>
-            <span className="stat-lbl">experience</span>
+            <span className="stat-val">{experience} {t('newlyAdded.years')}</span>
+            <span className="stat-lbl">{t('newlyAdded.experience')}</span>
           </div>
           <div className="stat-box">
             <CheckCircle size={20} className="text-primary mb-2" />
             <span className="stat-val">{totalJobs}</span>
-            <span className="stat-lbl">jobs done</span>
+            <span className="stat-lbl">{t('newlyAdded.jobsDone')}</span>
           </div>
         </div>
 
@@ -112,23 +113,22 @@ export default function WorkerProfile() {
         {/* Feedback Quote */}
         <div className="feedback-quote">
           <p className="text-muted" style={{ fontStyle: 'italic', fontSize: '14px' }}>
-            "Very professional and on time. Fixed the wiring issue quickly and explained everything clearly."
-          </p>
+            {t('newlyAdded.veryProfessionalAndOn')}</p>
         </div>
 
         {/* Pricing */}
         <div className="pricing-card mt-6 mx-6">
           <div className="price-row">
-            <span className="text-muted">Service Charge</span>
+            <span className="text-muted">{t('newlyAdded.serviceCharge')}</span>
             <span>₹500</span>
           </div>
           <div className="price-row">
-            <span className="text-muted">Visiting / Fuel Charge</span>
+            <span className="text-muted">{t('newlyAdded.visitingFuelCharge')}</span>
             <span>₹50</span>
           </div>
           <div className="price-divider"></div>
           <div className="price-row total">
-            <span>Total</span>
+            <span>{t('newlyAdded.total')}</span>
             <span className="text-primary">₹550</span>
           </div>
         </div>
@@ -137,11 +137,9 @@ export default function WorkerProfile() {
       {/* Action Bar */}
       <div className="action-bar">
         <button className="btn-outline" style={{ flex: 1, gap: '8px' }}>
-          <MessageSquare size={20} /> Chat
-        </button>
+          <MessageSquare size={20} /> {t('newlyAdded.chat')}</button>
         <button className="btn-primary" style={{ flex: 1 }} onClick={() => navigate(`/customer/book/${id}?service=${encodeURIComponent(skills[0])}`)}>
-          Book Now
-        </button>
+          {t('newlyAdded.bookNow')}</button>
       </div>
     </div>
   );

@@ -70,7 +70,7 @@ export default function WorkerProfile() {
           <div style={{ position: 'relative' }}>
             <div style={{width:'64px', height:'64px', borderRadius:'18px', background: user?.profilePicture ? 'transparent' : 'rgba(255,255,255,0.2)', border: user?.profilePicture ? 'none' : '2px solid rgba(255,255,255,0.4)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'26px', fontWeight:800, color:'white', flexShrink:0, overflow:'hidden'}}>
               {user?.profilePicture ? (
-                <img src={user.profilePicture} alt="DP" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={user.profilePicture} alt={t('newlyAdded.dP')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 user?.name ? user.name.charAt(0).toUpperCase() : 'W'
               )}
@@ -107,7 +107,7 @@ export default function WorkerProfile() {
             <div className="ws-row-icon" style={{background:'#eff6ff'}}><User size={18} color="#2563eb"/></div>
             <div className="ws-row-text">
               <p className="ws-row-title">{t('workerProfile.personalInfo')}</p>
-              <p className="ws-row-desc">Name, phone, address</p>
+              <p className="ws-row-desc">{t('newlyAdded.namePhoneAddress')}</p>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
@@ -115,7 +115,7 @@ export default function WorkerProfile() {
             <div className="ws-row-icon" style={{background:'#fef3c7'}}><FileText size={18} color="#d97706"/></div>
             <div className="ws-row-text">
               <p className="ws-row-title">{t('workerProfile.docsKyc')}</p>
-              <p className="ws-row-desc">Aadhaar, PAN, verification</p>
+              <p className="ws-row-desc">{t('newlyAdded.aadhaarPANVerification')}</p>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
@@ -125,7 +125,7 @@ export default function WorkerProfile() {
             <div className="ws-row-icon" style={{background:'#f0fdf4'}}><Settings size={18} color="#10b981"/></div>
             <div className="ws-row-text">
               <p className="ws-row-title">{t('workerProfile.appSettings')}</p>
-              <p className="ws-row-desc">Language, notifications</p>
+              <p className="ws-row-desc">{t('newlyAdded.languageNotifications')}</p>
             </div>
             {settingsOpen ? <ChevronUp size={16} color="#d1d5db"/> : <ChevronDown size={16} color="#d1d5db"/>}
           </button>

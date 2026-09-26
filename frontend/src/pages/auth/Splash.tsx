@@ -84,13 +84,13 @@ export default function Splash() {
           <div className="splash-logo-bg" />
           <img
             src="/logo.jpg"
-            alt="Seva Sahayog Logo"
+            alt={t('newlyAdded.sevaSahayogLogo')}
             className="splash-logo-img"
           />
         </div>
 
         {/* App name */}
-        <h1 className="splash-name">Seva Sahayog</h1>
+        <h1 className="splash-name">{t('newlyAdded.sevaSahayog')}</h1>
         <p className="splash-name-hindi">{t('splash.nameHindi')}</p>
         <p className="splash-tagline">{t('splash.tagline')}</p>
 
@@ -116,7 +116,7 @@ export default function Splash() {
       {/* Bottom branding */}
       <div className="splash-bottom">
         <span className="splash-bottom-tag">{t('splash.bottomTag')}</span>
-        <span className="splash-version">v2.0</span>
+        <span className="splash-version">{t('newlyAdded.v20')}</span>
       </div>
     </div>
   );

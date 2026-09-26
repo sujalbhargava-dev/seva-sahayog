@@ -4,8 +4,10 @@ import { Shield, ArrowRight } from 'lucide-react';
 import apiClient from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import './Admin.css';
+import { useTranslation } from "react-i18next";
 
 export default function AdminLogin() {
+    const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -46,26 +48,26 @@ export default function AdminLogin() {
           <div className="admin-login-logo">
             <Shield size={28} color="white" strokeWidth={2.5} />
           </div>
-          <h1>WorkLink Workspace</h1>
-          <p>Secure Administration Portal</p>
+          <h1>{t('newlyAdded.workLinkWorkspace')}</h1>
+          <p>{t('newlyAdded.secureAdministrationPortal')}</p>
         </div>
 
         <form onSubmit={handleLogin} className="admin-login-form">
           {error && <div className="admin-login-error">{error}</div>}
           
           <div className="admin-input-group">
-            <label>Administrator Email</label>
+            <label>{t('newlyAdded.administratorEmail')}</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@worklink.com"
+              placeholder={t('newlyAdded.nameworklinkcom')}
               required
             />
           </div>
 
           <div className="admin-input-group">
-            <label>Secure Password</label>
+            <label>{t('newlyAdded.securePassword')}</label>
             <input
               type="password"
               value={password}
@@ -82,8 +84,7 @@ export default function AdminLogin() {
         </form>
         
         <button onClick={() => navigate('/landing')} className="admin-back-link">
-          Return to public site
-        </button>
+          {t('newlyAdded.returnToPublicSite')}</button>
       </div>
     </div>
   );

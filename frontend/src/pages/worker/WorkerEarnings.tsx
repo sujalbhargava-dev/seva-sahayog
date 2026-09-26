@@ -33,7 +33,7 @@ export default function WorkerEarnings() {
           </button>
           <h1 className="ws-header-title">{t('workerEarnings.title')}</h1>
         </div>
-        <p className="ws-header-sub">Your financial overview</p>
+        <p className="ws-header-sub">{t('newlyAdded.yourFinancialOverview')}</p>
       </div>
 
       <div className="ws-body">
@@ -43,7 +43,7 @@ export default function WorkerEarnings() {
           <h2 className="ws-balance-amount">
             {loading ? '₹ —' : `₹${summary.totalEarnings.toLocaleString('en-IN')}`}
           </h2>
-          <p className="ws-balance-sub">Lifetime earnings on Seva Sahayog</p>
+          <p className="ws-balance-sub">{t('newlyAdded.lifetimeEarningsOnSeva')}</p>
           <button className="ws-balance-btn" onClick={() => {}}>
             {t('workerEarnings.withdrawFunds')} →
           </button>
@@ -76,7 +76,7 @@ export default function WorkerEarnings() {
         ) : transactions.length === 0 ? (
           <div className="ws-empty">
             <div className="ws-empty-icon" style={{background:'#f0fdf4'}}><IndianRupee size={32} color="#10b981"/></div>
-            <h3>No Transactions Yet</h3>
+            <h3>{t('newlyAdded.noTransactionsYet')}</h3>
             <p>{t('workerEarnings.noTransactions')}</p>
           </div>
         ) : (

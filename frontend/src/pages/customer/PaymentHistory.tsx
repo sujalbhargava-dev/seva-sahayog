@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import apiClient from '../../api/client';
-
+import { useTranslation } from "react-i18next";
 
 export default function PaymentHistory() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -34,7 +35,7 @@ export default function PaymentHistory() {
         <button className="back-btn" style={{ position: 'absolute', left: '20px' }} onClick={() => navigate(-1)}>
           <ChevronLeft size={24} />
         </button>
-        <h2 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>Payment History</h2>
+        <h2 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>{t('newlyAdded.paymentHistory')}</h2>
       </div>
 
       <main style={{ padding: '0 20px' }}>
@@ -47,7 +48,7 @@ export default function PaymentHistory() {
           marginBottom: '24px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
         }}>
-          <p style={{ fontSize: '13px', color: '#166534', margin: '0 0 8px', fontWeight: 500 }}>Total Spent</p>
+          <p style={{ fontSize: '13px', color: '#166534', margin: '0 0 8px', fontWeight: 500 }}>{t('newlyAdded.totalSpent')}</p>
           <h2 style={{ fontSize: '36px', fontWeight: 700, color: '#14532D', margin: 0 }}>₹{totalSpent}</h2>
         </div>
 
@@ -78,9 +79,9 @@ export default function PaymentHistory() {
         {/* Transactions List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {isLoading ? (
-            <p className="text-center text-muted">Loading...</p>
+            <p className="text-center text-muted">{t('newlyAdded.loading')}</p>
           ) : transactions.length === 0 ? (
-            <p className="text-center text-muted">No transactions found.</p>
+            <p className="text-center text-muted">{t('newlyAdded.noTransactionsFound')}</p>
           ) : (
             transactions
               .filter(tx => {

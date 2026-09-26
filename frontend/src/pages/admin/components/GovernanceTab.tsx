@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import apiClient from '../../../api/client';
+import { useTranslation } from "react-i18next";
 
 export default function GovernanceTab() {
+    const { t } = useTranslation();
   const [proposals, setProposals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ members: 1240, active: 0, votes: 5612, rate: 71 });
@@ -66,56 +68,51 @@ export default function GovernanceTab() {
     <div>
       <div className="admin-page-header">
         <div className="admin-page-title">
-          <h1>Cooperative Governance</h1>
-          <p>{stats.members} members • {stats.active} active proposals</p>
+          <h1>{t('newlyAdded.cooperativeGovernance')}</h1>
+          <p>{stats.members} {t('newlyAdded.members')}{stats.active} {t('newlyAdded.activeProposals')}</p>
         </div>
         <button className="action-btn btn-approve" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => setShowModal(true)}>
-          + New Proposal
-        </button>
+          {t('newlyAdded.NewProposal')}</button>
       </div>
 
       <div className="admin-metric-grid" style={{ marginBottom: '32px' }}>
         <div className="admin-metric-card">
           <div className="metric-header">
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ color: '#059669' }}>●</span> Total Members
-            </h3>
+              <span style={{ color: '#059669' }}>●</span> {t('newlyAdded.totalMembers')}</h3>
           </div>
           <p className="metric-value">{stats.members}</p>
         </div>
         <div className="admin-metric-card">
           <div className="metric-header">
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ color: '#2563EB' }}>●</span> Active Proposals
-            </h3>
+              <span style={{ color: '#2563EB' }}>●</span> {t('newlyAdded.activeProposals')}</h3>
           </div>
           <p className="metric-value">{stats.active}</p>
         </div>
         <div className="admin-metric-card">
           <div className="metric-header">
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ color: '#D97706' }}>●</span> Total Votes Cast
-            </h3>
+              <span style={{ color: '#D97706' }}>●</span> {t('newlyAdded.totalVotesCast')}</h3>
           </div>
           <p className="metric-value">{stats.votes}</p>
         </div>
         <div className="admin-metric-card">
           <div className="metric-header">
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ color: '#DC2626' }}>●</span> Approval Rate
-            </h3>
+              <span style={{ color: '#DC2626' }}>●</span> {t('newlyAdded.approvalRate')}</h3>
           </div>
           <p className="metric-value">{stats.rate}%</p>
         </div>
       </div>
 
-      <h3 style={{ fontSize: '16px', margin: '0 0 16px', color: '#111827' }}>All Proposals</h3>
+      <h3 style={{ fontSize: '16px', margin: '0 0 16px', color: '#111827' }}>{t('newlyAdded.allProposals')}</h3>
 
       <div>
         {loading ? (
-           <p style={{ textAlign: 'center', padding: '24px' }}>Loading proposals...</p>
+           <p style={{ textAlign: 'center', padding: '24px' }}>{t('newlyAdded.loadingProposals')}</p>
         ) : proposals.length === 0 ? (
-           <p style={{ textAlign: 'center', padding: '24px' }}>No proposals found</p>
+           <p style={{ textAlign: 'center', padding: '24px' }}>{t('newlyAdded.noProposalsFound')}</p>
         ) : proposals.map(p => {
           const favor = 50 + (p.title.length % 50); 
           const timeLeft = getDaysLeft(p.end_date, p.status);
@@ -130,8 +127,7 @@ export default function GovernanceTab() {
             <div className="proposal-stats">
               <div className="vote-progress">
                 <div className="vote-progress-label">
-                  {favor}% in favor
-                </div>
+                  {favor}{t('newlyAdded.InFavor')}</div>
                 <div className="progress-bar-bg">
                   <div className="progress-bar-fill" style={{ width: `${favor}%`, backgroundColor: favor >= 50 ? '#059669' : '#DC2626' }}></div>
                 </div>
@@ -159,28 +155,28 @@ export default function GovernanceTab() {
             <button onClick={() => setShowModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280' }}>
               <X size={20} />
             </button>
-            <h2 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 700, color: '#111827' }}>New Proposal</h2>
-            <p style={{ margin: '0 0 24px', fontSize: '13px', color: '#6B7280' }}>Create a new policy vote for workers</p>
+            <h2 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 700, color: '#111827' }}>{t('newlyAdded.newProposal')}</h2>
+            <p style={{ margin: '0 0 24px', fontSize: '13px', color: '#6B7280' }}>{t('newlyAdded.createANewPolicy')}</p>
 
             <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>Title</label>
-                <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required placeholder="e.g. Increase Welfare Fund to 7%" style={{ padding: '10px 14px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px', outline: 'none' }} />
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>{t('newlyAdded.title')}</label>
+                <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required placeholder={t('newlyAdded.egIncreaseWelfareFund')} style={{ padding: '10px 14px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px', outline: 'none' }} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>Description</label>
-                <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} required rows={3} placeholder="Describe the proposal..." style={{ padding: '10px 14px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>{t('newlyAdded.description')}</label>
+                <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} required rows={3} placeholder={t('newlyAdded.describeTheProposal')} style={{ padding: '10px 14px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>Voting Options (comma-separated)</label>
-                <input value={form.options} onChange={e => setForm(f => ({ ...f, options: e.target.value }))} required placeholder="Yes,No" style={{ padding: '10px 14px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px', outline: 'none' }} />
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>{t('newlyAdded.votingOptionsCommaseparated')}</label>
+                <input value={form.options} onChange={e => setForm(f => ({ ...f, options: e.target.value }))} required placeholder={t('newlyAdded.yesNo')} style={{ padding: '10px 14px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px', outline: 'none' }} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>Voting Duration (days)</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>{t('newlyAdded.votingDurationDays')}</label>
                 <input type="number" min="1" max="90" value={form.endDays} onChange={e => setForm(f => ({ ...f, endDays: e.target.value }))} required style={{ padding: '10px 14px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px', outline: 'none' }} />
               </div>
               <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-                <button type="button" onClick={() => setShowModal(false)} className="action-btn btn-reject" style={{ flex: 1, padding: '12px', fontSize: '14px' }}>Cancel</button>
+                <button type="button" onClick={() => setShowModal(false)} className="action-btn btn-reject" style={{ flex: 1, padding: '12px', fontSize: '14px' }}>{t('newlyAdded.cancel')}</button>
                 <button type="submit" className="action-btn btn-approve" disabled={formLoading} style={{ flex: 1, padding: '12px', fontSize: '14px' }}>{formLoading ? 'Creating...' : 'Create Proposal'}</button>
               </div>
             </form>

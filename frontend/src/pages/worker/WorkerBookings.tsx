@@ -54,7 +54,7 @@ export default function WorkerBookings() {
           </button>
           <h1 className="ws-header-title">{t('workerBookings.title')}</h1>
         </div>
-        <p className="ws-header-sub">{upcoming.length} active · {past.length} completed</p>
+        <p className="ws-header-sub">{upcoming.length} {t('newlyAdded.active')}{past.length} {t('newlyAdded.completed')}</p>
       </div>
 
       <div className="ws-body">
@@ -94,7 +94,7 @@ export default function WorkerBookings() {
               <div style={{display:'flex', flexDirection:'column', gap:'5px', marginBottom:'12px'}}>
                 <div className="ws-job-meta">
                   <Calendar size={13}/>
-                  <span>{new Date(job.scheduled_date).toLocaleDateString('en-IN', {weekday:'short', month:'short', day:'numeric'})} at {new Date(job.scheduled_date).toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})}</span>
+                  <span>{new Date(job.scheduled_date).toLocaleDateString('en-IN', {weekday:'short', month:'short', day:'numeric'})} {t('newlyAdded.at')}{new Date(job.scheduled_date).toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})}</span>
                 </div>
                 {job.address && <div className="ws-job-meta"><MapPin size={13}/><span>{job.address}</span></div>}
               </div>
@@ -110,8 +110,7 @@ export default function WorkerBookings() {
               )}
               {['CONFIRMED','IN_PROGRESS'].includes(job.status?.toUpperCase()) && (
                 <button className="ws-cta" style={{marginTop:'12px'}} onClick={e => { e.stopPropagation(); navigate(`/worker/job/${job.id}/complete`); }}>
-                  Mark Complete →
-                </button>
+                  {t('newlyAdded.markComplete')}</button>
               )}
             </div>
           );

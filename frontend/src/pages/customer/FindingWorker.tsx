@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, CheckCircle2, Circle, MapPin } from 'lucide-react';
+import { useTranslation } from "react-i18next";
 
 export default function FindingWorker() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const [status, setStatus] = useState(0);
 
@@ -121,7 +123,7 @@ export default function FindingWorker() {
         <button className="back-btn" style={{ position: 'absolute', left: '20px' }} onClick={() => navigate(-1)}>
           <ChevronLeft size={24} />
         </button>
-        <h2 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>Finding a Worker</h2>
+        <h2 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>{t('newlyAdded.findingAWorker')}</h2>
       </div>
 
       <main style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -135,22 +137,22 @@ export default function FindingWorker() {
         </div>
 
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, margin: '0 0 8px', color: 'var(--text-main)' }}>Searching for Electricians</h2>
-          <p className="text-muted" style={{ fontSize: '14px', margin: 0 }}>Gwalior, MP • within 5 km radius</p>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, margin: '0 0 8px', color: 'var(--text-main)' }}>{t('newlyAdded.searchingForElectricians')}</h2>
+          <p className="text-muted" style={{ fontSize: '14px', margin: 0 }}>{t('newlyAdded.gwaliorMPWithin')}</p>
         </div>
 
         <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {status >= 0 ? <CheckCircle2 size={20} color="var(--primary)" /> : <Circle size={20} className="text-muted" />}
-            <span style={{ fontSize: '15px', fontWeight: status >= 0 ? 600 : 400, color: status >= 0 ? 'var(--text-main)' : 'var(--text-muted)' }}>Location detected</span>
+            <span style={{ fontSize: '15px', fontWeight: status >= 0 ? 600 : 400, color: status >= 0 ? 'var(--text-main)' : 'var(--text-muted)' }}>{t('newlyAdded.locationDetected')}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {status >= 1 ? <CheckCircle2 size={20} color="var(--primary)" /> : <Circle size={20} className="text-muted" />}
-            <span style={{ fontSize: '15px', fontWeight: status >= 1 ? 600 : 400, color: status >= 1 ? 'var(--text-main)' : 'var(--text-muted)' }}>Category matched</span>
+            <span style={{ fontSize: '15px', fontWeight: status >= 1 ? 600 : 400, color: status >= 1 ? 'var(--text-main)' : 'var(--text-muted)' }}>{t('newlyAdded.categoryMatched')}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {status >= 2 ? <CheckCircle2 size={20} color="var(--primary)" /> : <Circle size={20} className="text-muted" />}
-            <span style={{ fontSize: '15px', fontWeight: status >= 2 ? 600 : 400, color: status >= 2 ? 'var(--text-main)' : 'var(--text-muted)' }}>Finding available workers...</span>
+            <span style={{ fontSize: '15px', fontWeight: status >= 2 ? 600 : 400, color: status >= 2 ? 'var(--text-main)' : 'var(--text-muted)' }}>{t('newlyAdded.findingAvailableWorkers')}</span>
           </div>
         </div>
 
@@ -159,8 +161,7 @@ export default function FindingWorker() {
           onClick={() => navigate(-1)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          Cancel Search
-        </button>
+          {t('newlyAdded.cancelSearch')}</button>
       </main>
     </div>
   );

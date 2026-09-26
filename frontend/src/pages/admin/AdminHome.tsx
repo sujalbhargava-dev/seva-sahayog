@@ -10,8 +10,10 @@ import WorkerVerificationTab from './components/WorkerVerificationTab';
 import UsersTab from './components/UsersTab';
 import BookingsTab from './components/BookingsTab';
 import GovernanceTab from './components/GovernanceTab';
+import { useTranslation } from "react-i18next";
 
 export default function AdminHome() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -51,8 +53,8 @@ export default function AdminHome() {
       default:
         return (
           <div style={{ textAlign: 'center', padding: '64px' }}>
-            <h2>Under Construction</h2>
-            <p className="text-muted">This module is currently being built.</p>
+            <h2>{t('newlyAdded.underConstruction')}</h2>
+            <p className="text-muted">{t('newlyAdded.thisModuleIsCurrently')}</p>
           </div>
         );
     }
@@ -64,33 +66,26 @@ export default function AdminHome() {
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
           <div style={{ width: '24px', height: '24px', backgroundColor: '#059669', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: 'white', fontWeight: 800, fontSize: '14px' }}>W</span>
+            <span style={{ color: 'white', fontWeight: 800, fontSize: '14px' }}>{t('newlyAdded.w')}</span>
           </div>
-          <h2>WorkLink Admin</h2>
+          <h2>{t('newlyAdded.workLinkAdmin')}</h2>
         </div>
         
         <nav className="admin-nav">
           <button className={`admin-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-            <LayoutDashboard size={18} /> Dashboard
-          </button>
+            <LayoutDashboard size={18} /> {t('newlyAdded.dashboard')}</button>
           <button className={`admin-nav-item ${activeTab === 'verification' ? 'active' : ''}`} onClick={() => setActiveTab('verification')}>
-            <ShieldCheck size={18} /> Worker Verification
-          </button>
+            <ShieldCheck size={18} /> {t('newlyAdded.workerVerification')}</button>
           <button className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
-            <Users size={18} /> Users
-          </button>
+            <Users size={18} /> {t('newlyAdded.users')}</button>
           <button className={`admin-nav-item ${activeTab === 'bookings' ? 'active' : ''}`} onClick={() => setActiveTab('bookings')}>
-            <CalendarDays size={18} /> Bookings
-          </button>
+            <CalendarDays size={18} /> {t('newlyAdded.bookings')}</button>
           <button className={`admin-nav-item ${activeTab === 'governance' ? 'active' : ''}`} onClick={() => setActiveTab('governance')}>
-            <BookOpen size={18} /> Governance
-          </button>
+            <BookOpen size={18} /> {t('newlyAdded.governance')}</button>
           <button className={`admin-nav-item ${activeTab === 'payouts' ? 'active' : ''}`} onClick={() => setActiveTab('payouts')}>
-            <Wallet size={18} /> Payouts
-          </button>
+            <Wallet size={18} /> {t('newlyAdded.payouts')}</button>
           <button className={`admin-nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
-            <Settings size={18} /> Settings
-          </button>
+            <Settings size={18} /> {t('newlyAdded.settings')}</button>
         </nav>
 
         <div className="admin-sidebar-footer">
@@ -106,8 +101,7 @@ export default function AdminHome() {
             </div>
           </div>
           <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', padding: 0 }}>
-            <LogOut size={16} /> Log Out
-          </button>
+            <LogOut size={16} /> {t('newlyAdded.logOut')}</button>
         </div>
       </aside>
 

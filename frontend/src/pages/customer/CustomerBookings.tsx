@@ -84,7 +84,7 @@ export default function CustomerBookings() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '13px' }}>
                   <Calendar size={16} className="text-muted" />
-                  <span>{new Date(booking.scheduled_date).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })} at {new Date(booking.scheduled_date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>{new Date(booking.scheduled_date).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })} {t('newlyAdded.at')}{new Date(booking.scheduled_date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
                 {booking.address && (
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: 'var(--text-main)', fontSize: '13px' }}>

@@ -41,9 +41,9 @@ export default function CompleteJob() {
       <div className="ws-body">
         {/* Customer snippet */}
         <div className="ws-card-sm" style={{padding:'16px', marginBottom:'24px', background:'#f8fafc', border:'1px solid #e2e8f0', boxShadow:'none'}}>
-          <p style={{fontSize:'14px', fontWeight:700, color:'#111827', margin:'0 0 4px'}}>Priya Nair</p>
-          <p style={{fontSize:'12px', color:'#64748b', margin:'0 0 2px'}}>Electrician — Wiring Repair</p>
-          <p style={{fontSize:'12px', color:'#64748b', margin:0}}>12 Lashkar Road, Gwalior</p>
+          <p style={{fontSize:'14px', fontWeight:700, color:'#111827', margin:'0 0 4px'}}>{t('newlyAdded.priyaNair')}</p>
+          <p style={{fontSize:'12px', color:'#64748b', margin:'0 0 2px'}}>{t('newlyAdded.electricianWiringRepair')}</p>
+          <p style={{fontSize:'12px', color:'#64748b', margin:0}}>{t('newlyAdded.12LashkarRoadGwalior')}</p>
         </div>
 
         <form onSubmit={handleSubmit}>

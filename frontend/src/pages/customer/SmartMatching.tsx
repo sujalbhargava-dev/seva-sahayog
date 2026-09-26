@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import apiClient from '../../api/client';
 import './SmartMatching.css';
+import { useTranslation } from "react-i18next";
 
 export default function SmartMatching() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const [recommendedWorkers, setRecommendedWorkers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +28,7 @@ export default function SmartMatching() {
   }, []);
 
   if (loading) {
-    return <div className="matching-page" style={{ justifyContent: 'center', alignItems: 'center' }}>Loading...</div>;
+    return <div className="matching-page" style={{ justifyContent: 'center', alignItems: 'center' }}>{t('newlyAdded.loading')}</div>;
   }
 
   return (
@@ -37,10 +39,10 @@ export default function SmartMatching() {
           <ArrowLeft size={24} color="#1f2937" />
         </button>
         <div className="title-row">
-          <h1>Recommended for You</h1>
+          <h1>{t('newlyAdded.recommendedForYou')}</h1>
           <Sparkles size={24} color="#008751" fill="rgba(0, 135, 81, 0.2)" />
         </div>
-        <p>AI-matched to your needs, budget and history</p>
+        <p>{t('newlyAdded.aImatchedToYourNeeds')}</p>
       </div>
 
       <div className="matching-content">
@@ -57,13 +59,12 @@ export default function SmartMatching() {
                 <div className="match-details">
                   <h3>{worker.name}</h3>
                   <p>
-                    {worker.profession} <span className="dot">·</span> from {worker.price}
+                    {worker.profession} <span className="dot">·</span> {t('newlyAdded.from')}{worker.price}
                   </p>
                 </div>
               </div>
               <div className="match-badge">
-                {worker.match} Match
-              </div>
+                {worker.match} {t('newlyAdded.match')}</div>
             </div>
             
             <div className="match-tags">

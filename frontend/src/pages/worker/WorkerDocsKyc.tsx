@@ -25,8 +25,8 @@ export default function WorkerDocsKyc() {
                 <FileText size={20} color="#2563eb"/>
               </div>
               <div>
-                <p style={{fontSize:'15px', fontWeight:600, color:'#111827', margin:'0 0 2px'}}>Aadhaar Card</p>
-                <p style={{fontSize:'12px', color:'#10b981', margin:0, fontWeight:600}}>Verified</p>
+                <p style={{fontSize:'15px', fontWeight:600, color:'#111827', margin:'0 0 2px'}}>{t('newlyAdded.aadhaarCard')}</p>
+                <p style={{fontSize:'12px', color:'#10b981', margin:0, fontWeight:600}}>{t('newlyAdded.verified')}</p>
               </div>
             </div>
             <CheckCircle size={22} color="#10b981"/>
@@ -38,8 +38,8 @@ export default function WorkerDocsKyc() {
                 <FileText size={20} color="#d97706"/>
               </div>
               <div>
-                <p style={{fontSize:'15px', fontWeight:600, color:'#111827', margin:'0 0 2px'}}>PAN Card</p>
-                <p style={{fontSize:'12px', color:'#10b981', margin:0, fontWeight:600}}>Verified</p>
+                <p style={{fontSize:'15px', fontWeight:600, color:'#111827', margin:'0 0 2px'}}>{t('newlyAdded.pANCard')}</p>
+                <p style={{fontSize:'12px', color:'#10b981', margin:0, fontWeight:600}}>{t('newlyAdded.verified')}</p>
               </div>
             </div>
             <CheckCircle size={22} color="#10b981"/>

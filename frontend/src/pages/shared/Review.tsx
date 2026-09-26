@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Check, Star } from 'lucide-react';
 import apiClient from '../../api/client';
+import { useTranslation } from "react-i18next";
 
 export default function Review() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams(); // bookingId
   const [rating, setRating] = useState(0);
@@ -38,23 +40,22 @@ export default function Review() {
           {/* Decorative dots could go here */}
         </div>
 
-        <h1 style={{ fontSize: '28px', fontWeight: 700, margin: '0 0 12px' }}>Job Completed!</h1>
-        <p className="text-muted" style={{ fontSize: '15px', marginBottom: '32px' }}>Rate your experience to help the community</p>
+        <h1 style={{ fontSize: '28px', fontWeight: 700, margin: '0 0 12px' }}>{t('newlyAdded.jobCompleted')}</h1>
+        <p className="text-muted" style={{ fontSize: '15px', marginBottom: '32px' }}>{t('newlyAdded.rateYourExperienceTo')}</p>
 
         {/* Worker Card */}
         <div style={{ display: 'flex', alignItems: 'center', padding: '16px', borderRadius: '12px', background: 'var(--bg-app)', marginBottom: '32px', textAlign: 'left' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 700, marginRight: '16px' }}>
-            R
-          </div>
+            {t('newlyAdded.r')}</div>
           <div>
-            <h4 style={{ fontSize: '16px', fontWeight: 600, margin: '0 0 4px' }}>Ramesh Kumar</h4>
-            <p className="text-muted" style={{ fontSize: '13px', margin: 0 }}>Electrician</p>
+            <h4 style={{ fontSize: '16px', fontWeight: 600, margin: '0 0 4px' }}>{t('newlyAdded.rameshKumar')}</h4>
+            <p className="text-muted" style={{ fontSize: '13px', margin: 0 }}>{t('newlyAdded.electrician')}</p>
           </div>
         </div>
 
         {/* Rating Stars */}
         <div style={{ marginBottom: '32px' }}>
-          <p style={{ fontSize: '14px', fontWeight: 500, marginBottom: '16px' }}>Rate the Worker</p>
+          <p style={{ fontSize: '14px', fontWeight: 500, marginBottom: '16px' }}>{t('newlyAdded.rateTheWorker')}</p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
             {[1, 2, 3, 4, 5].map(star => (
               <button 
@@ -74,9 +75,9 @@ export default function Review() {
 
         {/* Feedback Area */}
         <div className="input-group" style={{ textAlign: 'left', marginBottom: '32px' }}>
-          <label>Feedback (optional)</label>
+          <label>{t('newlyAdded.feedbackOptional')}</label>
           <textarea 
-            placeholder="Share more about your experience..." 
+            placeholder={t('newlyAdded.shareMoreAboutYour')} 
             rows={4} 
             style={{ resize: 'none' }}
           ></textarea>
@@ -86,7 +87,7 @@ export default function Review() {
 
         <div style={{ marginBottom: '32px' }}>
           <textarea 
-            placeholder="Write a comment (optional)"
+            placeholder={t('newlyAdded.writeACommentOptional')}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-app)', minHeight: '100px', fontSize: '15px', color: 'var(--text-main)', boxSizing: 'border-box', resize: 'none' }}

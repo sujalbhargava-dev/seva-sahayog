@@ -43,12 +43,14 @@ import DemandInsights from './pages/worker/DemandInsights';
 import Analytics from './pages/worker/Analytics';
 import SmartMatching from './pages/customer/SmartMatching';
 import LanguageSelection from './pages/shared/LanguageSelection';
+import { useTranslation } from "react-i18next";
 
 // Protected Route Component
 function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: 'CUSTOMER' | 'WORKER' | 'ADMIN' }) {
+    const { t } = useTranslation();
   const { user, isLoading } = useAuth();
   
-  if (isLoading) return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>;
+  if (isLoading) return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>{t('newlyAdded.loading')}</div>;
   if (!user) return <Navigate to="/login" replace />;
   if (role && user.role !== role) {
     if (user.role === 'ADMIN') return <Navigate to="/admin/home" replace />;
@@ -59,6 +61,7 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: 
 }
 
 function App() {
+    const { t } = useTranslation();
   return (
     <AuthProvider>
       <Router>

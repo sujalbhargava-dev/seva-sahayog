@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Zap } from 'lucide-react';
+import { useTranslation } from "react-i18next";
 
 const services = [
   { id: 'electrician', initial: 'E', label: 'Electrician' },
@@ -10,6 +11,7 @@ const services = [
 ];
 
 export default function EmergencyBooking() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedService, setSelectedService] = useState('electrician');
   const [location, setLocation] = useState('A-204, Gardenia Apartments, Gwalior');
@@ -20,7 +22,7 @@ export default function EmergencyBooking() {
         <button className="back-btn" style={{ position: 'absolute', left: '20px' }} onClick={() => navigate(-1)}>
           <ChevronLeft size={24} />
         </button>
-        <h2 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>Emergency Service</h2>
+        <h2 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>{t('newlyAdded.emergencyService')}</h2>
       </div>
 
       <main style={{ padding: '0 20px' }}>
@@ -41,14 +43,14 @@ export default function EmergencyBooking() {
             <Zap size={18} color="#DC2626" fill="#DC2626" />
           </div>
           <div>
-            <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#991B1B', margin: '0 0 4px' }}>Get help within 30 minutes</h4>
-            <p style={{ fontSize: '12px', color: '#B91C1C', margin: 0, lineHeight: 1.4 }}>For urgent issues: electrical hazards, leaks, lockouts</p>
+            <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#991B1B', margin: '0 0 4px' }}>{t('newlyAdded.getHelpWithin30')}</h4>
+            <p style={{ fontSize: '12px', color: '#B91C1C', margin: 0, lineHeight: 1.4 }}>{t('newlyAdded.forUrgentIssuesElectrical')}</p>
           </div>
         </div>
 
         {/* Service Grid */}
         <div style={{ marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px', color: 'var(--text-main)' }}>Select Urgent Service</h3>
+          <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px', color: 'var(--text-main)' }}>{t('newlyAdded.selectUrgentService')}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             {services.map(service => {
               const isSelected = selectedService === service.id;
@@ -87,7 +89,7 @@ export default function EmergencyBooking() {
 
         {/* Location */}
         <div style={{ marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px', color: 'var(--text-main)' }}>Your Location</h3>
+          <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px', color: 'var(--text-main)' }}>{t('newlyAdded.yourLocation')}</h3>
           <input
             type="text"
             value={location}
@@ -108,7 +110,7 @@ export default function EmergencyBooking() {
         {/* Action Area */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', justifyContent: 'center' }}>
           <Zap size={16} color="#D97706" fill="#D97706" />
-          <span style={{ fontSize: '13px', fontWeight: 500, color: '#D97706' }}>Emergency response surcharge: +₹100</span>
+          <span style={{ fontSize: '13px', fontWeight: 500, color: '#D97706' }}>{t('newlyAdded.emergencyResponseSurcharge100')}</span>
         </div>
         
         <button 
@@ -126,8 +128,7 @@ export default function EmergencyBooking() {
           }}
           onClick={() => navigate('/customer/finding-worker')}
         >
-          Request Emergency Help
-        </button>
+          {t('newlyAdded.requestEmergencyHelp')}</button>
       </main>
     </div>
   );

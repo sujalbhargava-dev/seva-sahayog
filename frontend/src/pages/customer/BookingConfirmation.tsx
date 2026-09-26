@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, Calendar, Clock, MapPin, FileText } from 'lucide-react';
 import apiClient from '../../api/client';
+import { useTranslation } from "react-i18next";
 
 export default function BookingConfirmation() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams(); // worker id
   const [searchParams] = useSearchParams();
@@ -82,7 +84,7 @@ export default function BookingConfirmation() {
         <button className="back-btn" onClick={() => navigate(`/customer/worker/${id}`)}>
           <ChevronLeft size={24} />
         </button>
-        <h1 style={{ flexGrow: 1, margin: 0 }}>Booking Details</h1>
+        <h1 style={{ flexGrow: 1, margin: 0 }}>{t('newlyAdded.bookingDetails')}</h1>
       </div>
 
       <main style={{ padding: '20px' }}>
@@ -94,11 +96,11 @@ export default function BookingConfirmation() {
           <div className="w-info">
             <h4 style={{ fontSize: '16px' }}>{service}</h4>
             <p className="text-muted mt-2" style={{ fontSize: '13px' }}>{worker?.name || 'Loading...'}</p>
-            <p className="w-rating" style={{ fontSize: '13px' }}>★ {worker?.rating || 'New'} ({worker?.total_jobs || 0} jobs)</p>
+            <p className="w-rating" style={{ fontSize: '13px' }}>★ {worker?.rating || 'New'} ({worker?.total_jobs || 0} {t('newlyAdded.jobs')}</p>
           </div>
         </div>
 
-        <div className="section-title" style={{ fontSize: '14px', color: 'var(--text-main)', textTransform: 'none' }}>Date & Time</div>
+        <div className="section-title" style={{ fontSize: '14px', color: 'var(--text-main)', textTransform: 'none' }}>{t('newlyAdded.dateTime')}</div>
         <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', background: 'var(--bg-app)', borderRadius: '8px' }}>
             <Calendar size={18} className="text-muted" />
@@ -120,7 +122,7 @@ export default function BookingConfirmation() {
           </div>
         </div>
 
-        <div className="section-title" style={{ fontSize: '14px', color: 'var(--text-main)', textTransform: 'none' }}>Service Address</div>
+        <div className="section-title" style={{ fontSize: '14px', color: 'var(--text-main)', textTransform: 'none' }}>{t('newlyAdded.serviceAddress')}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', background: 'var(--bg-app)', borderRadius: '8px', marginBottom: '24px' }}>
           <MapPin size={18} className="text-muted" />
           <input 
@@ -131,7 +133,7 @@ export default function BookingConfirmation() {
           />
         </div>
 
-        <div className="section-title" style={{ fontSize: '14px', color: 'var(--text-main)', textTransform: 'none' }}>Problem Description</div>
+        <div className="section-title" style={{ fontSize: '14px', color: 'var(--text-main)', textTransform: 'none' }}>{t('newlyAdded.problemDescription')}</div>
         <div style={{ display: 'flex', gap: '8px', padding: '12px', background: 'var(--bg-app)', borderRadius: '8px', marginBottom: '24px', alignItems: 'flex-start' }}>
           <FileText size={18} className="text-muted" style={{ marginTop: '2px' }} />
           <textarea 
@@ -147,7 +149,7 @@ export default function BookingConfirmation() {
       {/* Action Bar */}
       <div className="action-bar" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <p className="text-muted" style={{ fontSize: '12px' }}>Estimated Cost</p>
+          <p className="text-muted" style={{ fontSize: '12px' }}>{t('newlyAdded.estimatedCost')}</p>
           <p style={{ fontSize: '18px', fontWeight: 700 }}>₹400 - ₹600</p>
         </div>
         <button 

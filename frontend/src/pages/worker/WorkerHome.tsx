@@ -43,11 +43,11 @@ export default function WorkerHome() {
           <div
             className="wh-avatar"
             onClick={() => navigate('/worker/profile')}
-            title="Profile"
+            title={t('newlyAdded.profile')}
             style={user?.profilePicture ? { background: 'transparent', padding: 0 } : undefined}
           >
             {user?.profilePicture ? (
-              <img src={user.profilePicture} alt="DP" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+              <img src={user.profilePicture} alt={t('newlyAdded.dP')} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
             ) : (
               user?.name ? user.name.charAt(0).toUpperCase() : 'W'
             )}
@@ -129,7 +129,7 @@ export default function WorkerHome() {
             </div>
             <div>
               <p className="wh-quick-title">{t('workerHome.myBookings')}</p>
-              <p className="wh-quick-sub">View all jobs</p>
+              <p className="wh-quick-sub">{t('newlyAdded.viewAllJobs')}</p>
             </div>
           </button>
           <button className="wh-quick-card" onClick={() => navigate('/worker/demand-insights')}>
@@ -138,7 +138,7 @@ export default function WorkerHome() {
             </div>
             <div>
               <p className="wh-quick-title">{t('workerHome.demandInsights')}</p>
-              <p className="wh-quick-sub">Hot services nearby</p>
+              <p className="wh-quick-sub">{t('newlyAdded.hotServicesNearby')}</p>
             </div>
           </button>
           <button className="wh-quick-card" onClick={() => navigate('/worker/analytics')}>
@@ -147,7 +147,7 @@ export default function WorkerHome() {
             </div>
             <div>
               <p className="wh-quick-title">{t('workerHome.analytics')}</p>
-              <p className="wh-quick-sub">Performance data</p>
+              <p className="wh-quick-sub">{t('newlyAdded.performanceData')}</p>
             </div>
           </button>
           <button className="wh-quick-card" onClick={() => navigate('/worker/welfare')}>
@@ -162,7 +162,7 @@ export default function WorkerHome() {
         </div>
 
         {/* More Menu */}
-        <p className="wh-section-label">More</p>
+        <p className="wh-section-label">{t('newlyAdded.more')}</p>
         <div className="wh-menu-card">
           <button className="wh-menu-item" onClick={() => navigate('/worker/earnings')}>
             <div className="wh-menu-icon-wrap" style={{ background: '#d1fae5' }}>
@@ -170,7 +170,7 @@ export default function WorkerHome() {
             </div>
             <div className="wh-menu-text">
               <p className="wh-menu-title">{t('workerHome.earningsPayouts')}</p>
-              <p className="wh-menu-desc">Withdraw & track payouts</p>
+              <p className="wh-menu-desc">{t('newlyAdded.withdrawTrackPayouts')}</p>
             </div>
             <ChevronRight size={18} color="#d1d5db" />
           </button>
@@ -180,7 +180,7 @@ export default function WorkerHome() {
             </div>
             <div className="wh-menu-text">
               <p className="wh-menu-title">{t('workerHome.cooperativeVotes')}</p>
-              <p className="wh-menu-desc">Community decisions</p>
+              <p className="wh-menu-desc">{t('newlyAdded.communityDecisions')}</p>
             </div>
             <ChevronRight size={18} color="#d1d5db" />
           </button>
@@ -190,7 +190,7 @@ export default function WorkerHome() {
             </div>
             <div className="wh-menu-text">
               <p className="wh-menu-title">{t('workerHome.profileDocs')}</p>
-              <p className="wh-menu-desc">KYC & verification status</p>
+              <p className="wh-menu-desc">{t('newlyAdded.kYCVerificationStatus')}</p>
             </div>
             <ChevronRight size={18} color="#d1d5db" />
           </button>

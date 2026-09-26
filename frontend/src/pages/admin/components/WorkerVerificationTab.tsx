@@ -1,8 +1,10 @@
 import { Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import apiClient from '../../../api/client';
+import { useTranslation } from "react-i18next";
 
 export default function WorkerVerificationTab() {
+    const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('pending');
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,12 +43,12 @@ export default function WorkerVerificationTab() {
     <div>
       <div className="admin-page-header">
         <div className="admin-page-title">
-          <h1>Worker Verification</h1>
-          <p>Review new worker applications</p>
+          <h1>{t('newlyAdded.workerVerification')}</h1>
+          <p>{t('newlyAdded.reviewNewWorkerApplications')}</p>
         </div>
         <div className="admin-search-bar">
           <Search size={16} color="#9CA3AF" />
-          <input type="text" placeholder="Search applications..." />
+          <input type="text" placeholder={t('newlyAdded.searchApplications')} />
         </div>
       </div>
 
@@ -67,9 +69,9 @@ export default function WorkerVerificationTab() {
         <table className="admin-table">
           <tbody>
             {loading ? (
-              <tr><td colSpan={3} style={{ textAlign: 'center', padding: '24px' }}>Loading...</td></tr>
+              <tr><td colSpan={3} style={{ textAlign: 'center', padding: '24px' }}>{t('newlyAdded.loading')}</td></tr>
             ) : applications.length === 0 ? (
-              <tr><td colSpan={3} style={{ textAlign: 'center', padding: '24px' }}>No {activeTab} applications found</td></tr>
+              <tr><td colSpan={3} style={{ textAlign: 'center', padding: '24px' }}>{t('newlyAdded.no')}{activeTab} {t('newlyAdded.applicationsFound')}</td></tr>
             ) : applications.map(app => (
               <tr key={app.id}>
                 <td style={{ width: '40%' }}>
@@ -85,7 +87,7 @@ export default function WorkerVerificationTab() {
                 </td>
                 <td style={{ width: '20%' }}>
                   <div className="user-info-text">
-                    <strong>Submitted</strong>
+                    <strong>{t('newlyAdded.submitted')}</strong>
                     <span>{new Date(app.created_at).toLocaleDateString()}</span>
                   </div>
                 </td>
@@ -104,8 +106,8 @@ export default function WorkerVerificationTab() {
                     
                     {activeTab === 'pending' && (
                       <>
-                        <button className="action-btn btn-reject" style={{ marginLeft: '16px' }} onClick={() => handleVerification(app.id, 'rejected')}>Reject</button>
-                        <button className="action-btn btn-approve" onClick={() => handleVerification(app.id, 'approved')}>Approve</button>
+                        <button className="action-btn btn-reject" style={{ marginLeft: '16px' }} onClick={() => handleVerification(app.id, 'rejected')}>{t('newlyAdded.reject')}</button>
+                        <button className="action-btn btn-approve" onClick={() => handleVerification(app.id, 'approved')}>{t('newlyAdded.approve')}</button>
                       </>
                     )}
                   </div>

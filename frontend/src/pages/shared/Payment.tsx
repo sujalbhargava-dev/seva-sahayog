@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, CreditCard, Wallet, ShieldCheck, Loader2 } from 'lucide-react';
 import apiClient from '../../api/client';
+import { useTranslation } from "react-i18next";
 
 export default function Payment() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams(); // bookingId
   const [method, setMethod] = useState('UPI');
@@ -34,15 +36,15 @@ export default function Payment() {
       </div>
 
       <main style={{ padding: '0 20px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '20px', fontWeight: 600, margin: '16px 0 0' }}>Payment</h1>
+        <h1 style={{ fontSize: '20px', fontWeight: 600, margin: '16px 0 0' }}>{t('newlyAdded.payment')}</h1>
         
         <div style={{ margin: '32px 0 48px' }}>
           <h2 style={{ fontSize: '48px', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>₹550</h2>
-          <p className="text-muted" style={{ fontSize: '14px', marginTop: '8px' }}>Service Amount</p>
+          <p className="text-muted" style={{ fontSize: '14px', marginTop: '8px' }}>{t('newlyAdded.serviceAmount')}</p>
         </div>
 
         <div style={{ textAlign: 'left' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Choose Payment Method</h3>
+          <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>{t('newlyAdded.choosePaymentMethod')}</h3>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {/* UPI Option */}
@@ -57,9 +59,9 @@ export default function Payment() {
               onClick={() => setMethod('UPI')}
             >
               <div style={{ width: '40px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F3F4F6', borderRadius: '6px', marginRight: '16px', color: '#16A34A' }}>
-                <span style={{ fontSize: '11px', fontWeight: 800 }}>UPI</span>
+                <span style={{ fontSize: '11px', fontWeight: 800 }}>{t('newlyAdded.uPI')}</span>
               </div>
-              <span style={{ flexGrow: 1, fontSize: '15px', fontWeight: 500, color: 'var(--text-main)' }}>UPI (GPay, PhonePe, Paytm)</span>
+              <span style={{ flexGrow: 1, fontSize: '15px', fontWeight: 500, color: 'var(--text-main)' }}>{t('newlyAdded.uPIGPayPhonePePaytm')}</span>
               <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: `2px solid ${method === 'UPI' ? 'var(--primary)' : 'var(--border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {method === 'UPI' && <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--primary)' }}></div>}
               </div>
@@ -79,7 +81,7 @@ export default function Payment() {
               <div style={{ width: '40px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#DBEAFE', borderRadius: '6px', marginRight: '16px', color: '#1D4ED8' }}>
                 <CreditCard size={18} />
               </div>
-              <span style={{ flexGrow: 1, fontSize: '15px', fontWeight: 500, color: 'var(--text-main)' }}>Credit / Debit Card</span>
+              <span style={{ flexGrow: 1, fontSize: '15px', fontWeight: 500, color: 'var(--text-main)' }}>{t('newlyAdded.creditDebitCard')}</span>
               <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: `2px solid ${method === 'Card' ? 'var(--primary)' : 'var(--border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {method === 'Card' && <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--primary)' }}></div>}
               </div>
@@ -99,7 +101,7 @@ export default function Payment() {
               <div style={{ width: '40px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FEF3C7', borderRadius: '6px', marginRight: '16px', color: '#D97706' }}>
                 <Wallet size={18} />
               </div>
-              <span style={{ flexGrow: 1, fontSize: '15px', fontWeight: 500, color: 'var(--text-main)' }}>Wallet</span>
+              <span style={{ flexGrow: 1, fontSize: '15px', fontWeight: 500, color: 'var(--text-main)' }}>{t('newlyAdded.wallet')}</span>
               <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: `2px solid ${method === 'Wallet' ? 'var(--primary)' : 'var(--border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {method === 'Wallet' && <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--primary)' }}></div>}
               </div>
@@ -112,8 +114,7 @@ export default function Payment() {
         </button>
         
         <p className="text-muted" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '16px', fontSize: '12px', fontWeight: 500 }}>
-          <ShieldCheck size={16} color="var(--primary)" /> 100% Secure Payment
-        </p>
+          <ShieldCheck size={16} color="var(--primary)" /> {t('newlyAdded.100SecurePayment')}</p>
       </main>
     </div>
   );

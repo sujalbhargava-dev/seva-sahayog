@@ -26,7 +26,7 @@ export default function WorkerPersonalInfo() {
               <User size={22} color="#2563eb"/>
             </div>
             <div>
-              <p style={{fontSize:'12px', color:'#6b7280', margin:'0 0 2px'}}>Full Name</p>
+              <p style={{fontSize:'12px', color:'#6b7280', margin:'0 0 2px'}}>{t('newlyAdded.fullName')}</p>
               <p style={{fontSize:'16px', fontWeight:600, color:'#111827', margin:0}}>{user?.name || 'N/A'}</p>
             </div>
           </div>
@@ -36,7 +36,7 @@ export default function WorkerPersonalInfo() {
               <Phone size={22} color="#10b981"/>
             </div>
             <div>
-              <p style={{fontSize:'12px', color:'#6b7280', margin:'0 0 2px'}}>Phone Number</p>
+              <p style={{fontSize:'12px', color:'#6b7280', margin:'0 0 2px'}}>{t('newlyAdded.phoneNumber')}</p>
               <p style={{fontSize:'16px', fontWeight:600, color:'#111827', margin:0}}>{user?.phone || 'N/A'}</p>
             </div>
           </div>
@@ -46,7 +46,7 @@ export default function WorkerPersonalInfo() {
               <MapPin size={22} color="#d97706"/>
             </div>
             <div>
-              <p style={{fontSize:'12px', color:'#6b7280', margin:'0 0 2px'}}>Address</p>
+              <p style={{fontSize:'12px', color:'#6b7280', margin:'0 0 2px'}}>{t('newlyAdded.address')}</p>
               <p style={{fontSize:'16px', fontWeight:600, color:'#111827', margin:0}}>{user?.address || 'Not provided'}</p>
             </div>
           </div>

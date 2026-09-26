@@ -4,8 +4,10 @@ import { ChevronLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../api/client';
 import './Registration.css';
+import { useTranslation } from "react-i18next";
 
 export default function CustomerRegistration() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const { login } = useAuth();
   
@@ -57,42 +59,42 @@ export default function CustomerRegistration() {
       </div>
 
       <div className="auth-content">
-        <h1 className="auth-title">Create Customer Account</h1>
-        <p className="auth-subtitle">Tell us a bit about yourself to get started</p>
+        <h1 className="auth-title">{t('newlyAdded.createCustomerAccount')}</h1>
+        <p className="auth-subtitle">{t('newlyAdded.tellUsABit')}</p>
 
         <form className="auth-form" onSubmit={handleRegister}>
           <div className="input-group">
-            <label>Full Name</label>
-            <input type="text" placeholder="e.g. Sujal Bhargava" required 
+            <label>{t('newlyAdded.fullName')}</label>
+            <input type="text" placeholder={t('newlyAdded.egSujalBhargava')} required 
                    value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
           </div>
 
           <div className="input-group">
-            <label>Email Address</label>
-            <input type="email" placeholder="you@example.com" required 
+            <label>{t('newlyAdded.emailAddress')}</label>
+            <input type="email" placeholder={t('newlyAdded.youexamplecom')} required 
                    value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
           </div>
           
           <div className="input-group">
-            <label>Password</label>
-            <input type="password" placeholder="Create a password" required 
+            <label>{t('newlyAdded.password')}</label>
+            <input type="password" placeholder={t('newlyAdded.createAPassword')} required 
                    value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
           </div>
 
           <div className="input-group">
-            <label>Mobile Number</label>
+            <label>{t('newlyAdded.mobileNumber')}</label>
             <input type="tel" placeholder="9876543210" required pattern="^[6-9]\d{9}$"
                    value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
           </div>
 
           <div className="input-group">
-            <label>Address</label>
-            <input type="text" placeholder="House no., street, area" required 
+            <label>{t('newlyAdded.address')}</label>
+            <input type="text" placeholder={t('newlyAdded.houseNoStreetArea')} required 
                    value={address} onChange={e => setAddress(e.target.value)} />
           </div>
 
           <div className="input-group">
-            <label>Gender</label>
+            <label>{t('newlyAdded.gender')}</label>
             <div style={{ display: 'flex', gap: '8px' }}>
               {['Male', 'Female', 'Other'].map(g => (
                 <button 
@@ -117,7 +119,7 @@ export default function CustomerRegistration() {
           </div>
 
           <div className="input-group">
-            <label>Pincode</label>
+            <label>{t('newlyAdded.pincode')}</label>
             <input type="text" placeholder="474011" required 
                    value={pincode} onChange={e => setPincode(e.target.value)} />
           </div>

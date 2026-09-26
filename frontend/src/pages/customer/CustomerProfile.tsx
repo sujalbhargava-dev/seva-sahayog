@@ -69,7 +69,7 @@ export default function CustomerProfile() {
           <div style={{ position: 'relative' }}>
             <div className="avatar" style={{ width: '80px', height: '80px', fontSize: '32px', marginBottom: '16px', backgroundColor: user?.profilePicture ? 'transparent' : 'var(--primary-light)', color: 'var(--primary)', overflow: 'hidden', padding: 0 }}>
               {user?.profilePicture ? (
-                <img src={user.profilePicture} alt="DP" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={user.profilePicture} alt={t('newlyAdded.dP')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 user?.name ? user.name.charAt(0).toUpperCase() : 'C'
               )}

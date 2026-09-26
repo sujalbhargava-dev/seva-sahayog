@@ -44,7 +44,7 @@ export default function Landing() {
           </p>
 
           <div className="hero-image-container">
-            <img src="/hero.jpg" alt="Service Workers" className="hero-image" />
+            <img src="/hero.jpg" alt={t('newlyAdded.serviceWorkers')} className="hero-image" />
           </div>
         </div>
 
@@ -116,7 +116,7 @@ export default function Landing() {
 
           <div className="footer-branding">
             <div className="divider"></div>
-            <h5>SewaShayog</h5>
+            <h5>{t('newlyAdded.sewaShayog')}</h5>
             <p>{t('landing.tagline')}</p>
           </div>
         </div>

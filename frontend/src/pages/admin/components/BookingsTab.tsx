@@ -1,8 +1,10 @@
 import { Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import apiClient from '../../../api/client';
+import { useTranslation } from "react-i18next";
 
 export default function BookingsTab() {
+    const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('All');
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,12 +36,12 @@ export default function BookingsTab() {
     <div>
       <div className="admin-page-header">
         <div className="admin-page-title">
-          <h1>Bookings</h1>
-          <p>Monitor platform bookings</p>
+          <h1>{t('newlyAdded.bookings')}</h1>
+          <p>{t('newlyAdded.monitorPlatformBookings')}</p>
         </div>
         <div className="admin-search-bar">
           <Search size={16} color="#9CA3AF" />
-          <input type="text" placeholder="Search booking ID..." />
+          <input type="text" placeholder={t('newlyAdded.searchBookingID')} />
         </div>
       </div>
 
@@ -59,20 +61,20 @@ export default function BookingsTab() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Booking ID</th>
-              <th>Customer</th>
-              <th>Worker</th>
-              <th>Service</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Status</th>
+              <th>{t('newlyAdded.bookingID')}</th>
+              <th>{t('newlyAdded.customer')}</th>
+              <th>{t('newlyAdded.worker')}</th>
+              <th>{t('newlyAdded.service')}</th>
+              <th>{t('newlyAdded.date')}</th>
+              <th>{t('newlyAdded.amount')}</th>
+              <th>{t('newlyAdded.status')}</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} style={{ textAlign: 'center', padding: '24px' }}>Loading...</td></tr>
+              <tr><td colSpan={7} style={{ textAlign: 'center', padding: '24px' }}>{t('newlyAdded.loading')}</td></tr>
             ) : bookings.length === 0 ? (
-              <tr><td colSpan={7} style={{ textAlign: 'center', padding: '24px' }}>No bookings found</td></tr>
+              <tr><td colSpan={7} style={{ textAlign: 'center', padding: '24px' }}>{t('newlyAdded.noBookingsFound')}</td></tr>
             ) : bookings.map(b => (
               <tr key={b.id}>
                 <td style={{ fontWeight: 600, fontSize: '11px' }}>{b.id.substring(0, 8)}</td>
