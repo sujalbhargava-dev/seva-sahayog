@@ -59,7 +59,12 @@ export default function Splash() {
           navigate('/landing', { replace: true });
         }
       } else {
-        navigate('/landing', { replace: true });
+        const hasLang = localStorage.getItem('i18nLang');
+        if (hasLang) {
+          navigate('/landing', { replace: true });
+        } else {
+          navigate('/language', { replace: true });
+        }
       }
     }, 600); // matches the CSS exit animation duration
   }
